@@ -1,0 +1,482 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digitalchina.zhjg.szss.gis.mapper.PondingPointMapper">
+
+
+    <!-- 积水监测点_通用查询映射结果 -->
+    <resultMap id="PondingPointResultMap" type="com.digitalchina.zhjg.szss.gis.entity.PondingPoint">
+        <result column="OBJECTID" property="objectid"/>
+        <result column="ZDBH" property="zdbh"/>
+        <result column="ZDMC" property="zdmc"/>
+        <result column="ZRDW" property="zrdw"/>
+        <result column="SZWZ" property="szwz"/>
+        <result column="SZQY" property="szqy"/>
+        <result column="YC" property="yc"/>
+        <result column="SP" property="sp"/>
+        <result column="FZR" property="fzr"/>
+        <result column="LXDH" property="lxdh"/>
+        <result column="CREATETIME" property="createtime"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="PondingPoint_Column_List">
+         ZDBH, ZDMC, ZRDW,SZWZ,SZQY,YC,SP,FZR,LXDH,CREATETIME
+    </sql>
+    <!--
+    <select id="selectPondingPoint" parameterType="java.lang.String" resultType="java.util.HashMap">
+        SELECT
+            a.ZDBH,a.ZDMC,a.ZRDW,a.SZWZ,a.SZQY,a.YC,a.SP,a.FZR,a.LXDH,b.JSSD,b.JSMJ,b.JYL,b.JYJB,b.YJDJ,b.YJZ,b.LY,TO_CHAR(b.JCSJ,'yyyy-MM-dd hh24:mi:ss') JCSJ
+        FROM
+            SZSS_JSD a RIGHT JOIN SZSS_JSD_REALDATA b ON a.ZDBH = b.ZDBH
+        WHERE
+            1=1
+        <if test="zdbh != null  and zdbh != '' ">
+            AND  a.ZDBH = #{zdbh}
+        </if>
+        <if test="zdmc != null  and zdmc != '' ">
+            AND  a.ZDMC like '%' ||  #{zdmc} || '%'
+        </if>
+        <if test="startTime != null  and startTime != '' ">
+            AND  TO_CHAR(b.JCSJ,'yyyy-MM-dd') &gt;= #{startTime}
+        </if>
+        <if test="endTime != null  and endTime != '' ">
+            AND  TO_CHAR(b.JCSJ,'yyyy-MM-dd') &lt;= #{endTime}
+        </if>
+        ORDER BY b.JCSJ DESC
+    </select>
+    -->
+
+    <select id="selectPondingPoint" parameterType="java.lang.String" resultType="java.util.HashMap">
+<!--        SELECT-->
+<!--            t.ZDBH,t.ZDMC,t.ZRDW,t.SZWZ,t.SZQY,t.YC,t.SP,t.FZR,t.LXDH,t.JSSD,t.JSMJ,t.JYL,t.JYJB,t.YJDJ,t.YJZ,t.LY,t.JCSJ-->
+<!--        FROM-->
+<!--        (-->
+<!--            SELECT-->
+<!--                a.ZDBH,a.ZDMC,a.ZRDW,a.SZWZ,a.SZQY,a.YC,a.SP,a.FZR,a.LXDH,b.JSSD,b.JSMJ,b.JYL,b.JYJB,b.YJDJ,b.YJZ,b.LY,TO_CHAR(b.JCSJ,'yyyy-MM-dd hh24:mi:ss') JCSJ,ROW_NUMBER ( ) OVER ( PARTITION BY a.ZDMC ORDER BY b.JCSJ DESC ) AS sortNo-->
+<!--            FROM-->
+<!--                SZSS_JSD a LEFT JOIN SZSS_JSD_REALDATA b ON a.ZDBH = b.ZDBH-->
+<!--            WHERE-->
+<!--                1=1-->
+<!--                <if test="zdbh != null  and zdbh != '' ">-->
+<!--                    AND  a.ZDBH = #{zdbh}-->
+<!--                </if>-->
+<!--                <if test="zdmc != null  and zdmc != '' ">-->
+<!--                    AND  a.ZDMC like '%' ||  #{zdmc} || '%'-->
+<!--                </if>-->
+<!--                <if test="startTime != null  and startTime != '' ">-->
+<!--                    AND  TO_CHAR(b.JCSJ,'yyyy-MM-dd') &gt;= #{startTime}-->
+<!--                </if>-->
+<!--                <if test="endTime != null  and endTime != '' ">-->
+<!--                    AND  TO_CHAR(b.JCSJ,'yyyy-MM-dd') &lt;= #{endTime}-->
+<!--                </if>-->
+<!--        ) t-->
+<!--        WHERE-->
+<!--            t.sortNo = 1-->
+
+        select ZDBH,ZDMC,ZRDW,SZWZ,SZQY,YC,SP,FZR,
+            LXDH,NVL(JSSD,0) JSSD,NVL(JYL,0) JYL,
+            YJDJ,TO_CHAR(JCSJ,'yyyy-MM-dd hh24:mi:ss') JCSJ
+        from SZSS_JSD
+        <where>
+            <if test="zdbh != null  and zdbh != '' ">
+                ZDBH = #{zdbh}
+            </if>
+            <if test="zdmc != null  and zdmc != '' ">
+                AND  ZDMC like '%' ||  #{zdmc} || '%'
+            </if>
+            <if test="startTime != null  and startTime != '' ">
+               AND  TO_CHAR(JCSJ,'yyyy-MM-dd') &gt;= #{startTime}
+            </if>
+            <if test="endTime != null  and endTime != '' ">
+               AND  TO_CHAR(JCSJ,'yyyy-MM-dd') &lt;= #{endTime}
+            </if>
+        </where>
+    </select>
+
+
+
+    <select id="selectPondingPointRainfall" parameterType="java.lang.String" resultType="java.util.HashMap">
+<!--        SELECT-->
+<!--            a.ZDBH,a.ZDMC,a.ZRDW,a.SZWZ,a.SZQY,a.YC,a.SP,a.FZR,a.LXDH,b.JSSD,b.JSMJ,b.JYL,b.JYJB,b.YJDJ,b.YJZ,b.LY,TO_CHAR(b.JCSJ,'yyyy-MM-dd hh24:mi:ss') JCSJ-->
+<!--        FROM-->
+<!--            SZSS_JSD a,SZSS_JSD_REALDATA b-->
+<!--        WHERE-->
+<!--            a.ZDBH = b.ZDBH-->
+<!--        <if test="zdbh != null  and zdbh != '' ">-->
+<!--            AND  a.ZDBH = #{zdbh}-->
+<!--        </if>-->
+<!--        <if test="zdmc != null  and zdmc != '' ">-->
+<!--            AND  a.ZDMC = #{zdmc}-->
+<!--        </if>-->
+<!--        <if test="startTime != null  and startTime != '' ">-->
+<!--            AND  TO_CHAR(b.JCSJ,'yyyy-MM-dd') &gt;= #{startTime}-->
+<!--        </if>-->
+<!--        <if test="endTime != null  and endTime != '' ">-->
+<!--            AND  TO_CHAR(b.JCSJ,'yyyy-MM-dd') &lt;= #{endTime}-->
+<!--        </if>-->
+<!--        ORDER BY b.JCSJ DESC-->
+
+<!--        SELECT-->
+<!--            a.ZDBH,a.ZDMC,a.ZRDW,a.SZWZ,a.SZQY,a.YC,a.SP,a.FZR,a.LXDH,a.JSSD,a.JYL,a.YJDJ,TO_CHAR(a.JCSJ,'yyyy-MM-dd hh24:mi:ss') JCSJ-->
+<!--        FROM-->
+<!--            SZSS_JSD a, ST_PPTN_R b-->
+<!--        WHERE-->
+<!--            a.zdbh = b.stcd-->
+<!--        <if test="zdbh != null  and zdbh != '' ">-->
+<!--                AND  a.ZDBH = #{zdbh}-->
+<!--        </if>-->
+<!--        <if test="zdmc != null  and zdmc != '' ">-->
+<!--                AND  a.ZDMC = #{zdmc}-->
+<!--        </if>-->
+<!--        <if test="startTime != null  and startTime != '' ">-->
+<!--                AND  TO_CHAR(a.JCSJ,'yyyy-MM-dd') &gt;= #{startTime}-->
+<!--        </if>-->
+<!--        <if test="endTime != null  and endTime != '' ">-->
+<!--                AND  TO_CHAR(a.JCSJ,'yyyy-MM-dd') &lt;= #{endTime}-->
+<!--        </if>-->
+<!--        order by a.JCSJ desc-->
+        SELECT
+        jsd.ZDBH,jsd.ZDMC,jsd.ZRDW,jsd.SZWZ,jsd.SZQY,
+        jsd.YC,jsd.SP,jsd.FZR,jsd.LXDH,jsd.YJDJ,
+        NVL(t.JYL,0) JYL,NVL(t.JSSD,0) JSSD,TO_CHAR(t.tm,'yyyy-MM-dd hh24:mi:ss') JCSJ
+        FROM
+        (
+        SELECT
+        a.stcd,
+        a.DRP JYL,
+        b.z JSSD,
+        b.VOLTAGE,
+        a.tm
+        FROM
+        ST_PPTN_R a,
+        ST_RIVER_R_B b
+        WHERE
+        a.stcd = b.stcd
+        AND a.tm = b.tm
+        ORDER BY
+        a.tm DESC
+        ) t,
+        szss_jsd jsd
+        WHERE
+        t.stcd = jsd.zdbh
+        <if test="zdbh != null  and zdbh != '' ">
+            AND  jsd.ZDBH = #{zdbh}
+        </if>
+        <if test="zdmc != null  and zdmc != '' ">
+            AND  jsd.ZDMC = #{zdmc}
+        </if>
+        <if test="startTime != null  and startTime != '' ">
+            AND  TO_CHAR(t.tm,'yyyy-MM-dd') &gt;= #{startTime}
+        </if>
+        <if test="endTime != null  and endTime != '' ">
+            AND  TO_CHAR(t.tm,'yyyy-MM-dd') &lt;= #{endTime}
+        </if>
+
+    </select>
+
+    <select id="selectPondingPointHistory" parameterType="java.lang.String" resultType="java.util.HashMap">
+<!--        SELECT-->
+<!--            ROWNUM,t.*-->
+<!--        FROM-->
+<!--        (-->
+<!--            SELECT-->
+<!--                a.ZDBH,a.ZDMC,a.ZRDW,a.SZWZ,a.SZQY,a.YC,a.SP,a.FZR,a.LXDH,b.JSSD,b.JSMJ,b.JYL,b.JYJB,b.YJDJ,b.YJZ,b.LY,TO_CHAR(b.JCSJ,'yyyy-MM-dd hh24:mi:ss') JCSJ-->
+<!--            FROM-->
+<!--                SZSS_JSD a, SZSS_JSD_REALDATA b-->
+<!--            WHERE-->
+<!--                a.ZDBH = b.ZDBH-->
+<!--            <if test="zdbh != null  and zdbh != '' ">-->
+<!--                AND  a.ZDBH = #{zdbh}-->
+<!--            </if>-->
+<!--            ORDER BY-->
+<!--                b.JCSJ DESC-->
+<!--        ) t-->
+<!--        WHERE-->
+<!--            ROWNUM &lt;=3-->
+
+        SELECT ROWNUM,t.* from
+        (
+            SELECT a.ZDBH,a.ZDMC,a.ZRDW,a.SZWZ,a.SZQY,a.YC,a.SP,a.FZR,a.LXDH,'智慧感知' as LY,
+            TO_CHAR( b.TM, 'yyyy-MM-dd hh24:mi:ss' ) JCSJ,
+            NVL( b.Z, 0 ) jssd
+            FROM
+            SZSS_JSD a,
+            ST_RIVER_R_B b
+            WHERE
+            a.zdbh = b.stcd
+            <if test="zdbh != null  and zdbh != '' ">
+                AND  a.ZDBH = #{zdbh}
+            </if>
+            ORDER BY
+            b.tm DESC
+        ) t
+        WHERE
+        ROWNUM &lt;=3
+
+    </select>
+
+   <!-- <select id="selectPondingPointGroup" parameterType="java.lang.String" resultType="java.util.HashMap">
+        SELECT OBJECTID,ZDMC,ZDBH,JSSD,JYL,SP,(case to_char(YJDJ) WHEN '严重积水' THEN '2' WHEN '中度积水' then '1'  WHEN '轻度积水' THEN '0' END) YJDJ FROM (
+            SELECT
+                ROW_NUMBER() OVER(PARTITION BY a.ZDBH ORDER BY b.JCSJ DESC) rn,a.OBJECTID,a.ZDBH,a.ZDMC,a.SP,b.JSSD,b.JYL,b.YJDJ
+            FROM
+                SZSS_JSD a,SZSS_JSD_REALDATA b
+            WHERE
+                a.ZDBH = b.ZDBH
+            <if test="zdmc != null  and zdmc != '' ">
+                AND a.ZDMC like '%' ||  #{zdmc} || '%'
+            </if>
+        ) t WHERE rn = 1
+    </select>-->
+    <select id="selectPondingPointGroup" parameterType="java.lang.String" resultType="java.util.HashMap">
+<!--        SELECT to_char(t.OBJECTID) OBJECTID,to_char(t.ZDMC) ZDMC,to_char(t.ZDBH) ZDBH,rtrim(TO_CHAR(t.JSSD,'fm9999990.9999'),'.') JSSD,-->
+<!--               rtrim(TO_CHAR(t.JYL,'fm9999990.9999'),'.') JYL,to_char(t.SP) SP,to_char(t.YJDJ) YJDJ,t.WKT-->
+<!--        FROM (-->
+<!--            SELECT-->
+<!--                OBJECTID,ZDMC,ZDBH,WKT,-->
+<!--                (CASE WHEN JSSD is null THEN 0 ELSE JSSD END ) JSSD,-->
+<!--                (CASE WHEN JYL is null THEN 0 ELSE JYL END ) JYL,-->
+<!--                SP,-->
+<!--                ( CASE WHEN to_char(YJDJ) is null THEN '0' ELSE to_char(YJDJ)  END ) YJDJ-->
+<!--            FROM-->
+<!--            (-->
+<!--                SELECT-->
+<!--                    ROW_NUMBER ( ) OVER ( PARTITION BY a.ZDBH ORDER BY b.JCSJ DESC ) rn,-->
+<!--                    a.OBJECTID,a.ZDBH,a.ZDMC,a.SP,b.JSSD,b.JYL,b.YJDJ,a.WKT-->
+<!--                FROM-->
+<!--                    SZSS_JSD a-->
+<!--                LEFT JOIN-->
+<!--                    SZSS_JSD_REALDATA b-->
+<!--                ON-->
+<!--                    a.ZDBH = b.ZDBH-->
+<!--                WHERE-->
+<!--                    1=1-->
+<!--                <if test="zdmc != null  and zdmc != '' ">-->
+<!--                    AND a.ZDMC like '%' ||  #{zdmc} || '%'-->
+<!--                </if>-->
+<!--            ) x-->
+<!--            WHERE-->
+<!--                rn = 1-->
+<!--        ) t-->
+        select OBJECTID,ZDMC,ZDBH,NVL(rtrim(TO_CHAR(JSSD,'fm9999990.9999'),'.'),0) JSSD,
+        NVL(rtrim(TO_CHAR(JYL,'fm9999990.9999'),'.'),0) JYL,
+        to_char(SP) SP,nvl(YJDJ,'0') YJDJ,WKT
+        from SZSS_JSD
+        <where>
+            <if test="zdmc != null  and zdmc != '' ">
+                AND ZDMC like '%' ||  #{zdmc} || '%'
+            </if>
+        </where>
+
+    </select>
+
+   <!-- <select id="selectPondingPointGroup" parameterType="java.lang.String" resultType="java.util.HashMap">
+        SELECT
+            to_char(t.OBJECTID) OBJECTID,to_char(t.ZDMC) ZDMC,to_char(t.ZDBH) ZDBH,rtrim(TO_CHAR(t.JSSD,'fm9999990.9999'),'.') JSSD,
+            rtrim(TO_CHAR(t.JYL,'fm9999990.9999'),'.') JYL,to_char(t.SP) SP,to_char(t.YJDJ) YJDJ,t.WKT
+        FROM
+            (
+            SELECT
+                OBJECTID,ZDMC,ZDBH,WKT,
+                ( CASE WHEN JSSD IS NULL THEN 0 ELSE JSSD END ) JSSD,
+                ( CASE WHEN JYL IS NULL THEN 0 ELSE JYL END ) JYL,
+                SP,
+                ( CASE WHEN to_char( YJDJ ) IS NULL THEN '0' ELSE to_char( YJDJ ) END ) YJDJ
+            FROM
+            (
+                SELECT
+                    ROW_NUMBER ( ) OVER ( PARTITION BY a.ZDBH ORDER BY b.JCSJ DESC ) rn,
+                    a.OBJECTID,a.ZDBH,a.ZDMC,a.SP,b.JSSD,b.JYL,b.YJDJ,a.WKT
+                FROM
+                    SZSS_JSD a
+                LEFT JOIN
+                    SZSS_JSD_REALDATA b ON a.ZDBH = b.ZDBH
+                WHERE
+                    1 = 1
+                    <if test="zdmc != null  and zdmc != '' ">
+                        AND a.ZDMC like '%' ||  #{zdmc} || '%'
+                    </if>
+                AND
+                    a.ZDBH NOT IN ( SELECT DISTINCT zdbh FROM SZSS_JSD_WARN WHERE status  &lt;&gt; 3 )
+            ) t
+        WHERE
+            rn = 1
+        ) t UNION ALL
+        SELECT
+            to_char( b.OBJECTID ) OBJECTID,to_char( a.ZDMC ) ZDMC,to_char( a.ZDBH ) ZDBH,rtrim( TO_CHAR( b.JSSD, 'fm9999990.9999' ), '.' ) JSSD,rtrim( TO_CHAR( b.JYL, 'fm9999990.9999' ), '.' ) JYL,to_char( b.SP ) SP,to_char( a.YJDJ ) YJDJ,b.WKT
+        FROM
+            SZSS_JSD_WARN a
+        LEFT JOIN (
+            SELECT
+                t.OBJECTID,t.ZDBH,t.jssd,t.sp,t.jyl,t.WKT
+            FROM
+            (
+                SELECT
+                    ROW_NUMBER ( ) OVER ( PARTITION BY c.ZDBH ORDER BY b.jcsj DESC ) rn,c.OBJECTID,c.ZDBH,c.sp,b.jssd,b.jyl,c.WKT
+                FROM
+                    SZSS_JSD c
+                LEFT JOIN
+                    SZSS_JSD_REALDATA b
+                ON
+                    c.ZDBH = b.ZDBH
+            ) t
+            WHERE
+                rn = 1
+        ) b ON a.ZDBH = b.ZDBH
+        WHERE
+            status &lt;&gt; 3
+        <if test="zdmc != null  and zdmc != '' ">
+            AND ZDMC like '%' ||  #{zdmc} || '%'
+        </if>
+    </select>-->
+<!--
+    <select id="selectPondingPointGroup" parameterType="java.lang.String" resultType="java.util.HashMap">
+        SELECT
+            to_char(t.OBJECTID) OBJECTID,to_char(t.ZDMC) ZDMC,to_char(t.ZDBH) ZDBH,rtrim(TO_CHAR(t.JSSD,'fm9999990.9999'),'.') JSSD,
+            rtrim(TO_CHAR(t.JYL,'fm9999990.9999'),'.') JYL,to_char(t.SP) SP,to_char(t.YJDJ) YJDJ
+        FROM
+            (
+            SELECT
+                OBJECTID,ZDMC,ZDBH,
+                ( CASE WHEN JSSD IS NULL THEN 0 ELSE JSSD END ) JSSD,
+                ( CASE WHEN JYL IS NULL THEN 0 ELSE JYL END ) JYL,
+                SP,
+                ( CASE WHEN to_char( YJDJ ) IS NULL THEN '0' ELSE to_char( YJDJ ) END ) YJDJ
+            FROM
+            (
+                SELECT
+                    ROW_NUMBER ( ) OVER ( PARTITION BY a.ZDBH ORDER BY b.JCSJ DESC ) rn,
+                    a.OBJECTID,a.ZDBH,a.ZDMC,a.SP,b.JSSD,b.JYL,b.YJDJ
+                FROM
+                    SZSS_JSD a
+                LEFT JOIN
+                    SZSS_JSD_REALDATA b ON a.ZDBH = b.ZDBH
+                WHERE
+                    1 = 1
+                    <if test="zdmc != null  and zdmc != '' ">
+                        AND a.ZDMC like '%' ||  #{zdmc} || '%'
+                    </if>
+                AND
+                    a.ZDBH NOT IN ( SELECT DISTINCT zdbh FROM SZSS_JSD_WARN WHERE status  &lt;&gt; 3 )
+            ) t
+        WHERE
+            rn = 1
+        ) t UNION ALL
+        SELECT
+            to_char(b.OBJECTID) OBJECTID,to_char(a.ZDMC) ZDMC,to_char(a.ZDBH) ZDBH,rtrim(TO_CHAR(a.JSSD,'fm9999990.9999'),'.') JSSD,
+            rtrim(TO_CHAR(a.JYL,'fm9999990.9999'),'.') JYL,to_char(b.SP) SP,to_char(a.YJDJ) YJDJ
+        FROM
+            SZSS_JSD_WARN a
+        LEFT JOIN
+            SZSS_JSD b
+        ON
+            a.ZDBH = b.ZDBH
+        WHERE
+            status &lt;&gt; 3
+            <if test="zdmc != null  and zdmc != '' ">
+                AND ZDMC like '%' ||  #{zdmc} || '%'
+            </if>
+    </select>
+-->
+
+    <select id="selectPondingPointName" resultType="java.util.HashMap">
+        SELECT ZDBH,ZDMC FROM SZSS_JSD
+    </select>
+
+    <select id="selectPondingPointNameJYL" resultType="java.util.HashMap">
+        SELECT
+            AVG(T.JYL) JYL ,T.JCSJ JCSJ
+        FROM
+            (SELECT JYL,TO_CHAR(JCSJ,'yyyy-MM-dd') JCSJ
+             FROM
+                SZSS_JSD_REALDATA
+             WHERE ZDBH = #{zdbh}
+            <if test="startTime != null  and startTime != '' ">
+                AND TO_CHAR(JCSJ,'yyyy-MM-dd') &gt;= #{startTime}
+            </if>
+            <if test="endTime != null  and endTime != '' ">
+                AND  TO_CHAR(JCSJ,'yyyy-MM-dd') &lt;= #{endTime}
+            </if>
+             ) T GROUP BY T.JCSJ
+    </select>
+
+    <select id="selectPondingPointNameJSSD" parameterType="java.lang.String"  resultType="java.util.HashMap">
+
+        SELECT
+            (CASE WHEN m.JSSD IS NULL THEN 0 ELSE m.JSSD END ) JSSD
+        FROM
+            (
+                SELECT
+                     MAX(T.JSSD) JSSD
+                FROM
+                    (SELECT JSSD,TO_CHAR(JCSJ,'yyyy-MM-dd') JCSJ
+                FROM
+                    SZSS_JSD_REALDATA
+                WHERE ZDBH = #{zdbh}
+                <if test="startTime != null  and startTime != '' ">
+                    AND TO_CHAR(JCSJ,'yyyy-MM-dd') &gt;= #{startTime}
+                </if>
+                <if test="endTime != null  and endTime != '' ">
+                    AND  TO_CHAR(JCSJ,'yyyy-MM-dd') &lt;= #{endTime}
+                </if>
+                ) T
+            ) m
+    </select>
+
+    <select id="selectPondingPointNameJSNUM" resultType="java.util.HashMap">
+        SELECT
+            m.zdmc,count( 1 ) num
+        FROM
+        (
+            SELECT
+                TO_CHAR( a.JCSJ, 'yyyy-MM-dd' ) JCSJ,b.ZDMC,count( 1 ) num
+            FROM
+                SZSS_JSD_REALDATA a,SZSS_JSD b
+            WHERE
+                a.ZDBH = b.ZDBH AND a.YJZ > 0
+            <if test="startTime != null  and startTime != '' ">
+                AND TO_CHAR(a.JCSJ,'yyyy-MM-dd') &gt;= #{startTime}
+            </if>
+            <if test="endTime != null  and endTime != '' ">
+                AND  TO_CHAR(a.JCSJ,'yyyy-MM-dd') &lt;= #{endTime}
+            </if>
+            GROUP BY
+                TO_CHAR( a.JCSJ, 'yyyy-MM-dd' ),b.ZDMC
+        ) m
+        GROUP BY
+            m.zdmc
+    </select>
+    <select id="selectPondingPointNameJYLNUM" resultType="java.util.HashMap">
+        SELECT
+            m.zdmc,count( 1 ) num
+        FROM
+        (
+            SELECT
+                TO_CHAR( a.JCSJ, 'yyyy-MM-dd' ) JCSJ,b.ZDMC,count( 1 ) num
+            FROM
+                SZSS_JSD_REALDATA a,SZSS_JSD b
+            WHERE
+                a.ZDBH = b.ZDBH AND a.JYL > 0
+            <if test="startTime != null  and startTime != '' ">
+                AND TO_CHAR(a.JCSJ,'yyyy-MM-dd') &gt;= #{startTime}
+            </if>
+            <if test="endTime != null  and endTime != '' ">
+                AND  TO_CHAR(a.JCSJ,'yyyy-MM-dd') &lt;= #{endTime}
+            </if>
+            GROUP BY
+                TO_CHAR( a.JCSJ, 'yyyy-MM-dd' ),b.ZDMC
+        ) m
+        GROUP BY
+            m.zdmc
+        ORDER BY
+            num ASC
+
+    </select>
+
+    <insert id="insertPondingPoint" parameterType="com.digitalchina.zhjg.szss.gis.entity.PondingPoint"  useGeneratedKeys="true" keyProperty="OBJECTID" >
+        INSERT INTO
+            SDE.SZSS_JSD ( <include refid="PondingPoint_Column_List"/>)
+        VALUES (
+            #{zdbh},#{zdmc},#{zrdw},#{szwz},#{szqy}, #{yc}, #{sp},#{fzr},#{lxdh},SYSDATE)
+    </insert>
+</mapper>

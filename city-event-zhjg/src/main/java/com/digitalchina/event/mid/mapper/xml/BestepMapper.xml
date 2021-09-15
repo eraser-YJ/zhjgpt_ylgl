@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digitalchina.event.mid.mapper.BestepMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.digitalchina.event.mid.entity.Bestep">
+        <id column="esid" property="esid" />
+        <result column="wfid" property="wfid" />
+        <result column="beid" property="beid" />
+        <result column="tskey" property="tskey" />
+        <result column="esrcvdt" property="esrcvdt" />
+        <result column="esreadt" property="esreadt" />
+        <result column="esendt" property="esendt" />
+        <result column="estype" property="estype" />
+        <result column="esdura" property="esdura" />
+        <result column="estat" property="estat" />
+        <result column="estmout" property="estmout" />
+        <result column="esupman" property="esupman" />
+        <result column="esupdept" property="esupdept" />
+        <result column="esopman" property="esopman" />
+        <result column="esopdept" property="esopdept" />
+        <result column="esoper" property="esoper" />
+        <result column="esopn" property="esopn" />
+        <result column="crdt" property="crdt" />
+        <result column="modt" property="modt" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        esid, wfid, beid, tskey, esrcvdt, esreadt, esendt, estype, esdura, estat, estmout, esupman, esupdept, esopman, esopdept, esoper, esopn, crdt, modt
+    </sql>
+
+    <select id="getEventSummary" resultType="java.util.Map">
+        SELECT
+            to_char(
+                stp.crdt,
+                'yyyy-mm-dd hh24:mi:ss'
+            ) crdt,
+            dep.bdnm,
+            esopn
+        FROM
+            bestep stp
+        LEFT JOIN bedept dep ON stp.esopdept = dep.bedid
+        LEFT JOIN workflow wf ON stp.wfid = wf.wfid
+        WHERE
+            1 = 1
+        AND stp.beid = #{beid}
+        AND wf.wfnm = '关闭（办结）'
+
+    </select>
+
+    <select id="selectStepByWfnmAndBeid" resultMap="BaseResultMap">
+        select * from bestep stp
+        where stp.esid = (
+        select max(bs.esid) from public.bestep bs join public.workflow wf on bs.wfid=wf.wfid and wf.wfnm = #{wfnm} and bs.beid = #{beid}
+        )
+    </select>
+
+</mapper>

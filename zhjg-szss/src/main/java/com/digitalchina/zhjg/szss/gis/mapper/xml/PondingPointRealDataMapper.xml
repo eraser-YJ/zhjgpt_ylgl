@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digitalchina.zhjg.szss.gis.mapper.PondingPointRealDataMapper">
+
+    <insert id="insertPondingPointRealData" parameterType="com.digitalchina.zhjg.szss.gis.entity.PondingPointRealData"  useGeneratedKeys="true" keyProperty="OBJECTID" >
+        INSERT INTO
+            SDE.SZSS_JSD_REALDATA (ZDBH, JSSD, JSMJ, JYL, JYJB, YJDJ, YJZ, LY, JCSJ)
+        VALUES (
+            #{zdbh},#{jssd},#{jsmj},#{jyl},#{jyjb}, #{yjdj}, #{yjz},#{ly},#{jcsj})
+    </insert>
+
+    <update id="updatePondingPointRealData">
+        update SZSS_JSD set JSSD=#{jssd},JYL=#{jyl},YJDJ=#{yjdj},JCSJ=#{jcsj} where ZDBH=#{zdbh}
+    </update>
+</mapper>

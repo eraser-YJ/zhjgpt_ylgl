@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digitalchina.admin.mid.mapper.EmPlanMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.digitalchina.admin.mid.entity.emergency.EmPlan">
+        <id column="planid" property="planid" />
+        <result column="pname" property="pname" />
+        <result column="ptypefk" property="ptypefk" />
+        <result column="etypefk" property="etypefk" />
+        <result column="elevelfk" property="elevelfk" />
+        <result column="evids" property="evids" />
+        <result column="pdesc" property="pdesc" />
+        <result column="cruid" property="cruid" />
+        <result column="crdt" property="crdt" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        planid, pname, ptypefk, etypefk, elevelfk, evids, pdesc, cruid, crdt
+    </sql>
+    
+   <!--  列表查看 -->
+   <select id="pageList" resultType="com.digitalchina.admin.mid.dto.EmPlanDto">
+   
+    SELECT
+	emp.planid,
+	emp.pname,
+	emt.ptypenm,
+	emp.ptypefk,
+	eet.etypenm,
+	eet.etypetid,
+	eet.etypetids,
+	ere.elevelnm,
+	emp.elevelfk,
+	encl.eckey,
+	encl.ecnm,
+	emp.pdesc,
+	(select string_agg ( t.ename, '、' ) from
+	(select et.evid,et.ename from emergency.em_event as et where et.evid = ANY (emp.evids ) ORDER BY
+	array_positions ( emp.evids, et.evid )) as t) as evidsnm,
+	emp.evids,
+	emp.cruid,
+	emp.crdt 
+	FROM
+		emergency.em_plan AS emp
+		LEFT JOIN emergency.em_ptype AS emt ON emt.ptypefk = emp.ptypefk --关联应急预案类型表
+		LEFT JOIN emergency.em_etype AS eet ON eet.etypefk = emp.etypefk --关联应急事件类型表
+		LEFT JOIN emergency.em_erank AS ere ON ere.elevelfk = emp.elevelfk --关联应急事件等级表
+		LEFT JOIN PUBLIC.enclosed AS encl ON encl.mstid = emp.planid --关联附件表
+	WHERE
+		encl.appid = #{appId} 
+		AND encl.msttype = #{msttype}
+	<if test="planType != null and planType != '' ">
+		AND emt.ptypefk = #{planType}
+	</if>
+	<if test="planName != null and planName != '' ">
+		AND emp.pname like concat('%',#{planName},'%')
+	</if>
+	
+   </select>
+
+</mapper>

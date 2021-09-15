@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digitalchina.zhjg.szss.event.mapper.AdmdivMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.digitalchina.zhjg.szss.event.entity.Admdiv">
+        <id column="adid" property="id" />
+        <result column="adnm" property="itemName" />
+        <result column="adflnm" property="adflnm" />
+        <result column="adupnms" property="adupnms" />
+        <result column="adlev" property="adlev" />
+        <result column="crdt" property="crdt" />
+        <result column="modt" property="modt" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, itemName, adflnm, adupnms, adlev, crdt, modt
+    </sql>
+
+    <select id="selectAreaCode" resultMap="BaseResultMap">
+        select * from admdiv where adpid is null
+    </select>
+
+</mapper>

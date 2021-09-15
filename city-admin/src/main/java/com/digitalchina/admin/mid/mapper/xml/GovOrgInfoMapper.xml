@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digitalchina.admin.mid.mapper.GovOrgInfoMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.digitalchina.admin.mid.entity.GovOrgInfo">
+        <id column="id" property="id" />
+        <result column="code" property="code" />
+        <result column="name" property="name" />
+        <result column="cmnid" property="cmnid" />
+        <result column="docker" property="docker" />
+        <result column="contact" property="contact" />
+        <result column="crdt" property="crdt" />
+        <result column="modt" property="modt" />
+        <result column="cmnnm" property="cmnnm" />
+        <result column="cmnnm2" property="cmnnm2" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, code, name, cmnid, docker, contact, crdt, modt
+    </sql>
+    
+    <select id="selectList" resultMap="BaseResultMap">
+        select gov.*,com.cmnnm,com.cmnnm2 from admin.am_gov_org_info gov
+        left join warn.warn_comssn  com on gov.cmnid = com.cmnid
+        where 1 = 1
+        <if test="code != null and code != ''">
+            and gov.code like concat('%', #{code}, '%')
+        </if>
+        <if test="name != null and name != ''">
+            and gov.name like concat('%', #{name}, '%')
+        </if>
+        order by gov.id
+    </select>
+
+</mapper>

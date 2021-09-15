@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digitalchina.event.mid.mapper.BedeptMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.digitalchina.event.mid.entity.Bedept">
+        <id column="bedid" property="bedid" />
+        <result column="bdnm" property="bdnm" />
+        <result column="bdpntid" property="bdpntid" />
+        <result column="bdpntids" property="bdpntids" typeHandler="com.digitalchina.event.utils.PgArr2IntArrHandler" />
+        <result column="bdtype" property="bdtype" />
+        <result column="pnm" property="pnm" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        bedid, bdnm, bdpntid, bdpntids, bdtype
+    </sql>
+
+    <!--更新子树路径,旧路径替换成新路径 -->
+    <select id="updateSongTreePaths" >
+        update bedept set bdpntids = array_cat(
+        <foreach collection="newPath" item="fresh"  open="ARRAY[" separator="," close="]">
+            ${fresh}
+        </foreach>
+        ,bdpntids[#{lowerBound}:])
+        where  bdpntids[:#{upperBound}] =
+        <foreach collection="oldPath" item="old"  open="ARRAY[" separator="," close="]">
+            ${old}
+        </foreach>
+    </select>
+    
+    <select id="findOne" resultMap="BaseResultMap">
+      select t.*,p.bdnm as pnm from bedept t
+      left join bedept p on p.bedid = t.bdpntid
+      where t.bedid =#{id}
+    </select>
+
+	<delete id="removeTreeById" parameterType="java.lang.Integer">
+		delete from bedept where #{bedid} = any(bdpntids)
+	</delete>
+	
+	<select id="getChildById" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+		select <include refid="Base_Column_List"/> from bedept where #{bedid} = any(bdpntids)
+	</select>
+
+</mapper>

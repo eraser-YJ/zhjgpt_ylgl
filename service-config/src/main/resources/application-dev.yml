@@ -1,0 +1,15 @@
+server:
+ port: 8882
+          
+logging:
+  config: classpath:log4j2-dev.xml
+    
+eureka:
+  instance:
+    leaseRenewalIntervalInSeconds: 10
+  client:
+    registryFetchIntervalSeconds: 30
+    serviceUrl:
+     defaultZone: http://dev:dev@localhost:8880/eureka/
+    register-with-eureka: true
+    fetch-registry: false

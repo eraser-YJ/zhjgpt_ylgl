@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digitalchina.event.mid.mapper.WorkflowMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.digitalchina.event.mid.entity.Workflow">
+        <id column="wfid" property="wfid" />
+        <result column="wfnm" property="wfnm" />
+        <result column="wfkey" property="wfkey" />
+        <result column="rev" property="rev" />
+        <result column="crdt" property="crdt" />
+        <result column="modt" property="modt" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        wfid, wfnm, wfkey, rev, crdt, modt
+    </sql>
+
+</mapper>

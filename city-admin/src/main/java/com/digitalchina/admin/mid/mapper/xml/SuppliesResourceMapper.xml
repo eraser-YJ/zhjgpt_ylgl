@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digitalchina.admin.mid.mapper.SuppliesResourceMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.digitalchina.admin.mid.entity.emergency.SuppliesResource">
+        <id column="id" property="id" />
+        <result column="name" property="name" />
+        <result column="area" property="area" />
+        <result column="head" property="head" />
+        <result column="phone" property="phone" />
+        <result column="details" property="details" />
+        <result column="affiliation" property="affiliation" />
+        <result column="addr" property="addr" />
+        <result column="xy" property="xy" typeHandler="com.digitalchina.admin.utils.PgGisTypeHandler"/>
+        <result column="cruid" property="cruid" />
+        <result column="crdt" property="crdt" />
+        <result column="modt" property="modt" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, name, area, head, phone, details, affiliation, addr, xy, cruid, crdt, modt
+    </sql>
+    <update id="updateGis">
+    	update emergency.supplies_resource set xy = st_geometryfromtext ( 'POINT(${lon} ${lat})', 4326 ) where id = #{id}
+    </update>
+
+</mapper>

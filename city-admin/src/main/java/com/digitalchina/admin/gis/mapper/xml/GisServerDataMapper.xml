@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper
+	namespace="com.digitalchina.admin.gis.mapper.GisServerDataMapper">
+
+	<!-- 通用查询映射结果 -->
+	<resultMap id="BaseResultMap"
+			   type="com.digitalchina.admin.gis.entity.Config">
+		<id column="OBJECTID" property="objectid" />
+		<result column="SHAPE" property="shape" />
+		<result column="ID" property="id" />
+		<result column="ZM" property="zm" />
+		<result column="XLM" property="xlm" />
+		<result column="JD" property="jd" />
+		<result column="WD" property="wd" />
+		<result column="XLLX" property="xllx" />
+		<result column="XLCD" property="xlcd" />
+		<result column="PJZJ" property="pjzj" />
+		<result column="ZDLX" property="zdlx" />
+	</resultMap>
+
+	<!-- 通用查询结果列 -->
+	<sql id="Base_Column_List">
+		TB, TBNM, FD, FDNM, SORT, CONDITION, EDIT, TYPE, LIST
+	</sql>
+
+	<select id="getLayer" resultMap="BaseResultMap">
+		SELECT * FROM "JTCX_GJZ"
+	</select>
+	<select id="getJTCX_GJZ" resultType="java.util.Map">
+		SELECT ID,OBJECTID,ZM,XLM,JD,WD,XLLX,XLCD,PJZJ,ZDLX FROM JTCX_GJZ
+	</select>
+	<select id="getJTCX_HLD" resultType="java.util.Map">
+		SELECT BZ,DWBH,DWLX,DWLXB,DZ,GID,GX,GY,JCK,JJRQ,JL,JLDW,JLMS,JSRQ,OBJECTID,PP,SCCJ,SCFJ,SGDW,SSXBGI,TJRQ,WZMS,XHDZT,ZBCD,ZPBH FROM JTCX_HLD
+	</select>
+	<select id="getJTCX_JTZSP" resultType="java.util.Map">
+		SELECT BZ,DWBH,DWLX,GID,GX,JJRQ,JL,JLDW,JLMS,JSRQ,LD,LX,NR,OBJECTID,SCFJ,SGDW,TJRQ,TPBH,WZMS FROM JTCX_JTZSP
+	</select>
+	<select id="getJTCX_TCC" resultType="java.util.Map">
+		SELECT DZ,GXSJ,ID,JD,MC,OBJECTID,SYTCWS,TCWZSL,WD FROM JTCX_TCC
+	</select>
+	<select id="getJTCX_XRXHD" resultType="java.util.Map">
+		SELECT BZ,DWBH,DWLX,DWLXB,DZ,GID,GX,JCK,JLM,OBJECTID,SCCJ,WZMS,ZPBH FROM JTCX_XRXHD
+	</select>
+	<select id="getSZSS_DLJ" resultType="java.util.Map">
+		SELECT DMGC,FSW,GDBH,JBS,JDS,JGCZ,JGGG,JGLX,JSCZ,JSLX,JSRQ,JSZJ,OBJECTID,PXJDH,QSDW,SZDL,TZ,XZJD FROM SZSS_DLJ
+	</select>
+	<select id="getSZSS_JSJ" resultType="java.util.Map">
+		SELECT DMGC,FSW,GDBH,JBS,JDS,JGCZ,JGGG,JGLX,JSCZ,JSLX,JSRQ,JSZJ,OBJECTID,PXJDH,QSDW,SZDL,TZ,XZJD FROM SZSS_JSJ
+	</select>
+	<select id="getSZSS_JYZ" resultType="java.util.Map">
+		SELECT DZ,GXSJ,ID,JD,MC,OBJECTID,WD,ZBDH FROM SZSS_JYZ
+	</select>
+	<select id="getSZSS_LJT" resultType="java.util.Map">
+		SELECT BZ,DWBH,DWLX,DWLXB,GID,JLM,LD,MC,OBJECTID,TPBH,WZMS FROM SZSS_LJT
+	</select>
+	<select id="getSZSS_LMP" resultType="java.util.Map">
+		SELECT BZ,BZ,DWBH,DWBH,DWLX,DWLX,DWLXB,DWLXB,GID,GID,JLM,JLM,LD,LD,LX,LX,OBJECTID,OBJECTID,TPBH,TPBH,WZMS,WZMS FROM SZSS_LMP
+	</select>
+	<select id="getSZSS_RLJ" resultType="java.util.Map">
+		SELECT DMGC,FSW,GDBH,JBS,JDS,JGCZ,JGGG,JGLX,JSCZ,JSLX,JSRQ,JSZJ,OBJECTID,PXJDH,QSDW,SZDL,TZ,XZJD FROM SZSS_RLJ
+	</select>
+
+	<select id="getSZSS_RQJ" resultType="java.util.Map">
+		SELECT DMGC,FSW,GDBH,JBS,JDS,JGCZ,JGGG,JGLX,JSCZ,JSLX,JSRQ,JSZJ,OBJECTID,PXJDH,QSDW,SZDL,TZ,XZJD FROM SZSS_RQJ
+	</select>
+	<select id="getSZSS_RQTYZ" resultType="java.util.Map">
+		SELECT CJSJ,CKYL,CKYLBJXZ,HJWD,ID,JD,JKYL,JKYLBJXZ,MC,OBJECTID,TYZID,WD FROM SZSS_RQTYZ
+	</select>
+	<select id="getSZSS_TXJ" resultType="java.util.Map">
+		SELECT DMGC,FSW,GDBH,JBS,JDS,JGCZ,JGGG,JGLX,JSCZ,JSLX,JSRQ,JSZJ,OBJECTID,PXJDH,QSDW,SZDL,TZ,XZJD FROM SZSS_TXJ
+	</select>
+	<select id="getSZSS_WSJ" resultType="java.util.Map">
+		SELECT DMGC,FSW,GDBH,JBS,JDS,JGCZ,JGGG,JGLX,JSCZ,JSLX,JSRQ,JSZJ,OBJECTID,PXJDH,QSDW,SZDL,TZ,XZJD FROM SZSS_WSJ
+	</select>
+	<select id="getSZSS_YSJ" resultType="java.util.Map">
+		SELECT DMGC,FSW,GDBH,JBS,JDS,JGCZ,JGGG,JGLX,JSCZ,JSLX,JSRQ,JSZJ,OBJECTID,PXJDH,QSDW,SZDL,TZ,XZJD FROM SZSS_YSJ
+	</select>
+	<select id="getSZSS_YX" resultType="java.util.Map">
+		SELECT BZ,DWBH,DWLX,DWLXB,GID,JLM,LD,MC,OBJECTID,TPBH,WZMS FROM SZSS_YX
+	</select>
+	<select id="getSZSS_ZDXF" resultType="java.util.Map">
+		SELECT DWMC,DWXZ,FZR,FZRDH,HZYH,LXDH,OBJECTID,SZJD,SZSQ,SZWG,XXDZ FROM SZSS_ZDXF
+	</select>
+
+</mapper>

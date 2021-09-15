@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digitalchina.admin.mid.mapper.WarnMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.digitalchina.admin.mid.entity.Warn">
+        <id column="wnid" property="wnid"/>
+        <result column="idsid" property="idsid"/>
+        <result column="adid" property="adid"/>
+        <result column="idid" property="idid"/>
+        <result column="msid" property="msid"/>
+        <result column="rlid" property="rlid"/>
+        <result column="lyid" property="lyid"/>
+        <result column="wnnm" property="wnnm"/>
+        <result column="wncnt" property="wncnt"/>
+        <result column="wncty" property="wncty"/>
+        <result column="wnstat" property="wnstat"/>
+        <result column="pubmit" property="pubmit"/>
+        <result column="wnxy" property="wnxy"/>
+        <result column="wnnum" property="wnnum"/>
+        <result column="srctp" property="srctp"/>
+        <result column="cmnnm" property="cmnnm"/>
+        <result column="cpnum" property="cpnum"/>
+        <result column="cpvs" property="cpvs"/>
+        <result column="refsqls" property="refsqls"/>
+        <result column="refnms" property="refnms"/>
+        <result column="dgdt" property="dgdt"/>
+        <result column="dgdt2" property="dgdt2"/>
+        <result column="crdt" property="crdt"/>
+        <result column="vwdt" property="vwdt"/>
+        <result column="spdt" property="spdt"/>
+        <result column="epdt" property="epdt"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        wnid, idsid, adid, idid, msid, rlid, lyid, wnnm, wncnt, wncty, wnstat, pubmit, wnxy, wnnum, srctp, cmnnm, cpnum, cpvs, refsqls, refnms, dgdt, dgdt2, crdt, vwdt, spdt, epdt
+    </sql>
+</mapper>

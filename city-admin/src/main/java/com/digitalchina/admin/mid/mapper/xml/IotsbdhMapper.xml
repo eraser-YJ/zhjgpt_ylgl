@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digitalchina.warn.mid.mapper.IotsbdhMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.digitalchina.admin.mid.entity.Iotsbdh">
+        <id column="idid" property="idid" />
+        <result column="adid" property="adid" />
+        <result column="lyid" property="lyid" />
+        <result column="ymdh" property="ymdh" />
+        <result column="ymd" property="ymd" />
+        <result column="ym" property="ym" />
+        <result column="year" property="year" />
+        <result column="testn" property="testn" />
+        <result column="normn" property="normn" />
+        <result column="warnn" property="warnn" />
+        <result column="faultn" property="faultn" />
+        <result column="errn" property="errn" />
+        <result column="wfptn" property="wfptn" />
+        <result column="inpn" property="inpn" />
+        <result column="fnpn" property="fnpn" />
+        <result column="crdt" property="crdt" />
+        <result column="modt" property="modt" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        adid, lyid, ymdh, idid, ymd, ym, year, testn, normn, warnn, faultn, errn, wfptn, inpn, fnpn, crdt, modt
+    </sql>
+
+</mapper>

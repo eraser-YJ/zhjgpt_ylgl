@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digitalchina.admin.mid.mapper.AmSysRoleMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.digitalchina.admin.mid.entity.AmSysRole">
+        <id column="id" property="id"/>
+        <result column="type" property="type"/>
+        <result column="code" property="code"/>
+        <result column="name" property="name"/>
+        <result column="remark" property="remark"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, type,code,name, remark
+    </sql>
+
+    <select id="findRolesByUserId" resultMap="BaseResultMap">
+    	select b.* from admin.am_sys_role b join admin.am_sys_role_user t on b.id = t.rid where t.uid = #{userId}
+    </select>
+
+    <select id="checkExist" resultType="java.lang.Integer">
+        select count(1) from admin.am_sys_role where name=#{code}
+        <if test="roleId != null">
+            and id &lt;&gt; #{roleId}
+        </if>
+    </select>
+</mapper>

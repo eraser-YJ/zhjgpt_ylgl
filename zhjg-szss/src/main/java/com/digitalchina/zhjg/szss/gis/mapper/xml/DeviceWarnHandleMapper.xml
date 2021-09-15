@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digitalchina.zhjg.szss.gis.mapper.DeviceWarnHandleMapper">
+
+    <insert id="insertDeviceHandle" parameterType="com.digitalchina.zhjg.szss.gis.entity.DeviceWarnHandleParam" useGeneratedKeys="true" keyProperty="OBJECTID">
+        INSERT INTO
+            SDE.SZSS_DEVICE_HANDLE (ZDBH,ZDMC,SBBH,STATUS,SBMC,FZR,CREATETIME,ZXCLSJ,YJJB,YJLX,JJCD,DEVICEWARNID,SBLX,SBZT)
+        VALUES (
+            #{zdbh},#{zdmc},#{sbbh},#{status},#{sbmc}, #{fzr},to_date(#{createTime},'yyyy-mm-dd hh24:mi:ss'),to_date(#{zxclsj},'yyyy-mm-dd hh24:mi:ss'),#{yjjb},#{yjlx},#{jjcd},#{deviceWarnId},#{sblx},#{sbzt})
+    </insert>
+
+    <update id="updatetDeviceHandle">
+        update  SDE.SZSS_DEVICE_HANDLE set STATUS = #{status},ZXCLSJ = to_date(#{zxclsj},'yyyy-mm-dd hh24:mi:ss') where DEVICEWARNID = #{deviceWarnId}
+    </update>
+
+
+    <select id="selectDeviceHandle" parameterType="java.lang.String" resultType="com.digitalchina.zhjg.szss.gis.entity.DeviceWarnHandleParam">
+        SELECT
+            OBJECTID,ZDBH,ZDMC,STATUS,CZDW,FZR,CREATETIME,ZXCLSJ,YJJB,YJLX,JJCD,DEVICEWARNID,SBMC,SBBH,SBLX,SBZT
+        FROM
+            SDE.SZSS_DEVICE_HANDLE
+        WHERE
+            1=1
+            <if test="yjjb != null  and yjjb != '' ">
+                AND YJJB = #{yjjb}
+            </if>
+            <if test="zdbh != null  and zdbh != '' ">
+                AND ZDBH = #{zdbh}
+            </if>
+            <if test="zdmc != null  and zdmc != '' ">
+                AND ZDMC like '%' ||  #{zdmc} || '%'
+            </if>
+            <if test="status != null  and status != '' ">
+                AND STATUS = #{status}
+            </if>
+            <if test="startTime != null  and startTime != '' ">
+                AND TO_CHAR(CREATETIME,'yyyy-MM-dd') &gt;= #{startTime}
+            </if>
+            <if test="endTime != null  and endTime != '' ">
+                AND TO_CHAR(CREATETIME,'yyyy-MM-dd') &lt;= #{endTime}
+            </if>
+
+        ORDER BY CREATETIME DESC
+    </select>
+</mapper>

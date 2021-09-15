@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digitalchina.zhjg.szss.gis.mapper.DrainageReallyMapper">
+    <!-- 预警处置表_通用查询映射结果 -->
+    <resultMap id="DrainageReallyDataBaseMap" type="com.digitalchina.zhjg.szss.gis.entity.DrainageReallyData">
+        <result column="Q" property="q"/>
+        <result column="ACC_W" property="acc_w"/>
+        <result column="V" property="v"/>
+        <result column="STCD" property="stcd"/>
+        <result column="Z" property="z"/>
+        <result column="WPTN" property="wptn"/>
+        <result column="VOLTAGE" property="voltage"/>
+        <result column="TM" property="tm"/>
+        <result column="ID" property="id"/>
+        <result column="ZDMC" property="zdmc"/>
+        <result column="ZRDW" property="zrdw"/>
+        <result column="FZR" property="fzr"/>
+        <result column="SZWZ" property="szwz"/>
+        <result column="SZQY" property="szqy"/>
+        <result column="LXDH" property="lxdh"/>
+    </resultMap>
+
+    <select id="selectDrainageReally" parameterType="java.util.Date" resultMap="DrainageReallyDataBaseMap">
+        SELECT
+            m.stcd,
+            CASE WHEN m.q IS NULL THEN 0 ELSE m.q END q,
+            CASE WHEN m.acc_w IS NULL THEN 0 ELSE m.acc_w END acc_w,
+            CASE WHEN m.v IS NULL THEN 0 ELSE m.v END v,
+            m.WPTN,
+            m.VOLTAGE,
+            CASE WHEN m.z IS NULL THEN 0 ELSE m.z END z,
+            m.tm,
+            c.zdmc,
+            c.zrdw,
+            c.fzr,
+            c.szwz,
+            c.szqy,
+            c.lxdh
+        FROM
+            (
+                SELECT DISTINCT
+                a.stcd,a.q,a.acc_w,a.v,a.VOLTAGE,b.z,b.WPTN,a.tm
+                FROM
+                WR_MP_Q_R a LEFT JOIN ST_RIVER_R_B b ON a.stcd = b.stcd
+                AND a.tm = b.tm
+                where a.tm>#{date}
+            ) m
+	    LEFT JOIN SZSS_PSD c ON m.stcd = c.zdbh
+	    order by m.tm
+    </select>
+
+    <select id="selectDrainageZReally" parameterType="java.util.Date" resultMap="DrainageReallyDataBaseMap">
+         SELECT DISTINCT
+            b.stcd,
+            CASE WHEN b.z IS NULL THEN 0 ELSE b.z END z,
+			b.VOLTAGE,
+			b.WPTN,
+            b.tm,
+            c.zdmc
+        FROM szss_psd c
+		LEFT JOIN ST_RIVER_R_B b on b.stcd=c.zdbh
+		where b.tm > #{date}
+    </select>
+
+    <select id="selectDrainageLLReally" parameterType="java.util.Date" resultMap="DrainageReallyDataBaseMap">
+        select
+			stcd,
+			tm,
+			CASE WHEN q IS NULL THEN 0 ELSE q END q,
+			acc_w,
+			v,
+			voltage
+			from WR_MP_Q_R where
+			TM > #{date} order by TM
+    </select>
+
+    <select id="listLLData1" resultMap="DrainageReallyDataBaseMap">
+        select * from WR_MP_Q_R where stcd=#{zdbh} and tm=#{date}
+    </select>
+
+    <update id="updateSzssPsd">
+        update SZSS_PSD set JSSD=#{jssd},YJDJ=#{yjdj} where ZDBH=#{zdbh}
+    </update>
+
+    <update id="updateLLSzssPsd">
+        update SZSS_PSD set LL=#{ll},LS=#{ls},JCSJ=#{jcsj} where ZDBH=#{zdbh}
+    </update>
+
+    <update id="updatePSDID" parameterType="java.util.Date">
+        update SZSS_MAXID set PSDMAXDATE=#{date} where ID = 1
+    </update>
+
+    <update id="updatePSDLLMAXDATE" parameterType="java.util.Date">
+        update SZSS_MAXID set PSDLLMAXDATE = #{date} where ID = 1
+    </update>
+
+    <select id="selectPSDMAXID" resultType="java.lang.Integer">
+        select PSDMAXID from SZSS_MAXID
+    </select>
+
+    <select id="selectPSDMAXDate" resultType="java.util.Date">
+        select PSDMAXDATE from SZSS_MAXID
+    </select>
+
+    <select id="selectPSDLLMAXDATE" resultType="java.util.Date">
+        select PSDLLMAXDATE from SZSS_MAXID
+    </select>
+
+    <select id="reallyMaxPSDZDate" resultType="java.util.Date">
+        select max(b.tm) tm from ST_RIVER_R_B b,szss_psd psd where b.stcd=psd.zdbh
+    </select>
+
+    <select id="reallyMaxPSDLLDate" resultType="java.util.Date">
+        select max(tm) tm from WR_MP_Q_R
+    </select>
+
+    <select id="selectNewreallyByIdAndStcd" parameterType="java.util.Date"  resultType="java.util.HashMap">
+        SELECT DISTINCT
+         a.stcd,
+		 max(a.TM) TM
+        FROM
+         WR_MP_Q_R a
+         LEFT JOIN ST_RIVER_R_B b ON a.stcd = b.stcd AND a.tm = b.tm
+        <where>
+            a.TM > #{date}
+        </where>
+        group by a.stcd
+    </select>
+
+    <select id="selectJSSDByReallyId" parameterType="java.util.List" resultType="java.util.HashMap">
+        SELECT DISTINCT
+            a.stcd,
+            b.z,
+            a.tm,
+            c.zdmc
+        FROM
+         WR_MP_Q_R a
+        LEFT JOIN ST_RIVER_R_B b ON a.stcd = b.stcd AND a.tm = b.tm
+		LEFT JOIN szss_psd c on a.stcd=c.zdbh
+		where a.tm in
+        <foreach collection="list" index="index" item="item" open="(" separator="," close=")">
+            #{item.TM}
+        </foreach>
+    </select>
+
+    <update id="updatePSDSJJD" parameterType="java.util.List" >
+        <foreach  collection="list" item="item"  index="index" open="begin" close=";end;" separator=";">
+            update SZSS_PSD
+            <set>
+                JSSD=#{item.Z},CREATETIME=#{item.TM}
+            </set>
+             where ZDBH=#{item.STCD}
+        </foreach>
+
+    </update>
+
+    <insert id="insertPSLL" parameterType="java.util.List" >
+        insert into SZSS_PSLL(ZDBH,ZDMC,SSLL,ZLL,LS,SW,VOLTAGE,TM,LY,YJDJ)
+        <foreach collection ="list" item="item" index= "index" separator="UNION ALL">
+        select
+            #{item.ZDBH},
+            #{item.ZDMC},
+            #{item.SSLL},
+            #{item.ZLL},
+            #{item.LS},
+            #{item.SW},
+            #{item.VOLTAGE},
+            #{item.TM},
+            '智能感知',
+            #{item.YJDJ}
+            from dual
+        </foreach>
+    </insert>
+
+    <insert id="insertPSSW" parameterType="java.util.List">
+        insert into SZSS_PSSW(ZDBH,ZDMC,SW,WPTN,VOLTAGE,TM,CJSJ,SJLL)
+        <foreach collection ="list" item="item" index= "index" separator="UNION ALL">
+            select
+            #{item.ZDBH},
+            #{item.ZDMC},
+            #{item.SW},
+            #{item.WPTN},
+            #{item.VOLTAGE},
+            #{item.TM},
+            #{item.TM},
+            '字符串'
+            from dual
+        </foreach>
+    </insert>
+
+    <select id="selectPSDDevice" parameterType="java.lang.String" resultType="java.util.HashMap">
+        SELECT BJFZ FROM SZSS_PSDDEVICE WHERE SBBH = #{zdbh}
+    </select>
+
+    <select id="drainagePointList" resultType="com.digitalchina.zhjg.szss.gis.entity.DrainagePoint">
+        select * from SZSS_PSD
+    </select>
+
+    <select id="selectPSDMAXTM" parameterType="java.lang.String" resultType="com.digitalchina.zhjg.szss.gis.entity.PsdMaxTm">
+        select * from SZSS_PSDMAXTM where PSDZDBH=#{zdbh}
+    </select>
+
+    <insert id="insertPSDMAXTM" parameterType="com.digitalchina.zhjg.szss.gis.entity.PsdMaxTm">
+        insert into SZSS_PSDMAXTM(PSDZDBH,PSDZMAXTM,PSDLLMAXTM) values (#{psdzdbh},#{psdzmaxtm},#{psdllmaxtm})
+    </insert>
+
+    <select id="selectDrainageZReallyNew" parameterType="com.digitalchina.zhjg.szss.gis.entity.PsdMaxTm" resultMap="DrainageReallyDataBaseMap">
+        SELECT DISTINCT
+            b.stcd,
+            CASE WHEN b.z IS NULL THEN 0 ELSE b.z END z,
+			b.VOLTAGE,
+			b.WPTN,
+            b.tm,
+            c.zdmc
+        FROM szss_psd c
+		    LEFT JOIN ST_RIVER_R_B b on b.stcd=c.zdbh
+		where b.tm > #{psdzmaxtm} and c.zdbh=#{psdzdbh}
+		order by b.tm desc
+    </select>
+
+    <select id="selectDrainageLLReallyNew" parameterType="com.digitalchina.zhjg.szss.gis.entity.PsdMaxTm" resultMap="DrainageReallyDataBaseMap">
+        select
+			stcd,
+			tm,
+			CASE WHEN q IS NULL THEN 0 ELSE q END q,
+			acc_w,
+			CASE WHEN v IS NULL THEN 0 ELSE v END v,
+			voltage
+		from
+		    WR_MP_Q_R
+		where
+			TM > #{psdllmaxtm}  and stcd=#{psdzdbh} order by TM desc
+    </select>
+
+    <update id="updatePsdZMaxTm" parameterType="com.digitalchina.zhjg.szss.gis.entity.PsdMaxTm">
+        update SZSS_PSDMAXTM  set PSDZMAXTM=#{psdzmaxtm} where PSDZDBH=#{psdzdbh}
+    </update>
+
+    <update id="updatePsdLLMaxTm" parameterType="com.digitalchina.zhjg.szss.gis.entity.PsdMaxTm">
+        update SZSS_PSDMAXTM set PSDLLMAXTM=#{psdllmaxtm} where PSDZDBH=#{psdzdbh}
+    </update>
+
+</mapper>

@@ -1,0 +1,793 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digitalchina.event.mid.mapper.BusieventMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.digitalchina.event.mid.entity.Busievent">
+        <id column="beid" property="beid"/>
+        <result column="wfid" property="wfid"/>
+        <result column="efbh" property="efbh"/>
+        <result column="etbh" property="etbh"/>
+        <result column="adid" property="adid"/>
+        <result column="proc_inst_id" property="procInstId"/>
+        <result column="bebh" property="bebh"/>
+        <result column="benm" property="benm"/>
+        <result column="becnt" property="becnt"/>
+        <result column="besrcdpt" property="besrcdpt"/>
+        <result column="bepcdpt0" property="bepcdpt0"/>
+        <result column="bepcdpt" property="bepcdpt"/>
+        <result column="allodpt" property="allodpt"/>
+        <result column="allodt" property="allodt"/>
+        <result column="recdpt" property="recdpt"/>
+        <result column="recdt" property="recdt"/>
+        <result column="bedpts" property="bedpts"/>
+        <result column="inroom" property="inroom"/>
+        <result column="addr" property="addr"/>
+        <result column="bexy" property="bexy" typeHandler='com.digitalchina.event.utils.PgGisTypeHandler'/>
+        <result column="linkman" property="linkman"/>
+        <result column="linktel" property="linktel"/>
+        <result column="hapndt" property="hapndt"/>
+        <result column="indt" property="indt"/>
+        <result column="inoldbh" property="inoldbh"/>
+        <result column="bestat" property="bestat"/>
+        <result column="alldura" property="alldura"/>
+        <result column="pcdura" property="pcdura"/>
+        <result column="clsrsn" property="clsrsn"/>
+        <result column="acptmo" property="acptmo"/>
+        <result column="pcbgndtmo" property="pcbgndtmo"/>
+        <result column="pcendtmo" property="pcendtmo"/>
+        <result column="endtmo" property="endtmo"/>
+        <result column="hastmo" property="hastmo"/>
+        <result column="crdt" property="crdt"/>
+        <result column="modt" property="modt"/>
+        <result column="clsdt" property="clsdt"/>
+        <result column="upemgdt" property="upemgdt"/>
+        <result column="emgdowndt" property="emgdowndt"/>
+        <result column="acptdln" property="acptdln"/>
+        <result column="warndln" property="warndln"/>
+        <result column="pcbgndln" property="pcbgndln"/>
+        <result column="pcendln" property="pcendln"/>
+        <result column="endln" property="endln"/>
+        <result column="town_adid" property="townAdid"/>
+    </resultMap>
+
+    <resultMap id="BaseDtoResultMap" type="com.digitalchina.event.dto.eventdeposit.BusieventDto">
+        <id column="beid" property="beid"/>
+        <result column="efnm" property="efnm"/>
+        <result column="etnm" property="etnm"/>
+        <result column="adName" property="adName"/>
+        <result column="townName" property="townName"/>
+        <result column="proc_inst_id" property="procInstId"/>
+        <result column="benm" property="benm"/>
+        <result column="becnt" property="becnt"/>
+        <result column="crdt" property="crdt"/>
+        <result column="cpdesc" property="cpdesc"/>
+        <result column="cpfbinfo" property="cpfbinfo"/>
+        <result column="bepcdpt0_name" property="bepcdpt0Name"/>
+        <result column="acceptance_time" property="acceptanceTime"/>
+        <result column="reason" property="reason"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        beid, wfid, efbh, etbh, adid, proc_inst_id, bebh, benm, becnt, besrcdpt, bepcdpt0, bepcdpt, allodpt, recdpt, bedpts, inroom, addr, ST_AsGeoJSON ( st_transform(bexy, 4326) ) :: JSON as bexy, linkman, linktel, hapndt, indt, inoldbh, bestat, alldura, pcdura, clsrsn, acptmo, pcbgndtmo, pcendtmo, endtmo, hastmo, crdt, modt, clsdt, upemgdt, emgdowndt, acptdln, warndln, pcbgndln, pcendln, endln,town_adid
+    </sql>
+
+
+    <select id="getFirstLevelEventList" resultMap="BaseDtoResultMap">
+        SELECT
+        be.beid,
+        be.proc_inst_id,
+        be.bestat,
+        be.benm,
+        to_char(
+        be.hapndt,
+        'yyyy-mm-dd hh24:mi:ss'
+        ) hapndt,
+        bt.etnm,
+        bf.efnm,
+        be.becnt,
+        be.adid,
+        ad.adnm as adName,
+        be.town_adid,
+        case when ad2.adnm is null then '无' else ad2.adnm end  AS townName,
+        bd.bdnm as bepcdpt0_name,
+        to_char(
+        be.modt,
+        'yyyy-mm-dd hh24:mi:ss'
+        ) as acceptance_time,
+        bs.esopn as reason
+        FROM
+        "public"."busievent" be
+        LEFT JOIN admdiv ad ON be.adid = ad.adid
+        LEFT JOIN admdiv ad2 ON be.town_adid = ad2.adid
+        LEFT JOIN betype bt ON be.etbh = bt.etbh
+        LEFT JOIN befrom bf ON be.efbh = bf.efbh
+        LEFT JOIN bestep bs ON be.wfid = bs.wfid
+        , bedept bd
+        where 1=1
+        <if test="bestat != null and bestat == '未处理'">
+            and be.bestat = 0
+            and be.bepcdpt0 = bd.bedid
+        </if>
+        <if test="bestat != null and bestat == '转派中'">
+            and be.bestat in (1, 2, 11)
+            and be.allodpt = bd.bedid
+        </if>
+        <if test="bestat != null and bestat == '处理中'">
+            and be.bestat in (10, 101, 102, 103)
+            and be.recdpt = bd.bedid
+        </if>
+        <if test="bestat != null and bestat == '待核查'">
+            and be.bestat in (100)
+            and be.recdpt = bd.bedid
+        </if>
+        <if test="bestat != null and bestat == '拒绝件'">
+            and be.bestat in (4)
+            and be.allodpt = bd.bedid
+        </if>
+        <if test="bestat != null and bestat == '取消件'">
+            and be.bestat in (1001)
+            and be.bepcdpt0 = bd.bedid
+        </if>
+        <if test="bestat != null and bestat == '升级件'">
+            and be.bestat in (20)
+            and be.bepcdpt0 = bd.bedid
+        </if>
+        <if test="efbh != null">
+            and be.efbh = #{efbh}
+        </if>
+        <if test="benm != null and benm != ''">
+            and (be.benm like concat('%', #{benm}, '%')
+            or be.becnt like concat('%', #{benm}, '%')
+            or be.bebh like concat('%', #{benm}, '%')
+            )
+        </if>
+        <if test="becnt != null and becnt != ''">
+            and be.becnt like concat('%', #{becnt}, '%')
+        </if>
+        <if test="etbh != null">
+            and be.etbh = #{etbh}
+        </if>
+        order by be.beid desc
+    </select>
+
+    <select id="getSecondLevelEventList" resultMap="BaseDtoResultMap">
+        SELECT
+        be.beid,
+        be.proc_inst_id,
+        be.bestat,
+        be.benm,
+        to_char(
+        be.hapndt,
+        'yyyy-mm-dd hh24:mi:ss'
+        ) hapndt,
+        bt.etnm,
+        bf.efnm,
+        be.becnt,
+        be.adid,
+        ad.adnm as adName,
+        be.town_adid,
+        case when ad2.adnm is null then '无' else ad2.adnm end  AS townName,
+        bd.bdnm as bepcdpt0_name,
+        to_char(
+        be.modt,
+        'yyyy-mm-dd hh24:mi:ss'
+        ) as acceptance_time,
+        bs.esopn as reason
+        FROM
+        "public"."busievent" be
+        LEFT JOIN admdiv ad ON be.adid = ad.adid
+        LEFT JOIN admdiv ad2 ON be.town_adid = ad2.adid
+        LEFT JOIN betype bt ON be.etbh = bt.etbh
+        LEFT JOIN befrom bf ON be.efbh = bf.efbh
+        LEFT JOIN bestep bs ON be.wfid = bs.wfid
+        , bedept bd
+        where 1=1
+        <if test="bestat != null and bestat == '未处理'">
+            and be.bestat = 1
+            and be.bepcdpt0 = #{bedid}
+            and be.bepcdpt0 = bd.bedid
+        </if>
+        <if test="bestat != null and bestat == '转派中'">
+            and be.bestat in (2)
+            and be.recdpt = #{bedid}
+            and be.recdpt = bd.bedid
+        </if>
+        <if test="bestat != null and bestat == '处理中'">
+            and be.bestat in (10, 102, 103)
+            and be.allodpt = #{bedid}
+            and be.recdpt = bd.bedid
+        </if>
+        <if test="bestat != null and bestat == '待核查'">
+            and be.bestat in (101)
+            and be.bepcdpt0 = #{bedid}
+            and be.bepcdpt0 = bd.bedid
+        </if>
+        <if test="bestat != null and bestat == '拒绝件'">
+            and be.bestat in (11)
+            and be.bepcdpt0 = #{bedid}
+            and be.bepcdpt0 = bd.bedid
+        </if>
+        <if test="bestat != null and bestat == '完成件'">
+            and be.bestat in (100, 1000)
+            and be.allodpt = #{bedid}
+            and be.recdpt = bd.bedid
+        </if>
+        <if test="efbh != null">
+            and be.efbh = #{efbh}
+        </if>
+        <if test="benm != null and benm != ''">
+            and (be.benm like concat('%', #{benm}, '%')
+            or be.becnt like concat('%', #{benm}, '%')
+            or be.bebh like concat('%', #{benm}, '%')
+            )
+        </if>
+        <if test="becnt != null and becnt != ''">
+            and be.becnt like concat('%', #{becnt}, '%')
+        </if>
+        <if test="etbh != null">
+            and be.etbh = #{etbh}
+        </if>
+        order by be.beid desc
+    </select>
+
+    <select id="getServiceLevelEventList" resultMap="BaseDtoResultMap">
+        SELECT
+        be.beid,
+        be.proc_inst_id,
+        be.bestat,
+        be.benm,
+        to_char(
+        be.hapndt,
+        'yyyy-mm-dd hh24:mi:ss'
+        ) hapndt,
+        bt.etnm,
+        bf.efnm,
+        be.becnt,
+        be.adid,
+        ad.adnm as adName,
+        be.town_adid,
+        case when ad2.adnm is null then '无' else ad2.adnm end  AS townName,
+        to_char(
+        be.modt,
+        'yyyy-mm-dd hh24:mi:ss'
+        ) as acceptance_time,
+        bs.esopn as reason
+        FROM
+        "public"."busievent" be
+        LEFT JOIN admdiv ad ON be.adid = ad.adid
+        LEFT JOIN admdiv ad2 ON be.town_adid = ad2.adid
+        LEFT JOIN betype bt ON be.etbh = bt.etbh
+        LEFT JOIN befrom bf ON be.efbh = bf.efbh
+        LEFT JOIN bestep bs ON be.wfid = bs.wfid
+        where 1=1
+        <if test="bestat != null and bestat == '未处理'">
+            and be.bestat = 2
+            and be.bepcdpt0 = #{bedid}
+        </if>
+        <if test="bestat != null and bestat == '处理中'">
+            and be.bestat = 10
+            and be.bepcdpt0 = #{bedid}
+        </if>
+        <if test="bestat != null and bestat == '复查件'">
+            and be.bestat in (102, 103)
+            and be.recdpt = #{bedid}
+        </if>
+        <if test="bestat != null and bestat == '完成件'">
+            and be.bestat in (101, 100, 1000)
+            and be.recdpt = #{bedid}
+        </if>
+        <if test="efbh != null">
+            and be.efbh = #{efbh}
+        </if>
+        <if test="benm != null and benm != ''">
+            and (be.benm like concat('%', #{benm}, '%')
+            or be.becnt like concat('%', #{benm}, '%')
+            or be.bebh like concat('%', #{benm}, '%')
+            )
+        </if>
+        <if test="becnt != null and becnt != ''">
+            and be.becnt like concat('%', #{becnt}, '%')
+        </if>
+        <if test="etbh != null">
+            and be.etbh = #{etbh}
+        </if>
+        order by be.beid desc
+    </select>
+
+    <resultMap id="DepositBaseResultMap" type="com.digitalchina.event.dto.HomeBusieventDto">
+        <id column="beid" property="beid"/>
+        <result column="benm" property="benm"/>
+        <result column="etbh_name" property="etbhName"/>
+        <result column="hapndt" property="hapndt"/>
+        <result column="addr" property="addr"/>
+        <result column="efbh_name" property="efbhName"/>
+        <result column="bestat" property="bestat"/>
+        <result column="bepcdpt_name" property="bepcdptName"/>
+        <result column="pcdura" property="pcdura"/>
+        <result column="alldura" property="alldura"/>
+        <result column="bexy" property="bexy" typeHandler='com.digitalchina.event.utils.PgGisTypeHandler'/>
+    </resultMap>
+
+    <resultMap id="BusieventBasicInfoDtoResultMap" type="com.digitalchina.event.dto.eventdeposit.BusieventBasicInfoDto">
+        <id column="beid" property="beid"/>
+        <result column="bebh" property="bebh"/>
+        <result column="benm" property="benm"/>
+        <result column="etbh_name" property="etbhName"/>
+        <result column="hapndt" property="hapndt"/>
+        <result column="addr" property="addr"/>
+        <result column="efbh_name" property="efbhName"/>
+        <result column="bestat" property="bestat"/>
+        <result column="besrcdpt_name" property="besrcdptName"/>
+        <result column="processing_time" property="processingTime"/>
+        <result column="lj_processing_time" property="ljProcessingTime"/>
+        <result column="lon" property="lon"/>
+        <result column="lat" property="lat"/>
+        <result column="adid_name" property="adidName"/>
+        <result column="town_adid_name" property="townAdidName"/>
+        <result column="bedpts_name" property="bedptsName"/>
+        <result column="bepcdpt_name" property="bepcdptName"/>
+        <result column="crdt" property="crdt"/>
+        <result column="slsj" property="slsj"/>
+        <result column="clsdt" property="clsdt"/>
+        <result column="pcdura" property="pcdura"/>
+        <result column="is_exceeded" property="isExceeded"/>
+        <result column="becnt" property="becnt"/>
+        <result column="bexy" property="bexy" typeHandler='com.digitalchina.event.utils.PgGisTypeHandler'/>
+
+    </resultMap>
+
+    <select id="getHomeBusieventList" resultMap="DepositBaseResultMap">
+        select b.beid,b.benm,bt.etnm as etbh_name, to_char( b.hapndt, 'yyyy-MM-dd hh24:mi:ss' ) hapndt,b.addr,bf.efnm as efbh_name,b.bestat,be.bdnm as bepcdpt_name,
+        ST_AsGeoJSON (st_transform(bexy, 4326)) :: JSON as bexy,
+        b.alldura::varchar as alldura, bs.crdt::varchar as pcdura, to_char( b.crdt, 'yyyy-MM-dd hh24:mi:ss' ) crdt
+        from public.busievent b
+        LEFT JOIN public.admdiv ad on b.adid=ad.adid
+        LEFT JOIN public.bedept be on b.bepcdpt0=be.bedid LEFT JOIN public.betype bt on b.etbh=bt.etbh
+        LEFT JOIN public.befrom bf on b.efbh=bf.efbh
+        LEFT JOIN public.bestep bs on bs.esid = (select max(esid) from public.bestep where beid = b.beid )
+        where 1=1
+        <if test="keyword != null and keyword != ''">
+            and (b.benm like concat('%', #{keyword}, '%')
+            or b.addr like concat('%', #{keyword}, '%')
+            or b.bebh like concat('%', #{keyword}, '%')
+            or b.becnt like concat('%', #{keyword}, '%'))
+        </if>
+        <if test="adids.length > 0">
+            and b.adid in
+            <foreach collection="adids" item="adid" index="index" open="(" close=")" separator=",">
+                ${adid}
+            </foreach>
+
+        </if>
+        <if test="besrcdpts.length > 0">
+        	and b.bepcdpt0 in
+        	 <foreach collection="besrcdpts" item="besrcdpt" index="index" open="(" close=")" separator=",">
+                    ${besrcdpt}
+             </foreach>
+
+           <!--  <if test="allodpts.size > 0">
+               and (( b.allodpt in
+                <foreach collection="allodpts" item="allodpt" index="index" open="(" close=")" separator=",">
+                    ${allodpt}
+                </foreach>
+                )or b.allodpt is null)
+            </if>
+
+            <if test="recdpts.size > 0 ">
+                <if test="allodpts.size == 0">
+                  and
+                </if>
+                <if test="allodpts.size > 0">
+                  or
+                </if>
+                 ( b.recdpt in
+                <foreach collection="recdpts" item="recdpt" index="index" open="(" close=")" separator=",">
+                    ${recdpt}
+                </foreach>
+                and b.bestat !=11 )
+            </if> -->
+        </if>
+        <if test="etbhs.length > 0">
+            and b.etbh in
+            <foreach collection="etbhs" item="etbh" index="index" open="(" close=")" separator=",">
+                ${etbh}
+            </foreach>
+        </if>
+        <if test="null != status and status.size > 0">
+            and b.bestat in
+            <foreach collection="status" item="sts" index="index" open="(" close=")" separator=",">
+                ${sts}
+            </foreach>
+        </if>
+       <!--  and b.crdt > (now() - interval '2 years') -->
+        order by b.crdt desc
+    </select>
+
+    <select id="getFirstLevelEventCount" resultType="java.lang.Integer">
+        select count(1)
+        from public.busievent b
+        where 1=1
+        <if test="keyword != null and keyword != ''">
+            and (b.benm like concat('%', #{keyword}, '%')
+            or b.addr like concat('%', #{keyword}, '%')
+            or b.bebh like concat('%', #{keyword}, '%')
+            or b.becnt like concat('%', #{keyword}, '%'))
+        </if>
+        <if test="adids.length > 0">
+            and b.adid in
+            <foreach collection="adids" item="adid" index="index" open="(" close=")" separator=",">
+                ${adid}
+            </foreach>
+        </if>
+        <if test="besrcdpts.length > 0">
+			and b.bepcdpt0 in
+			<foreach collection="besrcdpts" item="besrcdpt" index="index" open="(" close=")" separator=",">
+                    ${besrcdpt}
+            </foreach>
+                
+            <!-- <if test="allodpts.size > 0">
+                and (( b.allodpt in
+                <foreach collection="allodpts" item="allodpt" index="index" open="(" close=")" separator=",">
+                    ${allodpt}
+                </foreach>
+                )or b.allodpt is null)
+            </if>
+
+            <if test="recdpts.size > 0 ">
+                <if test="allodpts.size == 0">
+                    and
+                </if>
+                <if test="allodpts.size > 0">
+                    or
+                </if>
+                ( b.recdpt in
+                <foreach collection="recdpts" item="recdpt" index="index" open="(" close=")" separator=",">
+                    ${recdpt}
+                </foreach>
+                and b.bestat !=11 )
+            </if> -->
+        </if>
+        <if test="etbhs.length > 0">
+            and b.etbh in
+            <foreach collection="etbhs" item="etbh" index="index" open="(" close=")" separator=",">
+                ${etbh}
+            </foreach>
+        </if>
+        <if test="null != status and status.size > 0">
+            and b.bestat in
+            <foreach collection="status" item="sts" index="index" open="(" close=")" separator=",">
+                ${sts}
+            </foreach>
+        </if>
+       <!--  and b.crdt > (now() - interval '2 years') -->
+    </select>
+
+    <select id="getBusieventById" resultMap="DepositBaseResultMap">
+        select b.beid,b.benm,bt.etnm as etbh_name,to_char( b.hapndt, 'yyyy-MM-dd hh24:mi:ss' ) hapndt,b.addr,bf.efnm as efbh_name,b.bestat,be.bdnm as bepcdpt_name,
+        to_char( b.crdt, 'yyyy-MM-dd hh24:mi:ss' ) crdt, b.alldura::varchar as alldura, bs.crdt::varchar as pcdura,ST_AsGeoJSON (st_transform (bexy, 4326)) :: JSON as bexy
+        from public.busievent b LEFT JOIN public.admdiv ad on b.adid=ad.adid
+        LEFT JOIN public.bedept be on b.bepcdpt0=be.bedid LEFT JOIN public.betype bt on b.etbh=bt.etbh
+        LEFT JOIN public.befrom bf on b.efbh=bf.efbh
+        LEFT JOIN public.bestep bs on bs.esid = (select max(esid) from public.bestep where beid = b.beid )
+        where b.beid=#{beid}
+    </select>
+
+    <select id="getEventBasicInfo" resultMap="BusieventBasicInfoDtoResultMap">
+        select b.beid,b.bebh,b.benm ,bt.etnm as etbh_name,to_char( b.hapndt, 'yyyy-MM-dd hh24:mi:ss' ) hapndt,b.addr,bf.efnm as efbh_name,b.bestat,be.bdnm as besrcdpt_name,
+        to_char( b.crdt, 'yyyy-MM-dd hh24:mi:ss' ) crdt,b.alldura::varchar as lj_processing_time,bs.crdt::varchar as processing_time,
+        '' as lon,'' as lat,ad.adnm as adid_name,adzt.adnm as town_adid_name,to_char( b.recdt, 'yyyy-MM-dd hh24:mi:ss' ) slsj,
+        be2.bdnm as bedpts_name,be3.bdnm as bepcdpt_name,to_char( b.clsdt, 'yyyy-MM-dd hh24:mi:ss' ) clsdt,'' as pcdura,'否' as is_exceeded,b.becnt,
+        ST_AsGeoJSON (st_transform(bexy, 4326)) :: JSON as bexy, b.type
+        from public.busievent b
+        LEFT JOIN public.admdiv ad on b.adid=ad.adid
+        LEFT JOIN public.admdiv adzt on b.town_adid=adzt.adid
+        LEFT JOIN public.bedept be on b.bepcdpt0=be.bedid
+        LEFT JOIN public.bedept be2 on b.allodpt=be2.bedid
+        LEFT JOIN public.bedept be3 on b.recdpt=be3.bedid
+        LEFT JOIN public.betype bt on b.etbh=bt.etbh
+        LEFT JOIN public.befrom bf on b.efbh=bf.efbh
+        LEFT JOIN public.bestep bs on bs.esid = (select max(esid) from public.bestep where beid = b.beid )
+        where b.beid=#{beid}
+    </select>
+
+    <select id="countSecondCommonHandling" resultType="java.lang.Integer">
+        SELECT
+            count(1)
+        FROM
+            busievent b
+        WHERE
+          1=1
+        AND b.bestat = #{secondHandlingStat}
+        AND (select esupdept from bestep es where es.beid = b.beid order by es.esid desc limit 1 ) = #{bedid}
+    </select>
+
+    <select id="countFirstRecheckHandling" resultType="java.lang.Integer">
+        SELECT
+            count(1)
+        FROM
+            busievent b
+        WHERE
+            1 = 1
+        AND b.bestat = #{firstReCheckStat}
+        AND (
+            SELECT
+                stp.bepcdpt0
+            FROM
+                PUBLIC.bestep stp
+            JOIN PUBLIC.workflow wf ON wf.wfid = stp.wfid
+            WHERE
+                stp.beid = b.beid
+            AND wf.wfnm = '一级事件分拨'
+            ORDER BY
+                wf.wfid DESC
+            LIMIT 1
+        ) = #{bedid}
+    </select>
+
+    <select id="countSecondFinish" resultType="java.lang.Integer">
+        SELECT
+            count(1)
+        FROM
+            busievent b
+        WHERE
+          1=1
+        AND b.bestat = #{finishStat}
+        AND (
+            SELECT
+                stp.bepcdpt0
+            FROM
+                PUBLIC.bestep stp
+            JOIN PUBLIC.workflow wf ON wf.wfid = stp.wfid
+            WHERE
+                stp.beid = b.beid
+            AND wf.wfnm = '一级事件分拨'
+            ORDER BY
+                wf.wfid DESC
+            LIMIT 1
+        ) = #{bedid}
+    </select>
+
+    <select id="countServiceFirstCheck" resultType="java.lang.Integer">
+        SELECT
+            count(1)
+        FROM
+            busievent b
+        WHERE
+            1 = 1
+        AND b.bestat = #{firstCheckStat}
+        AND (
+            SELECT
+                stp.bepcdpt0
+            FROM
+                PUBLIC.bestep stp
+            JOIN PUBLIC.workflow wf ON wf.wfid = stp.wfid
+            WHERE
+                stp.beid = b.beid
+            AND wf.wfnm = '二级事件分拨'
+            ORDER BY
+                wf.wfid DESC
+            LIMIT 1
+        ) = #{bedid}
+    </select>
+
+    <select id="countServiceFinishCheck" resultType="java.lang.Integer">
+        SELECT
+            count(1)
+        FROM
+            busievent b
+        WHERE
+          1=1
+        AND b.bestat = #{finishStat}
+        AND (
+            SELECT
+                stp.bepcdpt0
+            FROM
+                PUBLIC.bestep stp
+            JOIN PUBLIC.workflow wf ON wf.wfid = stp.wfid
+            WHERE
+                stp.beid = b.beid
+            AND wf.wfnm = '二级事件分拨'
+            ORDER BY
+                wf.wfid DESC
+            LIMIT 1
+        ) = #{bedid}
+    </select>
+
+    <select id="getEventSecondDept" resultType="com.digitalchina.event.mid.entity.Bedept">
+        SELECT
+            dep.*
+        FROM
+            public.bedept dep
+        JOIN public.busievent b ON b.allodpt = dep.bedid
+        WHERE
+            b.beid = #{beid}
+    </select>
+
+    <select id="getEventServiceDept" resultType="com.digitalchina.event.mid.entity.Bedept">
+        SELECT
+            dep.*
+        FROM
+            public.bedept dep
+        JOIN public.busievent b ON b.recdpt = dep.bedid
+        WHERE
+            b.beid = #{beid}
+    </select>
+
+    <select id="getFirstCoopEventList" resultMap="BaseDtoResultMap">
+        SELECT
+        be.ceid as beid,
+        be.proc_inst_id,
+        be.cestat as bestat,
+        be.cenm as benm,
+        to_char(
+        be.hapndt,
+        'yyyy-mm-dd hh24:mi:ss'
+        ) hapndt,
+        bt.etnm,
+        bf.efnm,
+        be.cecnt as becnt,
+        be.adid,
+        ad.adnm as adName,
+        be.town_adid,
+        case when ad2.adnm is null then '无' else ad2.adnm end  AS townName,
+        bd.bdnm as bepcdpt0_name,
+        to_char(
+        be.crdt,
+        'yyyy-mm-dd hh24:mi:ss'
+        ) as acceptance_time
+        FROM
+        "public"."coopevent" be
+        LEFT JOIN admdiv ad ON be.adid = ad.adid
+        LEFT JOIN admdiv ad2 ON be.town_adid = ad2.adid
+        LEFT JOIN betype bt ON be.etbh = bt.etbh
+        LEFT JOIN befrom bf ON be.efbh = bf.efbh
+        LEFT JOIN bedept bd ON be.cesrcdpt = bd.bedid
+        where 1=1
+        and be.cestat = 20
+        <if test="efbh != null">
+            and be.efbh = #{efbh}
+        </if>
+        <if test="benm != null and benm != ''">
+            and
+            (be.cenm like concat('%', #{benm}, '%')
+              or be.cecnt like concat('%', #{benm}, '%')
+              or be.cebh like concat('%', #{benm}, '%')
+            )
+        </if>
+        <if test="becnt != null and becnt != ''">
+            and be.cecnt like concat('%', #{becnt}, '%')
+        </if>
+        <if test="etbh != null">
+            and be.etbh = #{etbh}
+        </if>
+        order by be.ceid desc
+    </select>
+
+    <select id="getSecondCoopEventList" resultMap="BaseDtoResultMap">
+        SELECT
+        be.ceid as beid,
+        be.proc_inst_id,
+        be.cestat as bestat,
+        be.cenm as benm,
+        to_char(
+        be.hapndt,
+        'yyyy-mm-dd hh24:mi:ss'
+        ) hapndt,
+        bt.etnm,
+        bf.efnm,
+        be.cecnt as becnt,
+        be.adid,
+        ad.adnm as adName,
+        be.town_adid,
+        case when ad2.adnm is null then '无' else ad2.adnm end  AS townName,
+        bd.bdnm as bepcdpt0_name,
+        to_char(
+        be.crdt,
+        'yyyy-mm-dd hh24:mi:ss'
+        ) as acceptance_time,
+        ahc.message_ as reason
+        FROM
+        "public"."coopevent" be
+        LEFT JOIN admdiv ad ON be.adid = ad.adid
+        LEFT JOIN admdiv ad2 ON be.town_adid = ad2.adid
+        LEFT JOIN betype bt ON be.etbh = bt.etbh
+        LEFT JOIN befrom bf ON be.efbh = bf.efbh
+        LEFT JOIN bedept bd ON be.cesrcdpt = bd.bedid
+        LEFT JOIN act_hi_comment ahc ON ahc.task_id_ = be.wfid::varchar and ahc.type_ = 'comment' and be.cestat = 21
+        where 1=1
+        and be.cepcdpt0 = #{bedid}
+        <if test="bestat != null and bestat == '待审批'">
+            and be.cestat in (10)
+        </if>
+        <if test="bestat != null and bestat == '被驳回'">
+            and be.cestat in (21)
+        </if>
+        <if test="efbh != null">
+            and be.efbh = #{efbh}
+        </if>
+        <if test="benm != null and benm != ''">
+            and be.cenm like concat('%', #{benm}, '%')
+        </if>
+        <if test="becnt != null and becnt != ''">
+            and be.cecnt like concat('%', #{becnt}, '%')
+        </if>
+        <if test="etbh != null">
+            and be.etbh = #{etbh}
+        </if>
+        order by be.ceid desc
+    </select>
+
+    <select id="getServiceCoopEventList" resultMap="BaseDtoResultMap">
+        SELECT
+        be.ceid as beid,
+        be.proc_inst_id,
+        be.cestat as bestat,
+        be.cenm as benm,
+        to_char(
+        be.hapndt,
+        'yyyy-mm-dd hh24:mi:ss'
+        ) hapndt,
+        bt.etnm,
+        bf.efnm,
+        be.cecnt as becnt,
+        be.adid,
+        ad.adnm as adName,
+        be.town_adid,
+        case when ad2.adnm is null then '无' else ad2.adnm end  AS townName,
+        be.cpdesc,
+        be.cpfbinfo,
+        bd.bdnm as bepcdpt0_name,
+        ahc.message_ as reason
+        FROM
+        "public"."coopevent" be
+        LEFT JOIN admdiv ad ON be.adid = ad.adid
+        LEFT JOIN admdiv ad2 ON be.town_adid = ad2.adid
+        LEFT JOIN betype bt ON be.etbh = bt.etbh
+        LEFT JOIN befrom bf ON be.efbh = bf.efbh
+        LEFT JOIN bedept bd ON be.cpbedid = bd.bedid
+        LEFT JOIN act_hi_comment ahc ON ahc.task_id_ = be.wfid::varchar and ahc.type_ = 'comment' and be.cestat = 11
+        where 1=1
+        <if test="bestat != null and bestat == '发起件'">
+            and be.cesrcdpt = #{bedid}
+            and be.cestat != 11
+        </if>
+        <if test="bestat != null and bestat == '协办件'">
+            and be.cpbedid = #{bedid}
+            and be.cestat = 30
+            and cpfbinfo is null
+        </if>
+        <if test="bestat != null and bestat == '被驳回'">
+            and be.cesrcdpt = #{bedid}
+            and be.cestat = 11
+        </if>
+        <if test="efbh != null">
+            and be.efbh = #{efbh}
+        </if>
+        <if test="benm != null and benm != ''">
+            and be.cenm like concat('%', #{benm}, '%')
+        </if>
+        <if test="becnt != null and becnt != ''">
+            and be.cecnt like concat('%', #{becnt}, '%')
+        </if>
+        <if test="etbh != null">
+            and be.etbh = #{etbh}
+        </if>
+        order by be.cestat ASC, be.cpfbinfo DESC, be.modt DESC
+    </select>
+
+    <update id="updateGis">
+        update public.busievent set bexy = st_geometryfromtext ( 'POINT(${lon} ${lat})', 4326 ) where beid = #{beid}
+    </update>
+
+    <select id="getEmergencyInfo" resultType="com.digitalchina.event.dto.EmergencyInfoDto">
+        select be.beid,be.benm,be.etbh,be.bebh,bt.etnm,
+        case when be.hapndt is not null then  be.hapndt else be.crdt end as hapndt,
+        be.adid,ad.adflnm,be.addr,ST_AsGeoJSON (st_transform(be.bexy, 4326)) :: JSON as bexy,be.becnt
+        from  busievent be
+        join  betype bt  on be.etbh = bt.etbh
+        join admdiv ad on be.adid = ad.adid
+        where  be.beid = #{beid}
+    </select>
+</mapper>

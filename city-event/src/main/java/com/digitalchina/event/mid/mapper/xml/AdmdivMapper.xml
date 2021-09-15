@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digitalchina.event.mid.mapper.AdmdivMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.digitalchina.event.mid.entity.Admdiv">
+        <id column="adid" property="adid" />
+        <result column="adnm" property="adnm" />
+        <result column="adflnm" property="adflnm" />
+        <result column="adupnms" property="adupnms" />
+        <result column="adlev" property="adlev" />
+        <result column="crdt" property="crdt" />
+        <result column="modt" property="modt" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        adid, adnm, adflnm, adupnms, adlev, crdt, modt
+    </sql>
+
+    <select id="getChildList" parameterType="java.lang.Integer" resultType="java.lang.String">
+            SELECT string_agg(a.adid||'' , ',') FROM (with recursive r as(
+            select * from "public"."admdiv" where adid = #{adid}
+            union all
+            select admdiv.* from "public"."admdiv", r where admdiv.adpid = r.adid
+            )
+            select * from r order by adid) a
+    </select>
+
+</mapper>

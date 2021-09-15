@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digitalchina.zhjg.szss.gis.mapper.WarningStatisticsMapper">
+
+    <select id="selectWarningStatus" parameterType="java.util.Map" resultType="java.util.HashMap">
+        select count(*) num,a.warning_status_id,a.warning_status_value
+        from sde.parts_warn_info a,sde.parts_base b
+        where a.REFER_ID=b.REFER_ID
+        and  a.config_tb=b.parts_cate_code
+        <if test="admdivCode != null  and admdivCode != '' ">
+            and b.admdiv_code = #{admdivCode}
+        </if>
+        <if test="startTime != null  and startTime != '' ">
+            and  to_char(a.warning_time,'yyyy-MM-dd hh24:mi') &gt;= #{startTime}
+        </if>
+        <if test="endTime != null  and endTime != '' ">
+            and  to_char(a.warning_time,'yyyy-MM-dd hh24:mi') &lt;= #{endTime}
+        </if>
+        group by a.warning_status_id,a.warning_status_value
+    </select>
+
+    <select id="selectWarningType" parameterType="java.util.Map" resultType="java.util.HashMap">
+        select count(*) num,b.warning_type_id,warning_type_value from sde.parts_base a
+        left join sde.parts_warn_info b
+        on a.parts_cate_code=b.config_tb and a.refer_id=b.refer_id
+            <where>
+            <if test="admdivCode != null  and admdivCode != '' ">
+                and a.admdiv_code = #{admdivCode}
+            </if>
+            <if test="startTime != null  and startTime != '' ">
+                and  to_char(b.warning_time,'yyyy-MM-dd hh24:mi') &gt;= #{startTime}
+            </if>
+            <if test="endTime != null  and endTime != '' ">
+                and  to_char(b.warning_time,'yyyy-MM-dd hh24:mi') &lt;= #{endTime}
+            </if>
+        </where>
+        group by b.warning_type_id,b.warning_type_value
+    </select>
+
+    <select id="selectWaringTypeTop" parameterType="java.util.Map" resultType="java.util.HashMap">
+        select * from (
+            select count(*) num,a.config_tb,b.parts_cate_name
+            from sde.parts_warn_info a,sde.parts_base b where  b.parts_cate_code=a.config_tb
+            and a.refer_id=b.refer_id and a.warning_type_id != 64
+                <if test="admdivCode != null  and admdivCode != '' ">
+                    and b.admdiv_code = #{admdivCode}
+                </if>
+                <if test="startTime != null  and startTime != '' ">
+                    and  to_char(a.warning_time,'yyyy-MM-dd hh24:mi') &gt;= #{startTime}
+                </if>
+                <if test="endTime != null  and endTime != '' ">
+                    and  to_char(a.warning_time,'yyyy-MM-dd hh24:mi') &lt;= #{endTime}
+                </if>
+            group by a.CONFIG_TB,b.parts_cate_name
+            order by num desc
+        ) t where rownum &lt;= 5
+    </select>
+
+    <select id="selectWaringTypeTopInfo" parameterType="java.util.Map" resultType="java.util.HashMap">
+            select count(*) inNum,a.warning_type_id,a.warning_type_value,b.parts_cate_name
+            from sde.parts_warn_info a,sde.parts_base b
+            where a.config_tb=b.parts_cate_code
+            and a.refer_id=b.refer_id
+            and b.parts_cate_code = #{tb}
+                <if test="admdivCode != null  and admdivCode != '' ">
+                    and b.admdiv_code = #{admdivCode}
+                </if>
+                <if test="startTime != null  and startTime != '' ">
+                    and  to_char(a.warning_time,'yyyy-MM-dd hh24:mi') &gt;= #{startTime}
+                </if>
+                <if test="endTime != null  and endTime != '' ">
+                    and  to_char(a.warning_time,'yyyy-MM-dd hh24:mi') &lt;= #{endTime}
+                </if>
+            group by a.warning_type_id,a.warning_type_value,b.parts_cate_name
+    </select>
+
+    <select id="selectWaringTypeDate" resultType="java.util.HashMap">
+        select * from (SELECT to_char(add_months(sysdate,1-LEVEL),'YYYYMM') as dateTime FROM DUAL CONNECT BY LEVEL &lt;= 5 ) t GROUP BY t.DATETIME
+    </select>
+
+
+    <select id="electWaringTypeByDate" parameterType="java.util.Map" resultType="java.util.HashMap">
+
+        select a.datetime,NVL(b.COUNT, 0) as count,b.WARNING_TYPE_VALUE from
+        (SELECT to_char(add_months(sysdate,1-LEVEL),'YYYYMM') as dateTime FROM DUAL CONNECT BY LEVEL &lt;= 5) a
+        left join
+        ( select count(*) as count,month_time,warning_type_id ,warning_type_value from (
+        select to_char(warning_time,'YYYYMM') as month_time,warning_type_id,warning_type_value from
+        SDE.parts_warn_info a,SDE.parts_base b where a.config_tb=b.parts_cate_code and a.refer_id=b.refer_id
+            <if test="admdivCode != null  and admdivCode != '' ">
+                and b.admdiv_code = #{admdivCode}
+            </if>
+            <if test="startTime != null  and startTime != '' ">
+                and  to_char(a.warning_time,'yyyy-MM-dd hh24:mi') &gt;= #{startTime}
+            </if>
+            <if test="endTime != null  and endTime != '' ">
+                and  to_char(a.warning_time,'yyyy-MM-dd hh24:mi') &lt;= #{endTime}
+            </if>
+        ) t
+        group by t.month_time,t.warning_type_id,t.warning_type_value order by month_time
+        ) b on a.dateTime=b.month_time where a.datetime=#{datetime}
+
+    </select>
+</mapper>

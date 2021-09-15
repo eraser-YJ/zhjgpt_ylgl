@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digitalchina.admin.mid.mapper.WrnlRiskRelevanceMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.digitalchina.admin.mid.entity.WrnlRiskRelevance">
+        <id column="id" property="id" />
+        <result column="riskid" property="riskid" />
+        <result column="paramid" property="paramid" />
+        <result column="itemid" property="itemid" />
+        <result column="type" property="type" />
+        <result column="mscode" property="mscode" />
+        <!-- 非数据库字段 -->
+        <result column="itemname" property="itemname" />
+        <result column="mesutype" property="mesutype" />
+        <result column="msunit" property="msunit" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, riskid, paramid, itemid, type, mscode
+    </sql>
+
+	<select id="getMesuByRisk" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+		select t.*,m.msunit,m."type"as mesutype, dvc.idnm as itemname from warn.warn_wrnl_risk_relevance t
+		join warn.warn_mesu m on m.mscode = t.mscode
+		join warn.warn_iotdvc dvc on dvc.idid = t.itemid
+		where t."type" = 0 and t.riskid = #{id}
+		union <!-- 组件和监测点的数据合并 -->
+		select t.*,m.msunit,m."type" as mesutype,ele.name as itemname from warn.warn_wrnl_risk_relevance t
+		join warn.warn_mesu m on m.mscode = t.mscode
+		join warn.warn_nfelement ele on ele.id = t.itemid
+		where t."type" = 1 and t.riskid = #{id}
+	</select>
+
+</mapper>

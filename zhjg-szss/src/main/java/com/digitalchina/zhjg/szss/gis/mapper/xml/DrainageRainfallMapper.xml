@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digitalchina.zhjg.szss.gis.mapper.DrainageRainfallMapper">
+
+
+    <!-- 排水雨量表_通用查询映射结果 -->
+    <resultMap id="DrainageRainfallResultMap" type="com.digitalchina.zhjg.szss.gis.entity.DrainageRainfall">
+        <result column="OBJECTID" property="objectId"/>
+        <result column="ZDBH" property="zdbh"/>
+        <result column="TM" property="tm"/>
+        <result column="DRP" property="drp"/>
+        <result column="INTV" property="intv"/>
+        <result column="PDR" property="pdr"/>
+        <result column="DYP" property="dyp"/>
+        <result column="WTH" property="wth"/>
+        <result column="VOLTAGE" property="voltage"/>
+        <result column="ZDMC" property="zdmc"/>
+    </resultMap>
+
+    <insert id="insertDrainageRainfall" parameterType="com.digitalchina.zhjg.szss.gis.entity.DrainageRainfall"  useGeneratedKeys="true" keyProperty="OBJECTID" >
+        INSERT INTO
+            SDE.SZSS_PSYL (ZDBH,TM,DRP,INTV,PDR,DYP,WTH,VOLTAGE,ZDMC)
+        VALUES (
+            #{zdbh},to_date(#{tm},'yyyy-mm-dd hh24:mi:ss'),#{drp},#{intv},#{pdr},#{dyp},#{wth},#{voltage},#{zdmc})
+    </insert>
+
+    <select id="selectDrainageRainfall" parameterType="java.lang.String" resultMap="DrainageRainfallResultMap">
+        SELECT
+            OBJECTID,ZDBH,to_char(TM,'yyyy-mm-dd hh24:mi:ss') TM,DRP,INTV,PDR,DYP,WTH,VOLTAGE,ZDMC
+        FROM
+            SDE.SZSS_PSYL
+        WHERE
+            1=1
+            <if test="zdbh != null  and zdbh != '' ">
+                AND ZDBH = #{zdbh}
+            </if>
+            <if test="zdmc != null  and zdmc != '' ">
+                AND ZDMC like '%' ||  #{zdmc} || '%'
+            </if>
+            <if test="startTime != null  and startTime != '' ">
+                AND TO_CHAR(TM,'yyyy-MM-dd') &gt;= #{startTime}
+            </if>
+            <if test="endTime != null  and endTime != '' ">
+                AND TO_CHAR(TM,'yyyy-MM-dd') &lt;= #{endTime}
+            </if>
+
+        ORDER BY TM DESC
+    </select>
+
+</mapper>

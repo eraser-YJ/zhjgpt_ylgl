@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digitalchina.zhjg.szss.gis.mapper.WarningSmsMapper">
+
+    <select id="findPondingPointByCode" resultType="com.digitalchina.zhjg.szss.gis.entity.PondingPoint">
+        select ZDMC, LXDH
+        from SZSS_JSD
+        where ZDBH = #{code}
+    </select>
+
+
+    <select id="findDrainagePointByCode" resultType="com.digitalchina.zhjg.szss.gis.entity.DrainagePoint">
+        select ZDMC, LXDH
+        from SZSS_PSD
+        where ZDBH = #{code}
+    </select>
+
+    <select id="findStationLatestSendTime" resultType="java.util.Date">
+        select max(send_time)
+        from sms_send_log
+        where zdbh = #{code}
+          and status = 'SUCCESS'
+    </select>
+
+    <insert id="insertSendLog" parameterType="com.digitalchina.zhjg.szss.gis.entity.SmsSendLog">
+        insert into sms_send_log (zdlx, zdbh, sw, send_time, status, sms_resp)
+        values (#{zdlx}, #{zdbh}, #{sw}, #{sendTime}, #{status}, #{smsResp})
+    </insert>
+</mapper>

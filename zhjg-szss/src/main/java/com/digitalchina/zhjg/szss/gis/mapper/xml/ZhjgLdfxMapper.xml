@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digitalchina.zhjg.szss.gis.mapper.ZhjgLdFxMapper">
+
+    <!--分析评价-绿地分析-绿地率-->
+    <select id="selectZhjgLdl" parameterType="java.lang.String" resultType="java.util.HashMap">
+ 		SELECT
+			to_char(100 * round( t.area / t.NR_VALUE, 4 ),'fm99990.0099') || '%' DATANUMPER,t.ADMDIV_NAME AREANAME
+		FROM
+			(
+			SELECT
+				sum( a.area ) area,max( a.ADMDIV_NAME ) ADMDIV_NAME,max( A.ADMDIV_CODE ) ADMDIV_CODE,max( b.NR_VALUE ) NR_VALUE
+			FROM
+				GYLD_LD a,DATA_CONFIG b
+			WHERE
+				a.ADMDIV_CODE = b.NR_CODE
+			GROUP BY
+				A.ADMDIV_CODE
+			) t
+			UNION ALL
+			SELECT
+				to_char( 100 * round( a.area / b.NR_VALUE, 4 ), 'fm99990.0099' ) || '%' DATANUMPER,
+				c.AREANAME AREANAME
+			FROM
+				( SELECT sum( area ) area FROM GYLD_LD ) a,
+				( SELECT sum( NR_VALUE ) NR_VALUE FROM DATA_CONFIG WHERE NR_TYPE = 'AREA' ) b,
+				( SELECT N'长春新区' AS AREANAME FROM dual ) c
+    </select>
+
+    <!--分析评价-绿地分析-f-->
+    <select id="selectZhjgLhFgl" parameterType="java.lang.String" resultType="java.util.HashMap">
+		SELECT
+			to_char(100 * round( sum( t.AREA ) / max( t.nr_value ), 4 ),'fm99990.0099') || '%' DATANUMPER,max( t.ADMDIV_NAME ) AREANAME
+		FROM
+		(
+			SELECT
+				sum( a.AREA ) AREA,a.CATE_LEVEL_1_ID CATE_LEVEL_1_ID,max( a.CATE_LEVEL_1_NAME ) CATE_LEVEL_1_NAME,a.ADMDIV_CODE,max( a.ADMDIV_NAME ) ADMDIV_NAME,max( b.nr_value ) nr_value
+			FROM
+				GYLD_LD a,DATA_CONFIG b
+			WHERE
+				a.ADMDIV_CODE = b.NR_CODE
+			GROUP BY
+				a.CATE_LEVEL_1_ID,a.ADMDIV_CODE
+		) t
+		GROUP BY
+			t.ADMDIV_CODE
+	</select>
+
+    <!--分析评价-绿地分析-人均绿地面积-->
+    <select id="selectZhjgRjLdMj" parameterType="java.lang.String" resultType="java.util.HashMap">
+		SELECT
+			round( sum( t.AREA ) / max( t.NR_VALUE ), 2 ) DATANUM
+		FROM
+			(
+				SELECT
+					a.AREA AREA,b.NR_VALUE
+				FROM
+					GYLD_LD a,DATA_CONFIG b
+				WHERE
+					b.NR_TYPE = 'RK'
+			) t
+	</select>
+
+    <!--分析评价-绿地分析-每万人拥有公园数-->
+    <select id="selectZhjgWrYyGyNum" parameterType="java.lang.String" resultType="java.util.HashMap">
+		SELECT
+			round( t.GYNUM / t.RKVALUE, 2 ) DATANUM
+		FROM
+			(
+				SELECT
+					count( 1 ) GYNUM,MAX( b.NR_VALUE ) / 10000 RKVALUE
+				FROM
+					GYLD_GY a,DATA_CONFIG b
+				WHERE
+				b.NR_TYPE = 'RK'
+			) t
+	</select>
+
+    <!--分析评价-年度数据对比分析-->
+    <select id="selectZhjgNdSjDb" parameterType="java.lang.String" resultType="java.util.HashMap">
+		SELECT
+			a.LDMJ,b.LHLPER,c.LDLPER
+		FROM
+			( SELECT sum( AREA ) LDMJ FROM GYLD_LD WHERE 1=1
+			<if test="dateTime != null  and dateTime != '' ">
+				AND to_char( DATE_BUILD, 'yyyy' ) &lt;= #{dateTime}
+			</if>
+			) a,
+			(
+			SELECT
+				to_char(100 * round( m.AREA / n.nr_value, 4 ),'fm99990.0099') || '%' LHLPER
+			FROM
+				( SELECT sum( AREA ) AREA FROM GYLD_LD WHERE  1=1
+				<if test="dateTime != null  and dateTime != '' ">
+					AND to_char( DATE_BUILD, 'yyyy' ) &lt;= #{dateTime}
+				</if>
+				) m,
+				( SELECT sum( nr_value ) nr_value FROM DATA_CONFIG WHERE nr_type != 'RK' ) n
+			) b,
+			(
+			SELECT
+				to_char(100 * round( t.area / t.nr_value, 4 ),'fm99990.0099') || '%' LDLPER
+			FROM
+			(
+				SELECT
+					sum( h.area ) area,max( i.nr_value ) nr_value
+				FROM
+					( SELECT sum( area ) area, MAX( CATE_LEVEL_1_NAME ) FROM GYLD_LD WHERE 1=1
+					<if test="dateTime != null  and dateTime != '' ">
+						AND to_char( DATE_BUILD, 'yyyy' ) &lt;= #{dateTime}
+					</if>
+					GROUP BY CATE_LEVEL_1_ID ) h,
+					( SELECT sum( nr_value ) nr_value FROM DATA_CONFIG WHERE nr_type !=  'RK' ) i
+			) t
+		) c
+	</select>
+</mapper>

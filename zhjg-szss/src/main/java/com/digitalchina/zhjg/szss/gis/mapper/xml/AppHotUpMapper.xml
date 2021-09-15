@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digitalchina.zhjg.szss.gis.mapper.AppHotUpMapper">
+    <select id="selectHotUpData" parameterType="com.digitalchina.zhjg.szss.gis.entity.HotUpData" resultType="com.digitalchina.zhjg.szss.gis.entity.HotUpData">
+        SELECT
+            a.USER_ID,
+            a.USER_NAME,
+            a.STATUS,
+            to_char(b.UPTIME,'yyyy-mm-dd hh24:mi:ss') UPTIME,
+            b.EXPLAIN,
+            b.LXR,
+            b.LXPHONE,
+            c.GLFMC MC,
+            c.YXQK,
+            d.GLQY EN_NAME,
+            b.PIC
+        FROM
+            SDE.SZSS_USER a,
+            SDE.SZSS_LOG b,
+            SDE.SZSS_GLF c,
+            SDE.SZSS_RLGS d
+        WHERE
+            a.USER_ID = b.USER_ID
+            AND c.OBJECTID = b.GLF_ID
+            AND c.GRGSID = d.OBJECTID
+            AND a.USER_ID=#{hotUpData.userId}
+        <if test="startTime != null  and startTime != '' ">
+            AND TO_CHAR(uptime,'yyyy-MM-dd') &gt;= #{startTime}
+        </if>
+        <if test="endTime != null  and endTime != '' ">
+            AND TO_CHAR(uptime,'yyyy-MM-dd') &lt;= #{endTime}
+        </if>
+        order by b.UPTIME desc
+
+    </select>
+
+    <select id="selectQYGLF" parameterType="com.digitalchina.zhjg.szss.gis.entity.HotUpData" resultType="com.digitalchina.zhjg.szss.gis.entity.HotUpData">
+        SELECT
+            a.USER_ID,
+            a.USER_NAME,
+            b.GLQY EN_NAME,
+            c.GLFMC MC,
+            c.GRGSID ENTER_ID,
+            c.OBJECTID GLF_ID
+        FROM
+            SDE.SZSS_USER a,
+            SDE.SZSS_RLGS b,
+            SDE.SZSS_GLF c
+        WHERE
+            a.ENTER_ID = c.GRGSID
+        and
+            a.enter_id = b.OBJECTID
+        AND
+        a.USER_ID=#{userId}
+    </select>
+
+    <insert id="insertHotLog" parameterType="com.digitalchina.zhjg.szss.gis.entity.HotUpData">
+         INSERT INTO
+            SDE.SZSS_LOG (GLF_ID,USER_NAME,USER_ID,UPTIME,EXPLAIN,LXR,LXPHONE,PIC,YXQK)
+        VALUES (
+            #{glfId},#{userName},#{userId},to_date(#{uptime},'yyyy-mm-dd hh24:mi:ss'),#{explain}, #{lxr},#{lxphone},#{pic},#{yxqk})
+    </insert>
+
+    <update id="updateGLFType">
+        update SDE.SZSS_GLF set YXQK=#{yxqk} where OBJECTID=#{glfId}
+    </update>
+</mapper>

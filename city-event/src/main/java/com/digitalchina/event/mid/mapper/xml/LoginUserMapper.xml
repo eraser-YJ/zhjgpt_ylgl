@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digitalchina.event.mid.mapper.LoginUserMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.digitalchina.event.mid.entity.LoginUser">
+        <result column="id" property="id" />
+        <result column="login" property="login" />
+        <result column="name" property="name" />
+        <result column="dept" property="dept" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, login, name
+    </sql>
+
+    <select id="query" resultMap="BaseResultMap">
+        select lu.* ,bp.bdnm as dept from login_user lu
+        left join dept_user du on lu.id=du.uid
+        left join bedept bp on bp.bedid = du.did
+        where 1 = 1
+        <if test="login != null and login != ''">
+            and lu.login like concat('%', #{login}, '%')
+        </if>
+        <if test="name != null and name != ''">
+            and lu.name like concat('%', #{name}, '%')
+        </if>
+        <if test="dept != null and dept != ''">
+            and bp.bdnm like concat('%', #{dept}, '%')
+        </if>
+        order by lu.id
+    </select>
+</mapper>

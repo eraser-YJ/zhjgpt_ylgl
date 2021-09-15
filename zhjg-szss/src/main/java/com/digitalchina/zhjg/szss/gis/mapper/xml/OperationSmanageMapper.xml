@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digitalchina.zhjg.szss.gis.mapper.OperationSmanageMapper">
+
+    <select id="selectPartsInfoList" parameterType="com.digitalchina.zhjg.szss.gis.entity.PartsWarnInfo" resultType="com.digitalchina.zhjg.szss.gis.entity.PartsWarnInfo">
+        select a.warn_id,a.config_tb,
+        a.refer_id,a.warning_status_id,
+        a.warning_status_value,
+        a.warning_type_id,
+        a.warning_type_value,
+        b.parts_cate_code,
+        b.parts_cate_name,
+        b.parts_cate_top_name,
+        b.owner_code,
+        b.owner_name,
+        b.status_code,
+        b.status_name,
+        b.currency_code,
+        b.currency_name,
+        b.parts_code,
+        b.baseid,
+        b.parts_cate_id
+        from sde.parts_warn_info a,sde.parts_base b
+        where a.REFER_ID=b.REFER_ID
+        and a.config_tb=b.parts_cate_code
+        <if test="partsWarnInfo.admdivCode != null  and partsWarnInfo.admdivCode != '' ">
+            and b.admdiv_code = #{partsWarnInfo.admdivCode}
+        </if>
+        <if test="partsWarnInfo.partsCateId != null  and partsWarnInfo.partsCateId != '' ">
+            and b.parts_cate_id = #{partsWarnInfo.partsCateId}
+        </if>
+        <if test="partsWarnInfo.statusCode != null  and partsWarnInfo.statusCode != '' ">
+            and b.status_code = #{partsWarnInfo.statusCode}
+        </if>
+        <if test="partsWarnInfo.currencyCode != null  and partsWarnInfo.currencyCode != '' ">
+            and b.currency_code = #{partsWarnInfo.currencyCode}
+        </if>
+        <if test="partsWarnInfo.warningStatusId != null  and partsWarnInfo.warningStatusId != '' ">
+            and a.warning_status_id = #{partsWarnInfo.warningStatusId}
+        </if>
+
+        <if test="partsWarnInfo.warningTypeId != null  and partsWarnInfo.warningTypeId != '' ">
+            and a.warning_type_id = #{partsWarnInfo.warningTypeId}
+        </if>
+        <if test="partsWarnInfo.startwarningTime != null  and partsWarnInfo.startwarningTime != '' ">
+            and  to_char(a.warning_time,'yyyy-MM-dd hh24:mi') &gt;= #{partsWarnInfo.startwarningTime}
+        </if>
+        <if test="partsWarnInfo.endwarningTime != null  and partsWarnInfo.endwarningTime != '' ">
+            and  to_char(a.warning_time,'yyyy-MM-dd hh24:mi') &lt;= #{partsWarnInfo.endwarningTime}
+        </if>
+
+    </select>
+
+    <select id="selectPartsInfo" parameterType="com.digitalchina.zhjg.szss.gis.entity.PartsWarnInfo" resultType="com.digitalchina.zhjg.szss.gis.entity.PartsInfo">
+        select a.warn_id,a.config_tb,a.refer_id,b.parts_cate_code,
+        b.parts_cate_name,
+        b.parts_code,
+        b.baseid,
+        c.wzms,b.currency_code,b.currency_name,
+        b.status_code,b.status_name,
+        b.owner_code,b.owner_name
+        from sde.parts_warn_info a,sde.parts_base b,sde.${configTb} c
+        where a.CONFIG_TB=b.parts_cate_code
+        and a.refer_id = b.refer_id
+        and a.refer_id=c.objectid
+        and a.warn_id=#{warnId}
+        and a.refer_id = #{referId}
+    </select>
+
+    <select id="selectWarnDiscussInfo" parameterType="com.digitalchina.zhjg.szss.gis.entity.WarnDiscuss" resultType="com.digitalchina.zhjg.szss.gis.entity.WarnDiscuss">
+        SELECT * FROM sde.warn_discuss_decide a,sde.parts_warn_info b,sde.parts_base c
+        where a.parts_warn_id=b.warn_id
+        and c.parts_cate_code = b.config_tb
+        and c.refer_id=b.refer_id
+        and a.parts_warn_id = #{partsWarnId}
+    </select>
+
+    <insert id="insertManagTrack" parameterType="com.digitalchina.zhjg.szss.gis.entity.ManagTrack">
+        insert into sde.MANAG_TRACK (warn_info_id,manag_time,manag_type
+        ) values (
+            #{warnInfoId},SYSDATE,#{managType}
+        )
+    </insert>
+
+    <insert id="insertManagTrackManagMeasures" parameterType="com.digitalchina.zhjg.szss.gis.entity.ManagTrack">
+        insert into sde.MANAG_TRACK (warn_info_id,manag_time,manag_measures,manag_type,manag_pic
+        ) values (
+            #{warnInfoId},SYSDATE,#{managMeasures},#{managType},#{managPic}
+        )
+    </insert>
+
+    <update id="updateManagTrack" parameterType="com.digitalchina.zhjg.szss.gis.entity.ManagTrack">
+        update sde.manag_track set
+            manag_measures = #{managMeasures},manag_time = SYSDATE
+        where
+             warn_info_id = #{warnInfoId}
+    </update>
+
+
+    <select id="selectManagTrackSure" parameterType="com.digitalchina.zhjg.szss.gis.entity.ManagTrack" resultType="com.digitalchina.zhjg.szss.gis.entity.ManagTrack">
+        select * from sde.manag_track where warn_info_id = #{warnInfoId}
+    </select>
+
+    <update id="updatePartsWarnInfo" parameterType="java.util.Map">
+        update sde.parts_warn_info set warning_status_id=#{warningStatusId},
+            warning_status_value=#{warningStatusValue},
+            warning_type_id=#{warningTypeId},
+            warning_type_value = #{warningTypeValue}
+        where warn_id = #{warnInfoId}
+
+    </update>
+
+    <update id="updatePartsWarnInfoWarningStatus" parameterType="java.util.Map">
+        update sde.parts_warn_info set warning_status_id=#{warningStatusId},
+            warning_status_value=#{warningStatusValue}
+        where warn_id = #{warnInfoId}
+
+    </update>
+
+    <select id="selectPartsInfoListExport" parameterType="com.digitalchina.zhjg.szss.gis.entity.PartsWarnInfo" resultType="com.digitalchina.zhjg.szss.gis.entity.PartsWarnInfo">
+        select a.warn_id,a.config_tb,
+        a.refer_id,a.warning_status_id,
+        a.warning_status_value,
+        a.warning_type_id,
+        a.warning_type_value,
+        b.parts_cate_code,
+        b.parts_cate_name,
+        b.parts_cate_top_name,
+        b.owner_code,
+        b.owner_name,
+        b.status_code,
+        b.status_name,
+        b.currency_code,
+        b.currency_name,
+        b.parts_code,
+        b.baseid,
+        b.parts_cate_id
+        from sde.parts_warn_info a,sde.parts_base b
+        where a.REFER_ID=b.REFER_ID
+        and a.config_tb=b.parts_cate_code
+        <if test="admdivCode != null  and admdivCode != '' ">
+            and b.admdiv_code = #{admdivCode}
+        </if>
+        <if test="partsCateId != null  and partsCateId != '' ">
+            and b.parts_cate_id = #{partsCateId}
+        </if>
+        <if test="statusCode != null  and statusCode != '' ">
+            and b.status_code = #{statusCode}
+        </if>
+        <if test="currencyCode != null  and currencyCode != '' ">
+            and b.currency_code = #{currencyCode}
+        </if>
+        <if test="warningStatusId != null  and warningStatusId != '' ">
+            and a.warning_status_id = #{warningStatusId}
+        </if>
+
+        <if test="warningTypeId != null  and warningTypeId != '' ">
+            and a.warning_type_id = #{warningTypeId}
+        </if>
+        <if test="startwarningTime != null  and startwarningTime != '' ">
+            and  to_char(a.warning_time,'yyyy-MM-dd hh24:mi') &gt;= #{startwarningTime}
+        </if>
+        <if test="endwarningTime != null  and endwarningTime != '' ">
+            and  to_char(a.warning_time,'yyyy-MM-dd hh24:mi') &lt;= #{endwarningTime}
+        </if>
+    </select>
+</mapper>

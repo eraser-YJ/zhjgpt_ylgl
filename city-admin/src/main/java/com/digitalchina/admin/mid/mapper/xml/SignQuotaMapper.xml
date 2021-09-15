@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digitalchina.admin.mid.mapper.SignQuotaMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.digitalchina.admin.mid.entity.SignQuota">
+        <result column="id" property="id" />
+        <result column="ncode" property="ncode" />
+        <result column="nname" property="nname" />
+        <result column="nmeno" property="nmeno" />
+        <result column="isarea" property="isarea" />
+        <result column="iskey" property="iskey" />
+        <result column="qid" property="qid" />
+        <result column="qparm" property="qparm" typeHandler="com.digitalchina.admin.utils.PgJson2JsonObjHandler" />
+        <result column="gid" property="gid" />
+        <result column="gparm" property="gparm" typeHandler="com.digitalchina.admin.utils.PgJson2JsonArrayObjHandler"/>
+        <result column="status" property="status" />
+        <result column="crdt" property="crdt" />
+        <result column="modt" property="modt" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, ncode, nname, nmeno, isarea, iskey, qid, qparm, gid, gparm, status, crdt, modt
+    </sql>
+
+</mapper>

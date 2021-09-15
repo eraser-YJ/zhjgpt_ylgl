@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper
+        namespace="com.digitalchina.admin.gis.mapper.ConfigMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap"
+               type="com.digitalchina.admin.gis.entity.Config">
+        <id column="TB" property="tb"/>
+        <result column="TBNM" property="tbnm"/>
+        <result column="FD" property="fd"/>
+        <result column="FDNM" property="fdnm"/>
+        <result column="SORT" property="sort"/>
+        <result column="CONDITION" property="condition"/>
+        <result column="EDIT" property="edit"/>
+        <result column="TYPE" property="type"/>
+        <result column="LIST" property="list"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        TB, TBNM, FD, FDNM, SORT, CONDITION, EDIT, TYPE, LIST
+    </sql>
+
+    <select id="getAllLayer" resultMap="BaseResultMap">
+        SELECT tb,tbnm FROM "CONFIG"
+        GROUP BY tb,tbnm order by MIN(sort)
+    </select>
+
+    <select id="customPage" resultType="java.util.Map">
+        ${sql}
+    </select>
+
+    <select id="customListAll" resultType="java.util.Map">
+        ${sql}
+    </select>
+
+    <select id="customSelectOne" resultType="java.util.Map">
+        ${sql}
+    </select>
+
+    <update id="costomUpdate">
+        ${sql}
+    </update>
+
+    <delete id="customDelete">
+        ${sql}
+    </delete>
+
+    <insert id="customInsert">
+        ${sql}
+    </insert>
+
+    <select id="selectSequenceVal" resultType="long">
+        select ${seq_name}.nextval from dual
+    </select>
+
+    <update id="clearShape">
+        update ${code} set shape=null where objectId=#{objectId}
+    </update>
+
+    <update id="updateShape">
+        update ${code} set wkt=#{wktStr}, srid=#{srid}, shape=#{shape} where objectId=#{objectId}
+    </update>
+
+    <update id="updateWkt">
+        update ${code} set wkt=#{wktStr}, srid=#{srid} where objectId=#{objectId}
+    </update>
+</mapper>

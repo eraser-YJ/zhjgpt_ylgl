@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digitalchina.zhjg.szss.gis.mapper.RainFallTableMapper">
+
+    <select id="selectRainFallInfo" parameterType="java.util.Date" resultType="java.util.HashMap">
+        SELECT
+            m.STCD ZDBH,n.ZDMC ZDMC,n.SZWZ SZWZ,n.ZRDW ZRDW,n.SZQY SZQY,
+            CASE WHEN m.DRP IS NULL THEN 0 ELSE m.DRP END DRP,
+            m.INTV INTV,
+            CASE WHEN m.PDR IS NULL THEN 0 ELSE m.PDR END PDR,
+            CASE WHEN m.DYP IS NULL THEN 0 ELSE m.DYP END DYP,
+            m.WTH,m.Z,m.TM
+        FROM
+            (
+                SELECT DISTINCT
+                    a.STCD,a.DRP,a.INTV,a.PDR,a.DYP,a.WTH,a.TM,b.Z
+                FROM
+                    ST_PPTN_R a
+                LEFT JOIN
+                    ST_RIVER_R_B b ON a.STCD = b.STCD AND a.TM = b.TM
+                WHERE
+					a.TM>#{date}
+            ) m
+        LEFT JOIN
+            SZSS_JSD n ON m.STCD = n.ZDBH order by m.TM
+    </select>
+
+    <select id="selectJsdMaxId"  resultType="java.util.HashMap">
+        SELECT JSDMAXDATE FROM SZSS_MAXID
+    </select>
+
+    <select id="selectMaxidThird" resultType="java.util.HashMap">
+        SELECT  MAX(a.tm) TM FROM  ST_PPTN_R a LEFT JOIN ST_RIVER_R_B b ON a.stcd = b.stcd AND a.tm = b.tm
+    </select>
+
+    <insert id="updateJsdMaxId" parameterType="java.util.Date">
+        UPDATE SZSS_MAXID SET JSDMAXDATE=#{date} WHERE ID=1
+    </insert>
+
+    <select id="selectByZdbh"  parameterType="java.lang.String" resultType="java.util.HashMap">
+        SELECT BJFZ FROM SZSS_JSDDEVICE WHERE SBBH = #{zdbh}
+    </select>
+
+    <select id="pondingPointList" resultType="com.digitalchina.zhjg.szss.gis.entity.PondingPointPage">
+        SELECT * FROM SZSS_JSD
+    </select>
+
+    <select id="selectJsdMaxTm" parameterType="java.lang.String" resultType="com.digitalchina.zhjg.szss.gis.entity.JsdMaxTm">
+        SELECT * FROM SZSS_JSDMAXTM WHERE JSDZDBH = #{zdbh}
+    </select>
+
+    <insert id="insertJsdMaxTm" parameterType="com.digitalchina.zhjg.szss.gis.entity.JsdMaxTm">
+        INSERT INTO SZSS_JSDMAXTM (JSDZDBH,JSDMAXTM) VALUES (#{jsdzdbh},#{jsdmaxtm})
+    </insert>
+
+    <select id="selectNewReallyData" parameterType="com.digitalchina.zhjg.szss.gis.entity.JsdMaxTm" resultType="java.util.HashMap">
+        SELECT
+            m.STCD ZDBH,n.ZDMC ZDMC,n.SZWZ SZWZ,n.ZRDW ZRDW,n.SZQY SZQY,
+            CASE WHEN m.DRP IS NULL THEN 0 ELSE m.DRP END DRP,
+            m.INTV INTV,
+            CASE WHEN m.PDR IS NULL THEN 0 ELSE m.PDR END PDR,
+            CASE WHEN m.DYP IS NULL THEN 0 ELSE m.DYP END DYP,
+            m.WTH,m.Z,m.TM
+        FROM
+            (
+                SELECT DISTINCT
+                    a.STCD,a.DRP,a.INTV,a.PDR,a.DYP,a.WTH,a.TM,b.Z
+                FROM
+                    ST_PPTN_R a
+                LEFT JOIN
+                    ST_RIVER_R_B b ON a.STCD = b.STCD AND a.TM = b.TM
+                WHERE
+					a.TM>#{jsdmaxtm}
+            ) m
+        LEFT JOIN
+            SZSS_JSD n ON m.STCD = n.ZDBH
+        WHERE n.zdbh=#{jsdzdbh}
+        order by m.TM desc
+    </select>
+
+    <update id="updateJsdMaxTm" parameterType="com.digitalchina.zhjg.szss.gis.entity.JsdMaxTm">
+        UPDATE SZSS_JSDMAXTM SET JSDMAXTM=#{jsdmaxtm} where JSDZDBH = #{jsdzdbh}
+    </update>
+</mapper>

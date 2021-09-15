@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digitalchina.modules.mapper.EnclosedMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.digitalchina.modules.entity.Enclosed">
+        <id column="ecid" property="ecid" />
+        <result column="appid" property="appid" />
+        <result column="msttype" property="msttype" />
+        <result column="mstid" property="mstid" />
+        <result column="ecnm" property="ecnm" />
+        <result column="eckey" property="eckey" />
+        <result column="ectype" property="ectype" />
+        <result column="ord" property="ord" />
+        <result column="cruid" property="cruid" />
+        <result column="crdt" property="crdt" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        ecid, appid, msttype, mstid, ecnm, eckey, ectype, ord, cruid, crdt
+    </sql>
+
+</mapper>

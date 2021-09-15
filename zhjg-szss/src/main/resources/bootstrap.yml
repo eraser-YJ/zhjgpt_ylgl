@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: zhjgszss
+  profiles:
+    active: dev
+
+##这个配置一定要放在bootstrap里才起作用
+feign:
+  httpclient:
+    enabled: false
+  okhttp:
+    enabled: true
+  client:
+    config:
+      default:
+        connectTimeout: 10000
+        readTimeout: 10000

@@ -1,0 +1,306 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digitalchina.zhjg.szss.gis.mapper.DrainagePipeWarnMapper">
+
+
+    <!-- 排水官网预警表_通用查询映射结果 -->
+    <resultMap id="DrainagePipeWarnResultMap" type="com.digitalchina.zhjg.szss.gis.entity.DrainagePipeWarn">
+        <result column="OBJECTID" property="objectId"/>
+        <result column="ZDBH" property="zdbh"/>
+        <result column="ZDMC" property="zdmc"/>
+        <result column="YC" property="yc"/>
+        <result column="SP" property="sp"/>
+        <result column="GWCD" property="gwcd"/>
+        <result column="GWLS" property="gwls"/>
+        <result column="SWSD" property="swsd"/>
+        <result column="ZRDW" property="zrdw"/>
+        <result column="FZR" property="fzr"/>
+        <result column="LXDH" property="lxdh"/>
+        <result column="JYL" property="jyl"/>
+        <result column="SBSJ" property="sbsj"/>
+        <result column="SXFZ" property="sxfz"/>
+        <result column="YJDJ" property="yjdj"/>
+        <result column="STATUS" property="status"/>
+    </resultMap>
+
+    <insert id="insertDrainagePipeWarn" parameterType="com.digitalchina.zhjg.szss.gis.entity.DrainagePipeWarn"  useGeneratedKeys="true" keyProperty="OBJECTID" >
+        <selectKey resultType="int" keyProperty="objectId" order="BEFORE">
+            select SZSS_PSD_WARN_ZJ_SEQUENCE.NEXTVAL  from dual
+        </selectKey>
+        INSERT INTO
+            SDE.SZSS_PSD_WARN (OBJECTID,ZDBH,ZDMC,YC,SP,GWCD,GWLS,SWSD,ZRDW,FZR,LXDH,JYL,SBSJ,SXFZ,YJDJ,STATUS)
+        VALUES (
+            #{objectId},#{zdbh},#{zdmc},#{yc},#{sp},#{gwcd}, #{gwls}, #{swsd},#{zrdw},#{fzr},#{lxdh},#{jyl},to_date(#{sbsj},'yyyy-mm-dd hh24:mi:ss'),#{sxfz},#{yjdj},#{status})
+    </insert>
+
+    <update id="updateDrainagePipeWarn">
+        update SDE.SZSS_PSD_WARN set STATUS = #{status} where OBJECTID = #{sjbh}
+    </update>
+
+    <update id="updateDrainagePipeWarnYJDJ">
+        update SDE.SZSS_PSD_WARN set STATUS = #{status},YJDJ = #{yjdj} where OBJECTID = #{sjbh}
+    </update>
+
+    <select id="selectDrainagePipeWarnByZDBH" parameterType="java.lang.String" resultType="java.lang.Integer">
+         SELECT OBJECTID FROM SDE.SZSS_PSD_WARN WHERE ZDBH=#{zdbh} and status!=3
+    </select>
+
+    <select id="selectDrainagePipeWarnByTime" parameterType="java.lang.String" resultType="java.lang.Integer">
+        SELECT OBJECTID FROM SDE.SZSS_PSD_WARN WHERE TO_CHAR(SBSJ,'yyyy-MM-dd hh24:mi:ss') &gt;= #{startTime}
+    </select>
+
+
+    <select id="selectDrainagePipeWarnById"  parameterType="java.lang.String" resultType="java.util.HashMap">
+        SELECT
+            OBJECTID,ZDBH,ZDMC,YC,SP,GWCD,GWLS,SWSD,ZRDW,FZR,LXDH,JYL,TO_CHAR(SBSJ,'yyyy-MM-dd hh24:mi:ss') SBSJ,SXFZ,YJDJ,STATUS
+        FROM
+            SDE.SZSS_PSD_WARN
+        WHERE
+            1=1
+        <if test="sjbh != null  and sjbh != '' ">
+            AND OBJECTID = #{sjbh}
+        </if>
+        ORDER BY SBSJ DESC
+    </select>
+
+    <select id="selectDrainagePipeWarn" parameterType="java.lang.String" resultMap="DrainagePipeWarnResultMap">
+        SELECT
+            OBJECTID,ZDBH,ZDMC,YC,SP,GWCD,GWLS,SWSD,ZRDW,FZR,LXDH,JYL,TO_CHAR(SBSJ,'yyyy-MM-dd hh24:mi:ss') SBSJ,SXFZ,YJDJ,STATUS
+        FROM
+            SDE.SZSS_PSD_WARN
+        WHERE
+            1=1
+        <if test="zdbh != null  and zdbh != '' ">
+            AND ZDBH = #{zdbh}
+        </if>
+        <if test="zdmc != null  and zdmc != '' ">
+            AND ZDMC LIKE concat(concat('%', #{zdmc}), '%')
+        </if>
+        <if test="yjdj != null  and yjdj != '' ">
+            AND YJDJ = #{yjdj}
+        </if>
+        <if test="startTime != null  and startTime != '' ">
+            AND TO_CHAR(SBSJ,'yyyy-MM-dd') &gt;= #{startTime}
+        </if>
+        <if test="endTime != null  and endTime != '' ">
+            AND TO_CHAR(SBSJ,'yyyy-MM-dd') &lt;= #{endTime}
+        </if>
+
+        ORDER BY SBSJ DESC
+    </select>
+
+    <!--<select id="selectGisDrainage" parameterType="java.lang.String" resultType="com.digitalchina.zhjg.szss.gis.entity.DrainageGis">
+        select * from(
+                select f.objectId,rtrim(TO_CHAR(f.sw,'fm9999990.9999'),'.') sw,rtrim(TO_CHAR(f.ls,'fm9999990.9999'),'.')
+                ls,f.yjdj,f.zdbh,f.zdmc,f.wkt from (
+                select t.*,NVL(warn.YJDJ,'0') yjdj, warn.sbsj,ROW_NUMBER() OVER (PARTITION BY t.zdbh ORDER BY warn.sbsj desc) as
+                sortNos
+                from (select * from (select psd.*, NVL(psll.zll,'0') zll,NVL(psll.ls,'0') ls,NVL(psll.sw,'0') sw,
+                tm,ROW_NUMBER() OVER(PARTITION BY psd.zdbh ORDER BY psll.tm desc) as sortNo
+                from SDE.szss_psd psd left join SDE.szss_psll psll on psd.zdbh=psll.zdbh
+                ) x where sortNo = 1) t left join SDE.szss_psd_warn warn on t.zdbh=warn.zdbh
+                ) f where sortNos=1
+                and zdbh NOT in (SELECT DISTINCT zdbh FROM SDE.SZSS_PSD_WARN WHERE status &lt;&gt; 3)
+            union all
+                select b.
+                OBJECTID,rtrim(TO_CHAR(a.swsd,'fm9999990.9999'),'.') sw,
+                rtrim(TO_CHAR(a.gwls,'fm9999990.9999'),'.') ls,a.yjdj,a.zdbh,a.zdmc,b.wkt
+                from SDE.SZSS_PSD_WARN a LEFT JOIN (
+                select t.OBJECTID,t.ZDBH,t.sw,t.ls,t.tm,t.wkt from (
+                select ROW_NUMBER ( ) OVER ( PARTITION BY c.ZDBH ORDER BY b.tm DESC ) rn,c.OBJECTID,c.ZDBH,b.sw,b.ls,b.tm,c.wkt from
+                szss_psd c
+                LEFT JOIN SDE.szss_psll b on c.ZDBH = b.ZDBH
+                ) t WHERE rn = 1
+                ) b ON a.ZDBH = b.ZDBH
+                WHERE status &lt;&gt; 3
+
+        ) k
+        <where>
+            <if test="zdmc != null  and zdmc != '' ">
+                AND K.ZDMC LIKE concat(concat('%', #{zdmc}), '%')
+            </if>
+        </where>
+    </select>-->
+    <select id="selectGisDrainage" parameterType="java.lang.String" resultType="com.digitalchina.zhjg.szss.gis.entity.DrainageGis">
+<!--        SELECT-->
+<!--            x.objectId,-->
+<!--            rtrim( TO_CHAR( x.sw, 'fm9999990.9999' ), '.' ) sw,-->
+<!--            rtrim( TO_CHAR( x.ls, 'fm9999990.9999' ), '.' ) ls,-->
+<!--            NVL( x.yjdj, '0' ) yjdj,-->
+<!--            x.zdbh,-->
+<!--            x.zdmc,-->
+<!--            x.wkt,-->
+<!--            x.tm-->
+<!--        FROM-->
+<!--            (-->
+<!--            SELECT-->
+<!--                psd.*,-->
+<!--                NVL( psll.zll, '0' ) zll,-->
+<!--                NVL( psll.ls, '0' ) ls,-->
+<!--                NVL( psll.sw, '0' ) sw,-->
+<!--                tm,-->
+<!--                yjdj,-->
+<!--                ROW_NUMBER ( ) OVER ( PARTITION BY psd.zdbh ORDER BY psll.tm DESC ) AS sortNo-->
+<!--            FROM-->
+<!--                SDE.szss_psd psd-->
+<!--                LEFT JOIN SDE.szss_psll psll ON psd.zdbh = psll.zdbh-->
+<!--                <where>-->
+<!--                    <if test="zdmc != null  and zdmc != '' ">-->
+<!--                        psd.ZDMC LIKE concat(concat('%', #{zdmc}), '%')-->
+<!--                    </if>-->
+<!--                </where>-->
+<!--            ) x-->
+<!--        WHERE-->
+<!--            sortNo = 1-->
+<!--        ORDER BY-->
+<!--            TM DESC-->
+
+        select objectId,NVL(rtrim( TO_CHAR( jssd, 'fm9999990.9999' ), '.' ),0) sw,
+            NVL(rtrim( TO_CHAR( ll, 'fm9999990.9999' ), '.' ),0) ll,
+            NVL(rtrim( TO_CHAR( ls, 'fm9999990.9999' ), '.' ),0) ls,
+            NVL( yjdj, '0' ) yjdj,zdbh,zdmc,wkt
+        from SZSS_PSD
+        <where>
+            <if test="zdmc != null  and zdmc != '' ">
+                psd.ZDMC LIKE concat(concat('%', #{zdmc}), '%')
+            </if>
+        </where>
+
+
+    </select>
+    <select id="selectGisDrainageinfo" parameterType="java.lang.String" resultType="java.util.HashMap">
+       <!-- select * from (
+        select t.*,warn.YJDJ, warn.sbsj,ROW_NUMBER() OVER (PARTITION BY t.zdbh ORDER BY warn.sbsj desc) as sortNos
+        from (select * from (select psd.objectId,psd.zdbh,psd.zdmc,psd.zrdw,psd.szwz,psd.szqy,psd.sp,psd.fzr,psd.lxdh,psd.qydm,psll.zll,psll.ls,psll.sw,TO_CHAR(psll.tm,'yyyy-MM-dd hh24:mi:ss') tm,ROW_NUMBER() OVER(PARTITION BY psd.zdbh ORDER BY psll.tm desc) as sortNo
+        from szss_psd psd left join szss_psll psll on psd.zdbh=psll.zdbh
+        ) where sortNo = 1) t left join szss_psd_warn warn on t.zdbh=warn.zdbh
+        ) where sortNos=1
+        <if test="zdbh != null  and zdbh != '' ">
+           and  zdbh=#{zdbh}
+        </if>
+        -->
+        SELECT
+            t.*
+        FROM
+        (
+            SELECT
+            psd.objectId,
+            psd.zdbh,
+            psd.zdmc,
+            psd.zrdw,
+            psd.szwz,
+            psd.szqy,
+            psd.sp,
+            psd.fzr,
+            psd.lxdh,
+            psd.qydm,
+            psll.zll,
+            psll.ls,
+            psll.sw,
+            NVL( psll.yjdj, '0' ) yjdj,
+            TO_CHAR( psll.tm, 'yyyy-MM-dd hh24:mi:ss' ) tm,
+            TO_CHAR( psll.tm, 'yyyy-MM-dd hh24:mi:ss' ) sbsj,
+            ROW_NUMBER ( ) OVER ( PARTITION BY psd.zdbh ORDER BY psll.tm DESC ) AS sortNo
+            FROM
+            szss_psd psd
+            LEFT JOIN szss_psll psll ON psd.zdbh = psll.zdbh
+        ) t
+        WHERE
+        sortNo = 1
+        <if test="zdbh != null  and zdbh != '' ">
+            and  zdbh=#{zdbh}
+        </if>
+    </select>
+
+
+    <select id="selectGisDrainageHistory" parameterType="java.lang.String" resultType="java.util.Map">
+<!--        select t.ZDBH,t.ZDMC,t.LS,t.SW,t.LY,t.TM from (select a.* from (SELECT ROW_NUMBER() OVER(PARTITION BY TO_CHAR(tm,'yyyy-MM-dd') ORDER BY sw DESC) rn,-->
+<!--        OBJECTID,ZDBH,ZDMC,SSLL,ZLL,LS,SW,GWLL,to_char(TM,'yyyy-MM-dd') TM,LY-->
+<!--        FROM SZSS_PSLL-->
+<!--        <where>-->
+<!--            <if test="zdbh != null and zdbh != ''">-->
+<!--                 a.ZDBH=#{zdbh}-->
+<!--            </if>-->
+<!--        </where>-->
+<!--        ) a where a.rn=1-->
+<!--        order by a.tm desc) t where rownum &lt;= 3-->
+<!--        SELECT-->
+<!--        t.ZDBH,-->
+<!--        t.ZDMC,-->
+<!--        t.LS,-->
+<!--        t.SW,-->
+<!--        t.LY,-->
+<!--        t.TM-->
+<!--        FROM(-->
+<!--            SELECT-->
+<!--                ROW_NUMBER ( ) OVER ( PARTITION BY a.TM ORDER BY sw DESC ) rnb,-->
+<!--                a.OBJECTID,-->
+<!--                a.ZDBH,-->
+<!--                a.ZDMC,-->
+<!--                a.SSLL,-->
+<!--                a.ZLL,-->
+<!--                a.LS,-->
+<!--                a.SW,-->
+<!--                a.GWLL,-->
+<!--                a.TM,-->
+<!--                a.LY-->
+<!--            FROM-->
+<!--            (-->
+<!--                SELECT-->
+<!--                    ROW_NUMBER ( ) OVER ( PARTITION BY ZDBH ORDER BY tm DESC ) rn,-->
+<!--                    OBJECTID,-->
+<!--                    ZDBH,-->
+<!--                    ZDMC,-->
+<!--                    SSLL,-->
+<!--                    ZLL,-->
+<!--                    LS,-->
+<!--                    SW,-->
+<!--                    GWLL,-->
+<!--                    to_char( TM, 'yyyy-MM-dd hh24:mi:ss' ) TM,-->
+<!--                    LY-->
+<!--                FROM-->
+<!--                    SZSS_PSLL-->
+<!--                    <where>-->
+<!--                        <if test="zdbh != null and zdbh != ''">&ndash;&gt;-->
+<!--                           ZDBH=#{zdbh}-->
+<!--                        </if>-->
+<!--                    </where>-->
+<!--            ) a  order by TM desc-->
+<!--        ) t where t.rnb=1  and ROWNUM &lt;= 3-->
+
+        SELECT ROWNUM,t.*
+        FROM
+        (
+            SELECT
+            a.stcd ZDBH,
+            a.z SW,
+            TO_CHAR(a.tm,'yyyy-MM-dd hh24:mi:ss') TM,
+            NVL(b.v,0) LS,
+            NVL(b.q,0) SSLL,
+            '智慧感知' as LY
+            FROM
+            ST_RIVER_R_B a
+            LEFT JOIN WR_MP_Q_R b ON a.stcd = b.stcd
+            AND a.tm = b.tm
+            WHERE
+        <if test="zdbh != null and zdbh != ''">
+            a.stcd =#{zdbh}
+        </if>
+
+            ORDER BY a.tm DESC
+        ) t
+        WHERE
+        ROWNUM &lt;=3
+    </select>
+
+
+    <select id="selectDrainageWarnDate" parameterType="java.lang.String" resultType="java.lang.String">
+        SELECT SBSJ FROM SZSS_PSD_WARN WHERE ZDMC=#{zdmc}
+    </select>
+
+    <select id="selectBaseInfo" parameterType="java.lang.String" resultType="java.util.HashMap">
+        SELECT FZR,LXDH FROM SZSS_PSD_WARN WHERE ZDMC=#{zdmc}
+    </select>
+
+
+</mapper>

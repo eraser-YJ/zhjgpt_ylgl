@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digitalchina.modules.mapper.SysDeptMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.digitalchina.modules.entity.SysDept">
+        <id column="dpid" property="dpid" />
+        <result column="bdnm" property="bdnm" />
+        <result column="bdpntid" property="bdpntid" />
+        <result column="bdpntids" property="bdpntids"  typeHandler="com.digitalchina.modules.handler.PgArrayTypeHandler"/>
+        <result column="bdtype" property="bdtype" />
+        <result column="cruid" property="cruid" />
+        <result column="crdt" property="crdt" />
+        <result column="mouid" property="mouid" />
+        <result column="modt" property="modt" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        dpid, bdnm, bdpntid, bdpntids, bdtype, cruid, crdt, mouid, modt
+    </sql>
+
+	<delete id="removeTreeById" parameterType="java.lang.Integer">
+		delete from sys_dept where #{bedid} = any(bdpntids)
+	</delete>
+
+</mapper>

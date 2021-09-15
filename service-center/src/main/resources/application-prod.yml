@@ -1,0 +1,18 @@
+server:
+ port: 18880
+
+logging:
+  config: classpath:log4j2-prod.xml
+  
+spring:
+  security: 
+    user:
+      name: digitalchina
+      password: digital6019
+      
+eureka:
+  client:
+    serviceUrl:
+     defaultZone: http://digitalchina:digital6019@localhost:${server.port}/eureka/
+    register-with-eureka: false
+    fetch-registry: false

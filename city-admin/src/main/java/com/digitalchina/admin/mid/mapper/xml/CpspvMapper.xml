@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digitalchina.warn.mid.mapper.CpspvMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.digitalchina.admin.mid.entity.Cpspv">
+        <id column="cpvid" property="cpvid"/>
+        <result column="cpid" property="cpid"/>
+        <result column="cpvs" property="cpvs" typeHandler="com.digitalchina.admin.utils.PgArrayTypeHandler"/>
+        <result column="stat" property="stat"/>
+        <result column="crdt" property="crdt"/>
+        <result column="modt" property="modt"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        cpvid, cpid, cpvs, stat, crdt, modt
+    </sql>
+
+    <select id="getList" resultMap="BaseResultMap">
+        SELECT cpvid,cpid,cpvs,stat,crdt,modt FROM warn.warn_cpspv
+        WHERE 1= 1
+        <if test="cpvs != null and cpvs != ''">
+            and
+            (cpvs[1] like concat('%', #{cpvs}, '%') or cpvs[2] like concat('%', #{cpvs}, '%') )
+        </if>
+        ORDER BY cpvid DESC
+    </select>
+
+</mapper>

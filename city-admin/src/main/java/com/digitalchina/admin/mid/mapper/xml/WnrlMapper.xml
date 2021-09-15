@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digitalchina.admin.mid.mapper.WnrlMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.digitalchina.admin.mid.entity.Wnrl">
+        <id column="rlid" property="rlid" />
+        <result column="msid" property="msid" />
+        <result column="lyid" property="lyid" />
+        <result column="cpvid" property="cpvid" />
+        <result column="rlnm" property="rlnm" />
+        <result column="rlcnt" property="rlcnt" />
+        <result column="ftbnm" property="ftbnm" />
+        <result column="crdt" property="crdt" />
+        <result column="modt" property="modt" />
+        <result column="stat" property="stat" />
+        <result column="lstbch" property="lstbch" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        rlid, msid, lyid, cpvid, rlnm, rlcnt, ftbnm, crdt, modt, stat, lstbch
+    </sql>
+
+</mapper>

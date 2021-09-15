@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digitalchina.zhjg.szss.gis.mapper.DrainagePointDeviceMapper">
+
+    <!-- 通用查询结果列 -->
+    <sql id="DrainagePointDevice_Column_List">
+         sblxbh,sblx,sbbh,sbmc,sbzt,zdmc,zdbh,szwz,szqy,qydm,bjfz,cjsjjg,csxx,picture,createtime
+    </sql>
+
+    <!-- 通用查询结果列 -->
+    <sql id="DrainagePoint_Column_List">
+         ZDBH, ZDMC,SZWZ,SZQY,QYDM,SP,ENCLOSURE,FZR,ZRDW,LXDH,CREATETIME
+    </sql>
+
+    <select id="selectDevice" parameterType="com.digitalchina.zhjg.szss.gis.entity.DrainagePointDevice" resultType="com.digitalchina.zhjg.szss.gis.entity.DrainagePointDevice">
+        select objectId,SBMC,SBLX,SBZT,ZDMC,BJFZ,CJSJJG,SBBH from sde.szss_psddevice
+        <where>
+            <if test="drainagePointDevice.sbbh != null  and drainagePointDevice.sbbh != '' ">
+                sbbh like concat(concat('%',#{drainagePointDevice.sbbh}),'%')
+
+            </if>
+            <if test="drainagePointDevice.zdmc != null  and drainagePointDevice.zdmc != '' ">
+                and zdmc like concat(concat('%',#{drainagePointDevice.zdmc}),'%')
+            </if>
+            <if test="drainagePointDevice.qydm != null  and drainagePointDevice.qydm != '' ">
+                and qydm = #{drainagePointDevice.qydm}
+            </if>
+        </where>
+
+    </select>
+
+    <insert id="insertDevice" parameterType="com.digitalchina.zhjg.szss.gis.entity.DrainagePointDevice"  useGeneratedKeys="true" keyProperty="OBJECTID" >
+        insert into SDE.szss_psddevice ( <include refid="DrainagePointDevice_Column_List"/>) values (
+        #{sblxbh},#{sblx},#{sbbh},#{sbmc},#{sbzt},#{zdmc},#{zdbh},#{szwz},#{szqy},#{qydm},#{bjfz},#{cjsjjg},#{csxx},#{picture},SYSDATE
+        )
+    </insert>
+
+    <select id="selectDeviceMonitor" parameterType="com.digitalchina.zhjg.szss.gis.entity.DrainagePointDevice" resultType="com.digitalchina.zhjg.szss.gis.entity.DrainagePointDevice">
+        select OBJECTID,SBMC,SBLX,TXZT,SBZT,ZDMC,SZWZ,ZHCJSJ from sde.szss_psddevice
+        <where>
+            <if test="drainagePointDevice.sbbh != null  and drainagePointDevice.sbbh != '' ">
+
+                sbbh like concat(concat('%',#{drainagePointDevice.sbbh}),'%')
+            </if>
+            <if test="drainagePointDevice.zdmc != null  and drainagePointDevice.zdmc != '' ">
+                and zdmc like concat(concat('%',#{drainagePointDevice.zdmc}),'%')
+            </if>
+            <if test="drainagePointDevice.qydm != null  and drainagePointDevice.qydm != '' ">
+                and qydm = #{drainagePointDevice.qydm}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectDeviceDetails" parameterType="com.digitalchina.zhjg.szss.gis.entity.DrainagePointDevice" resultType="com.digitalchina.zhjg.szss.gis.entity.DrainagePointDevice">
+        select * from sde.szss_psddevice where objectId=#{objectId}
+    </select>
+
+
+
+    <update id="updateDevice" parameterType="com.digitalchina.zhjg.szss.gis.entity.DrainagePointDevice">
+        update sde.szss_psddevice set
+        sblxbh=#{sblxbh},sblx=#{sblx},sbmc=#{sbmc},sbzt=#{sbzt},zdmc=#{zdmc},
+        zdbh=#{zdbh},szwz=#{szwz},szqy=#{szqy},qydm=#{qydm},bjfz=#{bjfz},
+        cjsjjg=#{cjsjjg},csxx=#{csxx},picture=#{picture}
+        where objectId=#{objectId}
+    </update>
+
+    <delete id="deleteDevice" parameterType="com.digitalchina.zhjg.szss.gis.entity.DrainagePointDevice">
+        delete from SDE.szss_psddevice where objectId=#{objectId}
+    </delete>
+
+<!--    <select id="selectSite" parameterType="com.digitalchina.zhjg.szss.gis.entity.DrainagePoint" resultType="com.digitalchina.zhjg.szss.gis.entity.DrainagePoint">-->
+<!--        select * from sde.szss_psd-->
+<!--        <where>-->
+<!--            <if test="drainagePoint.zdmc != null  and drainagePoint.zdmc != '' ">-->
+
+<!--                zdmc like concat(concat('%',#{drainagePoint.zdmc}),'%')-->
+<!--            </if>-->
+<!--            <if test="drainagePoint.szwz != null  and drainagePoint.szwz != '' ">-->
+<!--                and szwz like concat(concat('%',#{drainagePoint.szwz}),'%')-->
+<!--            </if>-->
+<!--            <if test="drainagePoint.qydm != null  and drainagePoint.qydm != '' ">-->
+<!--                and qydm = #{drainagePoint.qydm}-->
+<!--            </if>-->
+<!--            <if test="drainagePoint.zdbh != null  and drainagePoint.zdbh != '' ">-->
+<!--                and zdbh = #{drainagePoint.zdbh}-->
+<!--            </if>-->
+<!--            <if test="startTime != null  and startTime != '' ">-->
+<!--                AND TO_CHAR(CREATETIME,'yyyy-MM-dd') &gt;= #{startTime}-->
+<!--            </if>-->
+<!--            <if test="endTime != null  and endTime != '' ">-->
+<!--                AND TO_CHAR(CREATETIME,'yyyy-MM-dd') &lt;= #{endTime}-->
+<!--            </if>-->
+<!--        </where>-->
+<!--        order by CREATETIME desc-->
+<!--    </select>-->
+
+    <select id="selectSite" parameterType="com.digitalchina.zhjg.szss.gis.entity.DrainagePoint" resultType="com.digitalchina.zhjg.szss.gis.entity.DrainagePoint">
+<!--      SELECT * FROM (SELECT-->
+<!--                psd.ZDBH,psd.ZDMC,psd.sp,pssw.sw JSSD,pssw.cjsj CREATETIME,-->
+<!--                psd.SZQY,psd.SZWZ,psd.ZRDW,psd.FZR,psd.LXDH,psd.OBJECTID-->
+<!--            FROM-->
+<!--                (-->
+<!--                SELECT-->
+<!--                    ROW_NUMBER ( ) OVER ( PARTITION BY a.ZDBH ORDER BY a.cjsj DESC ) rn,-->
+<!--                    a.OBJECTID,a.ZDBH,a.ZDMC,a.sw,a.cjsj-->
+<!--                FROM-->
+<!--                    SZSS_PSSW a-->
+<!--                ) pssw-->
+<!--                LEFT JOIN SZSS_PSD psd ON pssw.ZDBH = psd.ZDBH-->
+<!--            WHERE-->
+<!--                rn =1-->
+<!--        )-->
+<!--        <where>-->
+<!--            <if test="drainagePoint.zdmc != null  and drainagePoint.zdmc != '' ">-->
+
+<!--                zdmc like concat(concat('%',#{drainagePoint.zdmc}),'%')-->
+<!--            </if>-->
+<!--            <if test="drainagePoint.szwz != null  and drainagePoint.szwz != '' ">-->
+<!--                and szwz like concat(concat('%',#{drainagePoint.szwz}),'%')-->
+<!--            </if>-->
+<!--            <if test="drainagePoint.qydm != null  and drainagePoint.qydm != '' ">-->
+<!--                and qydm = #{drainagePoint.qydm}-->
+<!--            </if>-->
+<!--            <if test="drainagePoint.zdbh != null  and drainagePoint.zdbh != '' ">-->
+<!--                and zdbh = #{drainagePoint.zdbh}-->
+<!--            </if>-->
+<!--            <if test="startTime != null  and startTime != '' ">-->
+<!--                AND TO_CHAR(CREATETIME,'yyyy-MM-dd') &gt;= #{startTime}-->
+<!--            </if>-->
+<!--            <if test="endTime != null  and endTime != '' ">-->
+<!--                AND TO_CHAR(CREATETIME,'yyyy-MM-dd') &lt;= #{endTime}-->
+<!--            </if>-->
+<!--        </where>-->
+<!--        order by CREATETIME desc-->
+
+            select ZDBH,ZDMC,NVL(JSSD,0) JSSD, JCSJ as CREATETIME ,SZQY,SZWZ,ZRDW,FZR,LXDH,OBJECTID
+            from SZSS_PSD
+            <where>
+                <if test="drainagePoint.zdmc != null  and drainagePoint.zdmc != '' ">
+
+                    zdmc like concat(concat('%',#{drainagePoint.zdmc}),'%')
+                </if>
+                <if test="drainagePoint.szwz != null  and drainagePoint.szwz != '' ">
+                    and szwz like concat(concat('%',#{drainagePoint.szwz}),'%')
+                </if>
+                <if test="drainagePoint.qydm != null  and drainagePoint.qydm != '' ">
+                    and qydm = #{drainagePoint.qydm}
+                </if>
+                <if test="drainagePoint.zdbh != null  and drainagePoint.zdbh != '' ">
+                    and zdbh = #{drainagePoint.zdbh}
+                </if>
+                <if test="startTime != null  and startTime != '' ">
+                    AND TO_CHAR(JCSJ,'yyyy-MM-dd') &gt;= #{startTime}
+                </if>
+                <if test="endTime != null  and endTime != '' ">
+                     AND TO_CHAR(JCSJ,'yyyy-MM-dd') &lt;= #{endTime}
+                </if>
+            </where>
+            order by JCSJ desc
+            </select>
+
+
+
+            <insert id="insertSite" parameterType="com.digitalchina.zhjg.szss.gis.entity.DrainagePoint">
+                insert into SDE.szss_psd(<include refid="DrainagePoint_Column_List"/>) values
+                (#{zdbh}, #{zdmc},#{szwz},#{szqy},#{qydm},#{sp},#{enclosure},#{fzr},#{zrdw},#{lxdh},SYSDATE)
+            </insert>
+
+            <select id="selectSiteDetails" parameterType="com.digitalchina.zhjg.szss.gis.entity.DrainagePoint" resultType="com.digitalchina.zhjg.szss.gis.entity.DrainagePoint">
+                select * from SDE.szss_psd where objectId=#{objectId}
+            </select>
+
+            <update id="updateSite" parameterType="com.digitalchina.zhjg.szss.gis.entity.DrainagePoint" >
+                update SDE.szss_psd set zdbh=#{zdbh}, zdmc=#{zdmc},szwz=#{szwz},szqy=#{szqy},qydm=#{qydm},sp=#{sp},enclosure=#{enclosure}
+                where objectId = #{objectId}
+            </update>
+
+            <delete id="deleteSite" parameterType="com.digitalchina.zhjg.szss.gis.entity.DrainagePoint">
+                    delete from SDE.szss_psd where objectId=#{objectId}
+            </delete>
+
+            <update id="relationDevice" parameterType="com.digitalchina.zhjg.szss.gis.entity.DrainagePointDevice">
+                update sde.szss_psddevice set zdbh=#{zdbh},zdmc=#{zdmc} where sbbh=#{sbbh}
+            </update>
+
+        </mapper>

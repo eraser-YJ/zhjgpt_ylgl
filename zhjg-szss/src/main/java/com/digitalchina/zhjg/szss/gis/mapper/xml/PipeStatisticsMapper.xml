@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digitalchina.zhjg.szss.gis.mapper.PipeStatisticsMapper">
+    <select id="selectPipeList" parameterType="java.util.List" resultType="com.digitalchina.zhjg.szss.gis.entity.PipeStatistics">
+        <foreach collection="listMap" index="index" item="item" separator="union all">
+            SELECT
+            t.*,#{item.code} as code,#{item.name} as name
+        FROM
+            ( SELECT cz, sum( length ) len, XZQH_CODE , XZQH xzqh FROM sde.${item.code} GROUP BY cz, length, XZQH_CODE, XZQH ) t
+        WHERE
+            t.cz IS NOT NULL
+            AND t.cz != ' '
+            <if test="xzqhCode != null  and xzqhCode != '' ">
+                AND t.XZQH_CODE = #{xzqhCode}
+            </if>
+        </foreach>
+    </select>
+</mapper>

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digitalchina.zhjg.szss.gis.mapper.ZhjgBjtjMapper">
+
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="ZhjgBjtjResultMap" type="com.digitalchina.zhjg.szss.gis.entity.ZhjgBjtj">
+        <result column="PARTS_CATE_TOP_NAME" property="bjfl"/>
+        <result column="PARTS_CATE_NAME" property="bjmc"/>
+        <result column="ADMDIV_NAME" property="xqmc"/>
+        <result column="BH" property="bhNum"/>
+        <result column="GX" property="gxNum"/>
+        <result column="KG" property="kgNum"/>
+        <result column="CD" property="cdNum"/>
+        <result column="TOTAL" property="total"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="ZhjgBjtj_Column_List">
+        PARTS_CATE_TOP_NAME, PARTS_CATE_NAME, ADMDIV_NAME, NUM
+    </sql>
+
+    <select id="selectZhjgBjtj" parameterType="java.lang.String" resultMap="ZhjgBjtjResultMap">
+       SELECT MAX(parts_cate_top_name) PARTS_CATE_TOP_NAME, MAX(parts_cate_name) PARTS_CATE_NAME,MAX(ADMDIV_NAME) ADMDIV_NAME,parts_cate_code,
+            COUNT(decode(admdiv_code, 62, 1, null)) as bh ,
+            COUNT(decode(admdiv_code, 60, 1, null)) as gx,
+            COUNT(decode(admdiv_code, 63, 1, null)) as kg,
+            COUNT(decode(admdiv_code, 64, 1, null)) as cd,
+            COUNT(*) as total
+        FROM parts_base WHERE 1=1
+        <if test="startTime != null  and startTime != '' and endTime != null  and endTime != '' ">
+           AND TO_CHAR(DATE_CREATED,'YYYY-MM-DD') BETWEEN #{startTime} AND #{endTime}
+        </if>
+        <if test="partsCateId != null">
+            and parts_cate_id = #{partsCateId}
+        </if>
+        GROUP BY parts_cate_code
+    </select>
+
+    <select id="selectZhjgBjtjExport" parameterType="java.lang.String" resultMap="ZhjgBjtjResultMap">
+        SELECT MAX(parts_cate_top_name) PARTS_CATE_TOP_NAME, MAX(parts_cate_name) PARTS_CATE_NAME,MAX(ADMDIV_NAME) ADMDIV_NAME,parts_cate_code,
+        COUNT(decode(admdiv_code, 62, 1, null)) as bh ,
+        COUNT(decode(admdiv_code, 60, 1, null)) as gx,
+        COUNT(decode(admdiv_code, 63, 1, null)) as kg,
+        COUNT(decode(admdiv_code, 64, 1, null)) as cd,
+        COUNT(*) as total
+        FROM parts_base WHERE 1=1
+        <if test="startTime != null  and startTime != '' and endTime != null  and endTime != '' ">
+            AND TO_CHAR(DATE_CREATED,'YYYY-MM-DD') BETWEEN #{startTime} AND #{endTime}
+        </if>
+        <if test="partsCateId != null">
+            and parts_cate_id = #{partsCateId}
+        </if>
+        GROUP BY parts_cate_code
+    </select>
+</mapper>

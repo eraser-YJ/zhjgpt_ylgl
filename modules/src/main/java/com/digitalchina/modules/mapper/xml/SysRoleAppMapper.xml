@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digitalchina.modules.mapper.SysRoleAppMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.digitalchina.modules.entity.SysRoleApp">
+        <id column="id" property="id" />
+        <result column="rid" property="rid" />
+        <result column="aid" property="aid" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, rid, aid
+    </sql>
+
+    <select id="selectSysCodeCnt" resultType="java.lang.Integer">
+        select count(*) from sys_role_app sra
+        join sys_app sa on sra.aid = sa.id
+        where sra.rid in
+        <foreach collection="roleIds" item="roleId"  open="(" separator="," close=")">
+            ${roleId}
+        </foreach>
+        and sa.code = #{sysCode}
+    </select>
+
+</mapper>

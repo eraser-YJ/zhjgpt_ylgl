@@ -1,0 +1,27 @@
+spring:
+  application:
+    name: citypolicy
+  jackson:
+    timeZone: GMT+8
+
+        
+eureka:
+  instance:
+    health-check-url-path: /actuator/health   #应用实例的相对运行状况检查URL路径默认为 /info/health
+    preferIpAddress: true
+    
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"   #暴露所有的端点我们可以看到更多的服务实例相关信息，
+  endpoint:
+    health:
+      show-details: ALWAYS   #health endpoint是否必须显示全部细节
+      
+#eureka client\u5237\u65b0\u672c\u5730\u7f13\u5b58\u65f6\u95f4
+#\u9ed8\u8ba430s
+#eureka.client.registryFetchIntervalSeconds=15
+#eureka\u5ba2\u6237\u7aefribbon\u5237\u65b0\u65f6\u95f4
+#\u9ed8\u8ba430s
+#ribbon.ServerListRefreshInterval=20

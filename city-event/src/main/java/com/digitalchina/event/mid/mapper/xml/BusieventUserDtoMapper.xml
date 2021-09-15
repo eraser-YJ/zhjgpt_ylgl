@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digitalchina.event.mid.mapper.BusieventUserDtoMapper">
+
+    <!-- 通用查询映射结果 -->
+
+    <resultMap id="BusieventUserRetunResultMap" type="com.digitalchina.event.dto.BusieventUserDto">
+        <id column="beid" property="beid"/>
+        <result column="wfid" property="wfid"/>
+        <result column="efbh" property="efbh"/>
+        <result column="etbh" property="etbh"/>
+        <result column="adid" property="adid"/>
+        <result column="proc_inst_id" property="procInstId"/>
+        <result column="bebh" property="bebh"/>
+        <result column="benm" property="benm"/>
+        <result column="becnt" property="becnt"/>
+        <result column="besrcdpt" property="besrcdpt"/>
+        <result column="bepcdpt0" property="bepcdpt0"/>
+        <result column="bepcdpt" property="bepcdpt"/>
+        <result column="allodpt" property="allodpt"/>
+        <result column="allodt" property="allodt"/>
+        <result column="recdpt" property="recdpt"/>
+        <result column="recdt" property="recdt"/>
+        <result column="bedpts" property="bedpts"/>
+        <result column="inroom" property="inroom"/>
+        <result column="addr" property="addr"/>
+        <result column="bexy" property="bexy" typeHandler='com.digitalchina.event.utils.PgGisTypeHandler'/>
+        <result column="linkman" property="linkman"/>
+        <result column="linktel" property="linktel"/>
+        <result column="hapndt" property="hapndt"/>
+        <result column="indt" property="indt"/>
+        <result column="inoldbh" property="inoldbh"/>
+        <result column="bestat" property="bestat"/>
+        <result column="alldura" property="alldura"/>
+        <result column="pcdura" property="pcdura"/>
+        <result column="clsrsn" property="clsrsn"/>
+        <result column="acptmo" property="acptmo"/>
+        <result column="pcbgndtmo" property="pcbgndtmo"/>
+        <result column="pcendtmo" property="pcendtmo"/>
+        <result column="endtmo" property="endtmo"/>
+        <result column="hastmo" property="hastmo"/>
+        <result column="crdt" property="crdt"/>
+        <result column="modt" property="modt"/>
+        <result column="clsdt" property="clsdt"/>
+        <result column="upemgdt" property="upemgdt"/>
+        <result column="emgdowndt" property="emgdowndt"/>
+        <result column="acptdln" property="acptdln"/>
+        <result column="warndln" property="warndln"/>
+        <result column="pcbgndln" property="pcbgndln"/>
+        <result column="pcendln" property="pcendln"/>
+        <result column="endln" property="endln"/>
+        <result column="town_adid" property="townAdid"/>
+        <result column="uid" property="uid"/>
+        <result column="utype" property="utype"/>
+    </resultMap>
+
+
+    <select id="selectBusieventByUser" resultMap="BusieventUserRetunResultMap">
+        SELECT
+            a.beid,a.wfid,a.efbh,a.etbh,a.adid,a.proc_inst_id,a.bebh,a.benm,a.becnt,a.besrcdpt,a.bepcdpt0,a.bepcdpt,a.bedpts,a.inroom,a.addr,
+            ST_AsGeoJSON (st_transform(a.bexy, 4326)) :: JSON as bexy,a.linkman,a.linktel,to_char( a.hapndt, 'yyyy-MM-dd hh24:mi:ss' ) hapndt,
+            a.indt,a.inoldbh,a.bestat,a.allodpt,a.recdpt,a.allodt,a.recdt,b.uid,b.utype, to_char( a.crdt, 'yyyy-MM-dd hh24:mi:ss' ) crdt
+        FROM
+            busievent a,busievent_user b
+        WHERE
+            a.beid = b.beid
+        <if test="uid != null and uid != '' ">
+            AND b.uid = #{uid}
+        </if>
+        <if test="utype != null ">
+            AND b.utype = #{utype}
+        </if>
+        ORDER BY a.hapndt DESC
+    </select>
+
+    <select id="selectBusieventByBeid" parameterType="java.lang.Integer" resultType="java.util.HashMap">
+        SELECT fileid FROM attachment WHERE beid=#{beid}
+    </select>
+
+    <insert id="insertAttachmentByBeid">
+        INSERT INTO attachment (beid,fileid,filetype) VALUES (#{beid},#{fileid},1)
+    </insert>
+</mapper>

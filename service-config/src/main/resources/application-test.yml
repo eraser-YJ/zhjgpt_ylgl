@@ -1,0 +1,15 @@
+server:
+ port: 18882
+          
+logging:
+  config: classpath:log4j2-test.xml
+    
+eureka:
+  instance:
+    leaseRenewalIntervalInSeconds: 10
+  client:
+    registryFetchIntervalSeconds: 30
+    serviceUrl:
+     defaultZone: http://digitalchina:digital6019@172.18.197.54:18880/eureka/
+    register-with-eureka: true
+    fetch-registry: false

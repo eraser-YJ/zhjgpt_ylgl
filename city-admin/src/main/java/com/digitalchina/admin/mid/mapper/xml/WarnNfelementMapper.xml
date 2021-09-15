@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digitalchina.admin.mid.mapper.NfelementMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.digitalchina.admin.mid.entity.warn.Nfelement">
+        <result column="id" property="id" />
+        <result column="name" property="name" />
+        <result column="source" property="source" />
+        <result column="mscode" property="mscode" />
+        <result column="cpvs" property="cpvs" />
+        <result column="type" property="type" />
+        <result column="cmnid" property="cmnid" />
+        <result column="frequency" property="frequency" />
+        <result column="server" property="server" />
+        <result column="defshape" property="defshape" />
+        <result column="othershape" property="othershape" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, name, source, mscode, cpvs, type, cmnid, frequency, server, defshape, othershape
+    </sql>
+
+</mapper>

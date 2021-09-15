@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digitalchina.admin.mid.mapper.SignTaskMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.digitalchina.admin.mid.entity.SignTask">
+        <id column="id" property="id" />
+        <result column="type" property="type" />
+        <result column="rate" property="rate" />
+        <result column="starttime" property="starttime" />
+        <result column="endtime" property="endtime" />
+        <result column="tid" property="tid" />
+        <result column="hid" property="hid" />
+        <result column="status" property="status" />
+        <result column="error" property="error" />
+        <result column="modt" property="modt" />
+        <result column="treeVerName" property="treeVerName" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, type, rate, starttime, endtime, tid, hid, status, error, modt
+    </sql>
+    <select id="queryPages" resultMap="BaseResultMap">
+        select st.*,stv.name as treeVerName from sign.sign_task  st
+        left join sign.sign_tree_ver stv
+        on st.tid = stv.tid
+        where st.type = 1
+        <if test="tid != null and tid != ''">
+            and st.tid = #{tid}
+        </if>
+        <if test="status != null">
+            and st.status = #{status}
+        </if>
+        <if test="modtStart != null and modtStart != ''">
+            AND st.modt &gt;= &apos;${modtStart}&apos;
+        </if>
+        <if test="modtEnd != null and modtEnd != ''">
+            AND st.modt &lt;= &apos;${modtEnd}&apos;
+        </if>
+        order by st.modt desc
+    </select>
+
+</mapper>

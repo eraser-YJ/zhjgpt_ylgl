@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Configuration status="info">
+
+    <Properties>
+        <!-- 文件输出格式 -->
+        <property name="PATTERN">%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level [%logger{50}:%L] %tcid - %msg%n</property>
+        <property name="LOG_PATH">/data/city-manage-tomcat/logs/service-center</property>
+    </Properties>
+
+    <Appenders>
+        <!--这个输出控制台的配置-->
+        <Console name="STDOUT">
+            <!--控制台只输出level及以上级别的信息（onMatch），其他的直接拒绝（onMismatch）-->
+            <ThresholdFilter level="debug"/>
+            <!-- 输出日志的格式-->
+            <PatternLayout pattern="${PATTERN}" charset="UTF-8"/>
+        </Console>
+
+        <RollingFile name="info_file" fileName="${LOG_PATH}/info.log"
+                     filePattern="${LOG_PATH}/info-%d{yyyy-MM-dd}.log">
+            <Filters>
+                <ThresholdFilter level="WARN" onMatch="DENY" onMismatch="NEUTRAL"/>
+                <ThresholdFilter level="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
+            </Filters>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="20MB"/>
+                <TimeBasedTriggeringPolicy interval="1"/>
+            </Policies>
+            <PatternLayout pattern="${PATTERN}"/>
+            <DefaultRolloverStrategy>
+            	<Delete basePath="${LOG_PATH}" maxDepth="1">
+                    <IfFileName glob="info-*.log" />
+                    <IfLastModified age="7d"/>
+                </Delete>
+            </DefaultRolloverStrategy>
+        </RollingFile>
+        <!-- error日志 -->
+        <RollingFile name="error_file" fileName="${LOG_PATH}/error.log"
+                     filePattern="${LOG_PATH}/error-%d{yyyy-MM-dd}.log">
+            <PatternLayout pattern="${PATTERN}"/>
+            <Filters>
+                <ThresholdFilter level="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
+            </Filters>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1"/>
+            </Policies>
+            <DefaultRolloverStrategy>
+            	<Delete basePath="${LOG_PATH}" maxDepth="1">
+                    <IfFileName glob="error-*.log" />
+                    <IfLastModified age="7d"/>
+                </Delete>
+            </DefaultRolloverStrategy>
+        </RollingFile>
+    </Appenders>
+
+    <Loggers>
+        <Root level="INFO" includeLocation="true">
+            <AppenderRef ref="STDOUT"/>
+            <AppenderRef ref="info_file"/>
+            <AppenderRef ref="error_file"/>
+        </Root>
+    </Loggers>
+</Configuration>

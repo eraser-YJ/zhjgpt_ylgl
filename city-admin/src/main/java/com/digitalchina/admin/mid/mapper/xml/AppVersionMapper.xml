@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digitalchina.admin.mid.mapper.AppVersionMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.digitalchina.admin.mid.entity.app.AppVersion">
+        <id column="id" property="id" />
+        <result column="app_os" property="appOs" />
+        <result column="app_version" property="appVersion" />
+        <result column="download_url" property="downloadUrl" />
+        <result column="is_necessary" property="isNecessary" />
+        <result column="content" property="content" />
+        <result column="crdt" property="crdt" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, app_os, app_version, download_url, is_necessary, content, crdt
+    </sql>
+
+</mapper>

@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digitalchina.zhjg.szss.mid.mapper.PartsCategoryMapper">
+
+    <select id="selectPartsCate" parameterType="java.lang.Integer"
+            resultType="com.digitalchina.zhjg.szss.mid.entity.PartsCategory">
+        select * from szss.parts_category
+        <where>
+            <if test="rootId != null and rootId != '' ">
+                and #{rootId} = any(id_path)
+                and id != #{rootId}
+            </if>
+            <if test="modules != null">
+                and
+                <foreach collection="modules" open="(" close=")" item="module" separator="or">
+                    module = #{module}
+                </foreach>
+            </if>
+            <if test="status != null">
+                and status = #{status}
+            </if>
+        </where>
+        order by sort, id
+    </select>
+    
+    <select id="selectSzData" resultType="java.lang.String">
+        SELECT
+            pout.name ||'_'|| pout.code  FROM szss.parts_category pout
+        WHERE
+            pout.MODULE = 'plant_species'
+        AND NOT EXISTS
+            ( SELECT ID FROM szss.parts_category pin WHERE pin.parent_id = pout.ID )
+    </select>
+
+    <select id="selectSzzkData" resultType="java.lang.String">
+        select  item_name||'_'||id szzk from public.sys_dict_item where dict_code = 'zhjg_gyld_gsmm_szzk' order by id asc
+    </select>
+
+    <select id="selectYhdjData" resultType="java.lang.String">
+        select  item_name||'_'||id yhdj from public.sys_dict_item where dict_code = 'zhjg_gyld_gsmm_yhdj' order by id asc
+    </select>
+
+    <select id="selectDldjData" resultType="java.lang.String">
+        select item_name from public.sys_dict_item where dict_code='zhjg_gyld_xds_dldj' order by id asc
+    </select>
+
+    <select id="selectLdlbData" resultType="java.lang.String">
+        select name || '_'||id from szss.parts_category where "module" ='greenbelt' and parent_id is null order by id asc
+    </select>
+
+    <select id="selectLdxzData" resultType="java.lang.String">
+        select item_name||'_'||id ldxz from public.sys_dict_item where dict_code='zhjg_gyld_property' order by id asc
+    </select>
+
+    <select id="selectLddjData" resultType="java.lang.String">
+        select  item_name||'_'||id lddj from public.sys_dict_item where dict_code = 'zhjg_gyld_degree' order by id asc
+    </select>
+
+    <select id="selectLdyhlxData" resultType="java.lang.String">
+        select  item_name||'_'||id ldyhlx from public.sys_dict_item where dict_code = 'zhjg_gyld_maintype' order by id asc
+    </select>
+    <select id="selectLdyhdwData" resultType="java.lang.String">
+        select  item_name||'_'||id ldyhdw from public.sys_dict_item where dict_code = 'zhjg_gyld_maintain' order by id asc
+    </select>
+
+    <select id="selectgydjData" resultType="java.lang.String">
+        select item_name||'_'||id from  public.sys_dict_item where dict_code='zhjg_gyld_gy_degree' order by id asc
+    </select>
+
+    <select id="selectgykfqkData" resultType="java.lang.String">
+        select item_name||'_'||id from  public.sys_dict_item where dict_code='zhjg_gyld_gy_openlevel' order by id asc
+    </select>
+
+    <select id="selectgyyhdwData" resultType="java.lang.String">
+        select item_name||'_'||id from  public.sys_dict_item where dict_code='zhjg_gyld_gy_maintain' order by id asc
+    </select>
+
+</mapper>

@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digitalchina.admin.mid.mapper.SignTreeMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.digitalchina.admin.mid.entity.SignTree">
+        <id column="id" property="id" />
+        <result column="tid" property="tid" />
+        <result column="tfid" property="tfid" />
+        <result column="tfids" property="tfids" />
+        <result column="ncode" property="ncode" />
+        <result column="nname" property="nname" />
+        <result column="nmeno" property="nmeno" />
+        <result column="nlevel" property="nlevel" />
+        <result column="weight" property="weight" />
+        <result column="isarea" property="isarea" />
+        <result column="iskey" property="iskey" />
+        <result column="qid" property="qid" />
+        <result column="qparm" property="qparm" typeHandler="com.digitalchina.admin.utils.PgJson2JsonObjHandler" />
+        <result column="gid" property="gid" />
+        <result column="gparm" property="gparm" typeHandler="com.digitalchina.admin.utils.PgJson2JsonArrayObjHandler"/>
+        <result column="status" property="status" />
+        <result column="frequency" property="frequency" />
+        <result column="crdt" property="crdt" />
+        <result column="modt" property="modt" />
+        <result column="sort" property="sort" />
+        <result column="type" property="type" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, tid, tfid, tfids, ncode, nname, nmeno, nlevel, weight, isarea, iskey, qid, qparm, gid, gparm, status, frequency, crdt, modt, sort, type
+    </sql>
+
+
+    <resultMap id="SignTreeDto2Map" type="com.digitalchina.admin.mid.dto.SignTreeDto2">
+        <id column="id" property="id" />
+        <result column="tid" property="tid" />
+        <result column="tfid" property="tfid" />
+        <result column="tfids" property="tfids" />
+        <result column="ncode" property="ncode" />
+        <result column="nname" property="nname" />
+        <result column="nmeno" property="nmeno" />
+        <result column="nlevel" property="nlevel" />
+        <result column="weight" property="weight" />
+        <result column="isarea" property="isarea" />
+        <result column="iskey" property="iskey" />
+        <result column="qid" property="qid" />
+        <result column="qparm" property="qparm" typeHandler="com.digitalchina.admin.utils.PgJson2JsonObjHandler" />
+        <result column="gid" property="gid" />
+        <result column="gparm" property="gparm" typeHandler="com.digitalchina.admin.utils.PgJson2JsonArrayObjHandler"/>
+        <result column="status" property="status" />
+        <result column="frequency" property="frequency" />
+        <result column="crdt" property="crdt" />
+        <result column="modt" property="modt" />
+        <result column="sort" property="sort" />
+        <result column="type" property="type" />
+        <result column="totalWeight" property="totalWeight" />
+        <result column="hasAdjustWeight" property="hasAdjustWeight" />
+        <result column="hasEdit" property="hasEdit" />
+        <result column="hasVeiw" property="hasVeiw" />
+        <result column="hasRemove" property="hasRemove" />
+        <result column="hasAddNode" property="hasAddNode" />
+        <result column="hasLinkNode" property="hasLinkNode" />
+    </resultMap>
+
+
+    <select id="queryTreeByroot" resultMap="SignTreeDto2Map">
+        select tt.*,tt.totalWeight,
+        case when tt.childrenType =-1 then 0 else 1 end hasAdjustWeight ,
+        case when tt.type=0 then 1 else 0 end as hasEdit,
+        1 as hasVeiw,
+        1 as hasRemove,
+        case when tt.type=0 and (tt.childrenType =-1 or tt.childrenType = 0) then 1 else 0 end as hasAddNode,
+        case when tt.type=0 and (tt.childrenType =-1 or tt.childrenType = 1) then 1 else 0 end as hasLinkNode
+        from
+        (select a.*,
+        (select case  when t.sum is null then -1 when t.sum=0 then 0 when t.sum=t.count then 1 else 2 end as childrenType
+        from (
+        select sum(b.type) ,count(*),sum(b.weight) as totalWeight from sign.sign_tree b where b.tfid=a.id and b.tid=a.tid
+        )t),
+        (select sum(b.weight) as totalWeight from sign.sign_tree b where b.tfid=a.id and b.tid=a.tid)
+        from sign.sign_tree a where
+         a.tid=#{tid}
+        <if test="root != null and rootPath != null and rootPath != ''">
+            and (a.id=#{root} or a.tfids like &apos;${rootPath}%&apos; )
+        </if>
+        )tt
+        order by  tt.nlevel, tt.sort, tt.id
+    </select>
+
+</mapper>

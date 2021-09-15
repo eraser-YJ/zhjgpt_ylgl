@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digitalchina.zhjg.szss.gis.mapper.PondingPointWarnMapper">
+
+
+    <!-- 积水点预警表_通用查询映射结果 -->
+    <resultMap id="PondingPointWarnResultMap" type="com.digitalchina.zhjg.szss.gis.entity.PondingPointWarn">
+        <result column="OBJECTID" property="objectId"/>
+        <result column="ZDBH" property="zdbh"/>
+        <result column="ZDMC" property="zdmc"/>
+        <result column="YC" property="yc"/>
+        <result column="SP" property="sp"/>
+        <result column="JSSD" property="jssd"/>
+        <result column="JSMJ" property="jsmj"/>
+        <result column="JYL" property="jyl"/>
+        <result column="SBSJ" property="sbsj"/>
+        <result column="SXFZ" property="sxfz"/>
+        <result column="YJDJ" property="yjdj"/>
+        <result column="FZR" property="fzr"/>
+        <result column="LXDH" property="lxdh"/>
+        <result column="ZRDW" property="zrdw"/>
+        <result column="SZWZ" property="szwz"/>
+        <result column="SZQY" property="szqy"/>
+        <result column="STATUS" property="status"/>
+    </resultMap>
+
+    <insert id="insertPondingPointWarn" parameterType="com.digitalchina.zhjg.szss.gis.entity.PondingPointWarn"  useGeneratedKeys="true" keyProperty="OBJECTID" >
+        <selectKey resultType="int" keyProperty="objectId" order="BEFORE">
+            select SZSS_JSD_WARN_SEQUENCE.NEXTVAL  from dual
+        </selectKey>
+        INSERT INTO
+            SDE.SZSS_JSD_WARN (OBJECTID,ZDBH,ZDMC,YC,SP,JSSD,JSMJ,JYL,SBSJ,SXFZ,YJDJ,FZR,LXDH,ZRDW,SZWZ,SZQY,STATUS)
+        VALUES (
+            #{objectId},#{zdbh},#{zdmc},#{yc},#{sp},#{jssd}, #{jsmj}, #{jyl},to_date(#{sbsj},'yyyy-mm-dd hh24:mi:ss'),#{sxfz},#{yjdj},#{fzr},#{lxdh},#{zrdw},#{szwz},#{szqy},#{status})
+    </insert>
+
+    <update id="updatePondingPointWarn">
+        update  SDE.SZSS_JSD_WARN set STATUS = #{status} where OBJECTID = #{sjbh}
+    </update>
+
+    <select id="selectPondingPointWarnById" parameterType="java.lang.String" resultType="java.util.HashMap">
+        SELECT
+            OBJECTID,ZDBH,ZDMC,YC,SP,JSSD,JSMJ,JYL,TO_CHAR(SBSJ,'yyyy-MM-dd hh24:mi:ss') SBSJ,SXFZ,YJDJ,FZR,LXDH,ZRDW,SZWZ,SZQY,STATUS
+        FROM
+            SDE.SZSS_JSD_WARN
+         WHERE
+            1=1
+        <if test="sjbh != null  and sjbh != '' ">
+            AND OBJECTID = #{sjbh}
+        </if>
+     </select>
+
+    <select id="selectPondingPointWarn" parameterType="java.lang.String" resultMap="PondingPointWarnResultMap">
+        SELECT
+            OBJECTID,ZDBH,ZDMC,YC,SP,JSSD,JSMJ,JYL,TO_CHAR(SBSJ,'yyyy-MM-dd hh24:mi:ss') SBSJ,SXFZ,YJDJ,FZR,LXDH,ZRDW,SZWZ,SZQY,STATUS
+        FROM
+            SDE.SZSS_JSD_WARN
+        WHERE
+            1=1
+        <if test="zdbh != null  and zdbh != '' ">
+            AND ZDBH = #{zdbh}
+        </if>
+        <if test="zdmc != null  and zdmc != '' ">
+            AND ZDMC like '%' ||  #{zdmc} || '%'
+        </if>
+        <if test="yjdj != null  and yjdj != '' ">
+            AND YJDJ = #{yjdj}
+        </if>
+        <if test="startTime != null  and startTime != '' ">
+            AND TO_CHAR(SBSJ,'yyyy-MM-dd') &gt;= #{startTime}
+        </if>
+        <if test="endTime != null  and endTime != '' ">
+            AND TO_CHAR(SBSJ,'yyyy-MM-dd') &lt;= #{endTime}
+        </if>
+
+        ORDER BY SBSJ DESC
+    </select>
+
+    <select id="selectPondingPointWarnByTime" parameterType="java.lang.String" resultType="java.lang.Integer">
+        SELECT OBJECTID FROM SDE.SZSS_JSD_WARN WHERE TO_CHAR(SBSJ,'yyyy-MM-dd hh24:mi:ss') &gt;= #{startTime}
+    </select>
+
+    <select id="selectWarnDate" parameterType="java.lang.String" resultType="java.lang.String">
+        SELECT SBSJ FROM SZSS_JSD_WARN WHERE ZDMC=#{zdmc}
+    </select>
+
+    <select id="selectBaseInfo" parameterType="java.lang.String" resultType="java.util.HashMap">
+        SELECT FZR,LXDH FROM SZSS_JSD_WARN WHERE ZDMC=#{zdmc}
+    </select>
+
+    <select id="selectWarnStatusBySbbh" resultType="java.util.HashMap">
+        SELECT OBJECTID,ZDBH,ZDMC,STATUS FROM SZSS_JSD_WARN WHERE ZDBH=#{zdbh}
+    </select>
+
+    <select id="selectWarnStatusNot3BySbbh" resultType="java.lang.Integer">
+        select count(*) from SZSS_JSD_WARN where ZDBH=#{zdbh} and STATUS != 3
+    </select>
+</mapper>

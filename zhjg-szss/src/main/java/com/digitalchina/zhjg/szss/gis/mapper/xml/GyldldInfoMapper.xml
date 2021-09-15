@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digitalchina.zhjg.szss.gis.mapper.GyldInfoMapper">
+
+    <!-- 预警处置表_通用查询映射结果 -->
+    <resultMap id="GyldInfoBaseMap" type="com.digitalchina.zhjg.szss.gis.entity.GyldldDto">
+        <result column="CODE" property="code"/>
+        <result column="NAME" property="name"/>
+        <result column="CATE_LEVEL_1_ID" property="cateLevel1Id"/>
+        <result column="CATE_LEVEL_1_NAME" property="cateLevel1Name"/>
+        <result column="CATE_LEVEL_2_ID" property="cateLevel2Id"/>
+        <result column="CATE_LEVEL_2_ID" property="cateLevel2Name"/>
+        <result column="CATE_LEVEL_3_ID" property="cateLevel3Id"/>
+        <result column="CATE_LEVEL_3_NAME" property="cateLevel3Name"/>
+        <result column="PROPERTY_CODE" property="propertyCode"/>
+        <result column="PROPERTY_NAME" property="propertyName"/>
+        <result column="DEGREE_CODE" property="degreeCode"/>
+        <result column="DEGREE_NAME" property="degreeName"/>
+        <result column="ADMDIV_CODE" property="admDivCode"/>
+        <result column="ADMDIV_NAME" property="admDivName"/>
+        <result column="AREA" property="area"/>
+        <result column="MAINTYPE_CODE" property="mainTypeCode"/>
+        <result column="MAINTYPE_NAME" property="mainTypeName"/>
+        <result column="MAINTAIN_CODE" property="mainTainCode"/>
+        <result column="MAINTAIN_NAME" property="mainTainName"/>
+        <result column="PRINCIPAL" property="principal"/>
+        <result column="PRINCIPAL_TEL" property="principalTel"/>
+        <result column="DATE_CREATED" property="datecreated"/>
+        <result column="DATE_BUILD" property="dateBuild"/>
+
+    </resultMap>
+
+
+    <insert id="insertGyldInfoList" parameterType="java.util.List">
+        INSERT INTO "SDE"."GYLD_LD" (
+            "CODE","NAME","CATE_LEVEL_1_ID","CATE_LEVEL_1_NAME","CATE_LEVEL_2_ID","CATE_LEVEL_2_NAME",
+            "CATE_LEVEL_3_ID","CATE_LEVEL_3_NAME","PROPERTY_CODE","PROPERTY_NAME","DEGREE_CODE","DEGREE_NAME",
+            "ADMDIV_CODE","ADMDIV_NAME","AREA","MAINTYPE_CODE","MAINTYPE_NAME","MAINTAIN_CODE","MAINTAIN_NAME",
+            "PRINCIPAL","PRINCIPAL_TEL","DATE_CREATED","DATE_BUILD"
+        )
+        (
+        <foreach collection="list" index="" item="item" separator="union all">
+            select
+                #{item.code}, #{item.name}, #{item.cateLevel1Id},#{item.cateLevel1Name}, #{item.cateLevel2Id},
+                #{item.cateLevel2Name},#{item.cateLevel3Id}, #{item.cateLevel3Name},#{item.propertyCode},
+                #{item.propertyName},#{item.degreeCode}, #{item.degreeName},#{item.admDivCode},#{item.admDivName},
+                #{item.area},#{item.mainTypeCode}, #{item.mainTypeName},#{item.mainTainCode},#{item.mainTainName},
+                #{item.principal},#{item.principalTel}, #{item.datecreated},#{item.dateBuild}
+            from dual
+        </foreach>
+        )
+    </insert>
+
+    <select id="selectLdData" resultType="java.lang.String">
+        SELECT OBJECTID||'_'||NAME LDBH FROM GYLD_LD
+    </select>
+
+    <select id="selectQyData" resultType="java.lang.String">
+        SELECT NR_NAME ||'_'||NR_CODE AREA FROM DATA_CONFIG WHERE NR_TYPE = 'AREA'
+    </select>
+</mapper>

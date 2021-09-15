@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digitalchina.zhjg.szss.gis.mapper.GyldgyInfoMapper">
+
+    <insert id="insertGyldgyInfoList" parameterType="java.util.List">
+        INSERT INTO "SDE"."GYLD_GY" (
+        "CODE","NAME","DEGREE_NAME","DEGREE_CODE","ADDRESS","OPENLEVEL_NAME",
+        "OPENLEVEL_CODE","TOTAL_AREA","GREEN_AREA","WATER_AREA","MAINTAIN_NAME","MAINTAIN_CODE",
+        "PRINCIPAL","PRINCIPAL_TEL","XZQH","XZQH_CODE","DATE_BUILD","DATE_CREATED","REMARK"
+        )
+        (
+        <foreach collection="list" index="" item="item" separator="union all">
+            select
+            #{item.code}, #{item.name}, #{item.degreeName},#{item.degreeCode}, #{item.address},
+            #{item.openlevelName},#{item.openlevelCode}, #{item.totalArea},#{item.greenArea},
+            #{item.waterArea},#{item.maintainName}, #{item.maintainCode},#{item.principal},#{item.principalTel},
+            #{item.xzqh},#{item.xzqhCode}, #{item.dateBuild},#{item.datecreated},#{item.remark}
+            from dual
+        </foreach>
+        )
+    </insert>
+</mapper>

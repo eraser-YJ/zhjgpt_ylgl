@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digitalchina.admin.mid.mapper.EmEtypeMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.digitalchina.admin.mid.entity.emergency.EmEtype">
+        <id column="etypefk" property="etypefk" />
+        <result column="etypenm" property="etypenm" />
+        <result column="etypetid" property="etypetid" />
+        <result column="etypetids" property="etypetids" />
+        <result column="cruid" property="cruid" />
+        <result column="crdt" property="crdt" />
+        <result column="mouid" property="mouid" />
+        <result column="modt" property="modt" />
+    </resultMap>
+    
+     <resultMap id="BaseResultMapDto" type="com.digitalchina.admin.mid.dto.EmEtypeDto">
+        <id column="etypefk" property="etypefk" />
+        <result column="etypenm" property="etypenm" />
+        <result column="etypetid" property="etypetid" />
+        <result column="etypetids" property="etypetids" />
+        <result column="cruid" property="cruid" />
+        <result column="crdt" property="crdt" />
+        <result column="mouid" property="mouid" />
+        <result column="modt" property="modt" />
+        <result column="exname" property="exname" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        etypefk, etypenm, etypetid, etypetids, cruid, crdt, mouid, modt
+    </sql>
+    
+    <!-- 选择事件类型 -->
+    <select id="choose" resultMap = "BaseResultMapDto">
+    SELECT et.*,
+	concat_ws ( '/', et.exaname, etypenm ) AS exname 
+	FROM
+		(
+	SELECT
+		et.*,
+		(
+	SELECT
+		string_agg ( T.etypenm, '/' ) 
+	FROM
+		(
+	SELECT
+		ey.etypenm,
+		ey.etypefk 
+	FROM
+		emergency.em_etype ey 
+	WHERE
+		ey.etypefk = ANY ( et.etypetids ) 
+	ORDER BY
+		array_positions ( et.etypetids, ey.etypefk ) 
+		) T 
+		) AS exaname 
+	FROM
+		emergency.em_etype et 
+		) AS et 
+	ORDER BY
+		etypetid,etypefk
+    
+    </select>
+
+</mapper>

@@ -1,0 +1,18 @@
+server:
+ port: 8880
+
+logging:
+  config: classpath:log4j2-prod.xml
+  
+spring:
+  security: 
+    user:
+      name: digital
+      password: digitalprod
+      
+eureka:
+  client:
+    serviceUrl:
+     defaultZone: http://digital:digitalprod@localhost:${server.port}/eureka/
+    register-with-eureka: false
+    fetch-registry: false

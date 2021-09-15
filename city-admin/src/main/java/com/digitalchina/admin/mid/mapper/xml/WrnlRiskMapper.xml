@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digitalchina.admin.mid.mapper.WrnlRiskMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.digitalchina.admin.mid.entity.WrnlRisk">
+        <id column="id" property="id" />
+        <result column="itemid" property="itemid" />
+        <result column="type" property="type" />
+        <result column="modelid" property="modelid" />
+        <result column="cycle" property="cycle" />
+        <result column="frequency" property="frequency" />
+        <result column="sysremind" property="sysremind" />
+        <result column="userremind" property="userremind" />
+        <result column="status" property="status" />
+        <result column="lsttime" property="lsttime" />
+        <result column="nexttime" property="nexttime" />
+        <result column="intervaldays" property="intervaldays" />
+        <result column="fixdays" property="fixdays" typeHandler="com.digitalchina.admin.utils.PgArr2IntArrHandler"/>
+        <result column="week" property="week" typeHandler="com.digitalchina.admin.utils.PgArr2IntArrHandler" />
+        <result column="month" property="month" />
+        <result column="time" property="time" />
+        <result column="crdt" property="crdt"/>
+        <result column="modt" property="modt"/>
+        <result column="deptid" property="deptid" typeHandler="com.digitalchina.admin.utils.PgArr2IntArrHandler"/>
+        <!-- 非数据库字段 -->
+        <result column="menames" property="menames"/>
+        <result column="itemname" property="itemname"/>
+        <result column="modelname" property="modelname"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, itemid, type, modelid, cycle, frequency, sysremind, userremind, status, lsttime, nexttime,
+        intervaldays, fixdays, week, month, time, deptid
+    </sql>
+    
+    <!-- 监测点列表 -->
+	<select id="iotlist" resultMap="BaseResultMap">
+		SELECT 
+			distinct(t.*), dvc.idnm as itemname,model.name as modelname, '传感器' as itemtype,
+			cp.cpvs[1] as special, cp.cpvs[2] as topic, (
+							<!-- 指标拼接合并 -->
+							SELECT 
+								string_agg ( TEMP.idsnm, ',' ) AS menames 
+							FROM
+								<!-- 排序 -->
+								( SELECT b.idsnm FROM warn.warn_iotdsen b WHERE b.idid = dvc.idid ORDER BY b.ord ) TEMP
+						) 
+		FROM warn."warn_wrnl_risk" t
+		left join warn.warn_wrnl_risk_relevance R on t.id = R.riskid
+		left join warn.warn_iotdvc dvc on dvc.idid = r.itemid
+		left join warn.warn_cpspv cp on cp.cpvid = dvc.cpvid
+		left join warn.warn_wnrl_model model on model.id = t.modelid
+		<where>
+			and R.TYPE = 0
+			<if test="special != null and special != '' ">
+				and cp.cpvs[1] = #{special}
+			</if>
+			<if test="topic != null and topic != '' ">
+				and cp.cpvs[2] = #{topic}
+			</if>
+			<if test="status != null and status != '' ">
+				and t.status = #{status}
+			</if>
+			<if test="keyword != null and keyword != '' ">
+				and (
+					cp.cpvs[1] like '%${keyword}%' 
+					or cp.cpvs[2] like '%${keyword}%' 
+					or EXISTS (
+						select null from warn.warn_iotdsen dsen where dsen.idid = dvc.idid and dsen.idsnm like '%${keyword}%'
+					)
+				)
+			</if>
+		</where>
+		ORDER BY t.modt DESC
+	</select>
+	
+    <!-- 业务组件列表 -->
+	<select id="nflist" resultMap="BaseResultMap">
+		SELECT 
+			t.*, nf.name as itemname,model.name as modelname, '组件' as itemtype,
+			nf.cpvs[1] as special, nf.cpvs[2] as topic, (
+							<!-- 指标拼接合并 -->
+							SELECT 
+								string_agg ( TEMP.idsnm, ',' ) AS menames 
+							FROM
+								<!-- 排序 -->
+								( SELECT b.idsnm FROM warn.warn_iotdsen b WHERE b.idscode = ANY(nf.mscode ) ORDER BY b.ord ) TEMP
+						) 
+		FROM 	
+			warn."warn_wrnl_risk" T 
+			LEFT join warn.warn_wrnl_risk_relevance R on t.id = R.riskid
+			LEFT join warn.warn_nfelement nf on nf.id = R.itemid
+			LEFT JOIN warn.warn_wnrl_model model ON model.ID = T.modelid 
+		<where>
+			and r.type = 1
+			<if test="special != null and special != '' ">
+				and nf.cpvs[1] = #{special}
+			</if>
+			<if test="topic != null and topic != '' ">
+				and nf.cpvs[2] = #{topic}
+			</if>
+			<if test="status != null and status != '' ">
+				and t.status = #{status}
+			</if>
+			<if test="keyword != null and keyword != '' ">
+				and (
+					nf.cpvs[1] like '%${keyword}%' 
+					or nf.cpvs[2] like '%${keyword}%' 
+					or EXISTS (
+						select null from warn.warn_iotdsen dsen where dsen.idsid = ANY(nf.mscode ) and dsen.idsnm like '%${keyword}%'
+					)
+				)
+			</if>
+		</where>
+		ORDER BY t.modt DESC
+	</select>
+
+</mapper>

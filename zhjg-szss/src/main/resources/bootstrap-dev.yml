@@ -1,0 +1,102 @@
+eureka:
+  instance:
+    leaseRenewalIntervalInSeconds: 10
+    prefer-ip-address: true #以IP地址注册到服务中心，相互注册使用IP地址
+  client:
+    registryFetchIntervalSeconds: 30
+    serviceUrl:
+      defaultZone: http://dcdev:devDC00@39.107.117.228:18880/eureka/
+    register-with-eureka: false
+    fetch-registry: true
+
+server:
+  port: 8886
+
+spring:
+  cloud:
+    config:
+      enabled: false
+  datasource:
+    mid:
+      jdbc-url: jdbc:postgresql://39.106.68.41:5432/city-manage-mid?useUnicode=true&characterEncoding=UTF-8&useSSL=false
+      username: postgres
+      password: Dcd_2wsx3EDC
+      driver-class-name: org.postgresql.Driver
+      maximum-pool-size: 5
+      minimum-idle: 1
+      max-lifetime: 570000  #一个连接的生命时长（毫秒），超时而且没被使用则被释放（retired），缺省:30分钟，建议设置比数据库超时时长少30秒
+    gis:
+      jdbc-url: jdbc:oracle:thin:@39.106.68.41:1521/xe
+      username: sde
+      password: sde1
+      driver-class-name: oracle.jdbc.driver.OracleDriver
+      maximum-pool-size: 5
+      minimum-idle: 1
+      max-lifetime: 570000  #一个连接的生命时长（毫秒），超时而且没被使用则被释放（retired），缺省:30分钟，建议设置比数据库超时时长少30秒
+
+    event:
+      jdbc-url: jdbc:postgresql://39.106.68.41:5432/city-manage-event-zhjg?useUnicode=true&characterEncoding=UTF-8&useSSL=false
+      username: postgres
+      password: Dcd_2wsx3EDC
+      driver-class-name: org.postgresql.Driver
+      maximum-pool-size: 5
+      minimum-idle: 1
+      max-lifetime: 570000  #一个连接的生命时长（毫秒），超时而且没被使用则被释放（retired），缺省:30分钟，建议设置比数据库超时时长少30秒
+
+  redis:
+    database: 2
+    host: 39.106.68.41
+    password: Dcd_2wsx3EDC
+    port: 6379
+    timeout: 5000       # 连接超时时间 单位 ms（毫秒）
+    #    cluster:
+    #      nodes: 10.3.1.4:7000,10.3.1.4:7001,...,10.3.1.4:7008
+    lettuce:
+      pool:
+        max-active: 8  # 连接池最大连接数（使用负值表示没有限制） 默认
+        max-wait: -1  # 连接池最大阻塞等待时间（使用负值表示没有限制） 默认 -1
+        max-idle: 8  # 连接池中的最大空闲连接 默认 8
+        min-idle: 0  # 连接池中的最小空闲连接 默认 0
+mybatis-plus:
+  global-config:
+    refresh: true
+
+logging:
+  config: classpath:log4j2-dev.xml
+#多网卡环境，指定注册IP
+#eureka:
+#  instance:
+#    ipAddress: 192.168.18.128
+#事件远程调用，本地配置
+#cityevent:
+#  url: 127.0.0.1:8889
+
+upfilepath:
+  url: /opt/midapps/zhjg-szss/files/
+
+ezapi:
+  key: 626d93ddc31f43c2ba2725c687f68c21
+  secret: 0deeca82756ee4438f87a62bc31d5cfc
+  url:
+    getAccessToken: https://open.ys7.com/api/lapp/token/get
+    getDeviceList: https://open.ys7.com/api/lapp/device/list
+    getDeviceInfo: https://open.ys7.com/api/lapp/device/info
+    loginToRTU: http://116.141.0.137:8866/irtu/sys/login
+    openCamera: http://116.141.0.137:8866/irtu/station/sendCmdComm.hd
+  rtu:
+    user: system
+    password: oCR08Igv8FmlrbD3G/ywMQ==
+
+sms:
+  cred:
+    id: AKIDBD9ZwR0piy3KvRJ18MgrCJvXXH54oTnn
+    key: 4QXZOXVEhtSownPPDmB6lAzasuf9P1Zr
+  proxy:
+    enabled: false
+    host: 192.168.0.6
+    port: 3128
+  event:
+    jpsdWarning:
+      sdkAppId: 1400441518
+      signName: 智慧神州
+      tempId: 1002508

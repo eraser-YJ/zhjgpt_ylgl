@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digitalchina.event.mid.mapper.CoopeventMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.digitalchina.event.mid.entity.Coopevent">
+        <result column="ceid" property="ceid" />
+        <result column="proc_inst_id" property="procInstId" />
+        <result column="wfid" property="wfid" />
+        <result column="cpbedid" property="cpbedid" />
+        <result column="cebh" property="cebh" />
+        <result column="cenm" property="cenm" />
+        <result column="cecnt" property="cecnt" />
+        <result column="etbh" property="etbh" />
+        <result column="hapndt" property="hapndt" />
+        <result column="addr" property="addr" />
+        <result column="adid" property="adid" />
+        <result column="cestat" property="cestat" />
+        <result column="town_adid" property="townAdid" />
+        <result column="cepcdpt" property="cepcdpt" />
+        <result column="cesrcdpt" property="cesrcdpt" />
+        <result column="cepcdpt0" property="cepcdpt0" />
+        <result column="alldura" property="alldura" />
+        <result column="pcdura" property="pcdura" />
+        <result column="clsdt" property="clsdt" />
+        <result column="bexy" property="bexy" />
+        <result column="efbh" property="efbh" />
+        <result column="cpdesc" property="cpdesc" />
+        <result column="cpfbinfo" property="cpfbinfo" />
+        <result column="crdt" property="crdt" />
+        <result column="modt" property="modt" />
+        <result column="ceproc" property="ceproc" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        ceid, proc_inst_id, wfid, cpbedid, cebh, cenm, cecnt, etbh, hapndt, addr, adid, cestat, town_adid, cepcdpt, cesrcdpt, cepcdpt0, alldura, pcdura, clsdt, bexy, efbh, cpdesc, cpfbinfo, crdt, modt, ceproc
+    </sql>
+
+    <select id="countCreateCoop" resultType="com.digitalchina.event.dto.eventdeposit.CoopeventDto">
+        SELECT
+            ce.ceid,
+            ce.cenm,
+            to_char(
+                ce.hapndt,
+                'yyyy-mm-dd hh24:mi:ss'
+            ) AS hapndt,
+            bt.etnm,
+            bf.efnm,
+            ce.cecnt,
+            ce.cpdesc,
+            be.bdnm cpbedidName,
+            ce.cpfbinfo
+        FROM
+            coopevent ce
+        LEFT JOIN befrom bf ON ce.efbh = bf.efbh
+        LEFT JOIN betype bt ON ce.etbh = bt.etbh
+        LEFT JOIN bedept be ON be.bedid = ce.cpbedid
+        WHERE
+         ce.cesrcdpt =  #{currentDept}
+    </select>
+
+    <select id="countReceiveCoop" resultType="com.digitalchina.event.dto.eventdeposit.CoopeventDto">
+        SELECT
+            ce.ceid,
+            ce.cenm,
+            to_char(
+                ce.hapndt,
+                'yyyy-mm-dd hh24:mi:ss'
+            ) AS hapndt,
+            bt.etnm,
+            bf.efnm,
+            ce.cecnt,
+            ce.cpdesc,
+            be.bdnm cpbedidName,
+            ce.cpfbinfo
+        FROM
+            coopevent ce
+        LEFT JOIN befrom bf ON ce.efbh = bf.efbh
+        LEFT JOIN betype bt ON ce.etbh = bt.etbh
+        LEFT JOIN bedept be ON be.bedid = ce.cesrcdpt
+        WHERE
+         ce.cpbedid =  #{currentDept}
+    </select>
+
+    <select id="eventDepositInfo" resultType="java.util.Map">
+        SELECT
+		    '1' as status,
+            to_char(
+                ha.start_time_,
+                'yyyy-mm-dd hh24:mi:ss'
+            ) AS time,
+            ha.act_name_ AS title,
+            com.message_ AS info
+        FROM
+            coopevent ce
+        JOIN act_hi_actinst ha ON ce.proc_inst_id = ha.proc_inst_id_
+        AND ha.act_name_ IS NOT NULL
+        LEFT JOIN act_hi_comment com ON com.task_id_ = ha.task_id_ AND com.type_ = 'comment'
+        LEFT JOIN act_hi_identitylink hi ON hi.task_id_ = ha.task_id_ and hi.type_ = 'candidate'
+        WHERE
+            ce.ceid = #{ceid}
+        ORDER BY
+            ha.id_ DESC
+
+    </select>
+
+    <select id="getBasicinfo" resultType="com.digitalchina.event.dto.eventdeposit.CoopeventBasicDto">
+      SELECT
+        ce.ceid,
+        ce.cebh,
+        ce.cenm,
+        ce.cestat,
+        bt.etnm,
+        to_char(
+            ce.hapndt,
+            'yyyy-mm-dd hh24:mi:ss'
+        ) AS hapndt,
+        ce.addr,
+        ad1.adnm adName,
+        ad2.adnm townName,
+        ce.cpdesc,
+        ce.cecnt,
+        bf.efnm,
+        bd1.bdnm cpbedidName,
+        ce.cpfbinfo,
+        bd2.bdnm cesrcdptName,
+        ce.modt AS processingTime,
+        ce.crdt AS ljProcessingTime
+    FROM
+        coopevent ce
+    LEFT JOIN befrom bf ON ce.efbh = bf.efbh
+    LEFT JOIN betype bt ON ce.etbh = bt.etbh
+    LEFT JOIN bedept bd1 ON bd1.bedid = ce.cpbedid
+    LEFT JOIN bedept bd2 ON bd2.bedid = ce.cepcdpt0
+    LEFT JOIN admdiv ad1 ON ce.adid = ad1.adid
+    LEFT JOIN admdiv ad2 ON ce.town_adid = ad2.adid
+        WHERE
+         ce.ceid = #{ceid}
+    </select>
+
+    <update id="updateGis">
+        update public.coopevent set bexy = st_geometryfromtext ( 'POINT(${lon} ${lat})', 4326 ) where ceid = #{beid}
+    </update>
+
+</mapper>

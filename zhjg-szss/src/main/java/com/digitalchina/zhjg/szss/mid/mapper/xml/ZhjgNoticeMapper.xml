@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digitalchina.zhjg.szss.mid.mapper.ZhjgNoticeMapper">
+
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="ZhjgNoticeResultMap" type="com.digitalchina.zhjg.szss.mid.entity.ZhjgNotice">
+        <id column="id" property="id" />
+        <result column="title" property="title" />
+        <result column="content" property="content" />
+        <result column="createtime" property="createtime" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="ZhjgNotice_Column_List">
+        id, title, content, createtime
+    </sql>
+
+    <select id="selectZhjgNotice" parameterType="java.lang.Integer" resultMap="ZhjgNoticeResultMap">
+        select * from  public.zhjg_notice where 1=1
+        <if test="id != null and id != '' ">
+            and  id = #{id}
+        </if>
+        order by createtime desc
+    </select>
+    <select id="selectZhjgAllNotice" parameterType="java.lang.Integer" resultMap="ZhjgNoticeResultMap">
+        select * from  public.zhjg_notice where 1=1
+        order by createtime desc
+    </select>
+
+    <insert id="insetNotice" parameterType="com.digitalchina.zhjg.szss.mid.entity.ZhjgNotice" useGeneratedKeys="true" keyProperty="id">
+           insert into public.zhjg_notice(title,content,createTime) values(#{title},#{content},now())
+   </insert>
+
+    <update id="updateNotice" parameterType="com.digitalchina.zhjg.szss.mid.entity.ZhjgNotice" >
+        update public.zhjg_notice set title = #{title} ,content = #{content},createtime = now() where id = #{id}
+    </update>
+
+    <delete id="deleteNotice" parameterType="java.lang.Integer">
+        delete from  public.zhjg_notice  where id = #{id}
+    </delete>
+
+</mapper>

@@ -1,0 +1,420 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digitalchina.event.mid.mapper.HiProcinstMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.digitalchina.event.mid.entity.HiProcinst">
+        <id column="id_" property="id" />
+        <result column="proc_inst_id_" property="procInstId" />
+        <result column="business_key_" property="businessKey" />
+        <result column="proc_def_id_" property="procDefId" />
+        <result column="start_time_" property="startTime" />
+        <result column="end_time_" property="endTime" />
+        <result column="duration_" property="duration" />
+        <result column="start_user_id_" property="startUserId" />
+        <result column="start_act_id_" property="startActId" />
+        <result column="end_act_id_" property="endActId" />
+        <result column="super_process_instance_id_" property="superProcessInstanceId" />
+        <result column="delete_reason_" property="deleteReason" />
+        <result column="tenant_id_" property="tenantId" />
+        <result column="name_" property="name" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id_, proc_inst_id_, business_key_, proc_def_id_, start_time_, end_time_, duration_, start_user_id_, start_act_id_, end_act_id_, super_process_instance_id_, delete_reason_, tenant_id_, name_
+    </sql>
+     <!--生成x轴，统计y轴-->
+    <select id="trendAnalysis" resultType="java.util.Map">
+
+        <if test="type == 'DAY'.toString()">
+        <![CDATA[
+        select x.name,case when y.count is null then 0 else y.count end as value from
+            (select to_char(date_series.date, 'yyyy-MM-dd') as name
+            from (select generate_series(now() - interval '29 days', now(), '1 day') as date ) date_series
+            ) x
+        left join
+        (select
+            to_char( crdt, 'yyyy-MM-dd' ) AS name,count(*)
+            from busievent
+            where crdt >= now() - interval '30 days'
+            group by  name ) y
+        on x.name = y.name
+         ]]>
+        </if>
+
+        <if test="type == 'WEEK'.toString()">
+            <![CDATA[
+        select x.name,case when y.count is null then 0 else y.count end  as value from
+            (select
+            extract (year from date_series.date) ||'年第'||
+            extract (week from date_series.date) ||'周' as name
+            from (
+            select generate_series(
+            now() - interval '11 weeks',
+            now(),  '1 weeks') as date
+            ) date_series) x
+        left join
+            (select
+            extract (year from crdt) ||'年第'||
+            extract (week from crdt) ||'周' AS name,
+            count(*)
+            from busievent
+            where  crdt >= now() - interval '12 weeks'
+            group by  name)y
+        on x.name = y.name
+        ]]>
+        </if>
+
+        <if test="type == 'MONTH'.toString()">
+         <![CDATA[
+        select x.name,case when y.count is null then 0 else y.count end as value from
+            (select to_char(date_series.date, 'yyyy-MM') as name
+            from (select generate_series(now() - interval '5 months', now(), '1 month') as date ) date_series
+            ) x
+        left join
+            (select
+            to_char( crdt, 'yyyy-MM' ) AS name,count(*)
+            from busievent
+            where crdt >= now() - interval '6 months'
+            group by  name ) y
+        on x.name = y.name
+        ]]>
+        </if>
+
+        <if test="type == 'QUARTER'.toString()">
+         <![CDATA[
+        select x.name,case when y.count is null then 0 else y.count end as value from
+            (select
+            extract (year from date_series.date) ||'年第'||
+            extract (quarter from date_series.date) ||'季' as name
+            from (
+            select generate_series(
+            now() - interval '9 months',
+            now(),  '3 months') as date
+            ) date_series) x
+        left join
+            (select
+            extract (year from crdt) ||'年第'||
+            extract (quarter from crdt) ||'季' AS name,
+            count(*)
+            from busievent
+            where  crdt >= now() - interval '12 months'
+            group by  name
+            )y
+        on x.name = y.name
+        ]]>
+        </if>
+
+    </select>
+    
+    <select id="avgProceTime" resultType="java.math.BigDecimal">
+   select
+	avg((case when alldura is null then (select extract(epoch FROM (now() - crdt ))) else alldura*60 end)/3600)
+	from busievent
+    </select>
+
+    <resultMap id="PieChartDtoResultMap" type="com.digitalchina.event.dto.PieChartDto">
+        <result column="name" property="name" />
+        <result column="value" property="value" />
+        <result column="per" property="per" />
+    </resultMap>
+
+    <select id="completionAnalysis" resultMap="PieChartDtoResultMap">
+    <![CDATA[
+        select '超过'as name , count(*) as value from
+        (select (case when alldura is null then (select extract(epoch FROM (now() - crdt ))) else alldura*60 end) as time from  busievent
+        )t where
+        t.time	>
+        (select avg(t.time)
+        from
+        (select (case when alldura is null then (select extract(epoch FROM (now() - crdt ))) else alldura*60 end) as time from  busievent
+        )t )
+        union all
+        select '未超过'as name , count(*) as value from
+        (select (case when alldura is null then (select extract(epoch FROM (now() - crdt ))) else alldura*60 end) as time from  busievent
+        )t where
+        t.time	<=
+        (select avg(t.time)
+        from
+        (select (case when alldura is null then (select extract(epoch FROM (now() - crdt ))) else alldura*60 end) as time from  busievent
+        )t )
+     ]]>
+    </select>
+
+
+    <resultMap id="HistogramDtoResultMap" type="com.digitalchina.event.dto.HistogramDto">
+        <result column="name" property="name" />
+        <result column="value" property="value" />
+    </resultMap>
+    <select id="typeAnalysis" resultMap="HistogramDtoResultMap">
+
+        <if test="type == 'SOURCE'.toString()">
+            select bf.efnm as name , COALESCE(avg((case when be.alldura is null then (select extract(epoch FROM (now() -  be.crdt ))) else be.alldura*60 end)/3600) ,0) as value from befrom bf
+            left join busievent be on be.efbh =bf.efbh
+            GROUP BY bf.efbh,bf.efnm
+        </if>
+
+        <if test="type == 'AREA'.toString()">
+            select ad.adnm as name ,COALESCE(avg((case when be.alldura is null then (select extract(epoch FROM (now() - be.crdt ))) else be.alldura*60 end)/3600),0) as value from admdiv ad
+            left join busievent be on be.adid = ad.adid
+            where  ad.adlev= 2
+            GROUP BY ad.adid,ad.adnm
+        </if>
+
+        <if test="type == 'TYPE'.toString()">
+            select bt.etnm as name , COALESCE(avg((case when be.alldura is null then (select extract(epoch FROM (now() - be.crdt ))) else be.alldura*60 end)/3600),0) as value from betype bt
+            left join busievent be on be.etbh =bt.etbh
+            GROUP BY bt.etbh,bt.etnm
+        </if>
+
+        <if test="type == 'DEPT'.toString()">
+            select bd.bdnm as name , COALESCE(avg((case when be.alldura is null then (select extract(epoch FROM (now() - be.crdt ))) else be.alldura*60 end)/3600),0) as value from bedept bd
+            left join busievent be on be.recdpt =bd.bedid
+            GROUP BY bd.bedid,bd.bdnm
+        </if>
+
+    </select>
+
+    <select id="sourceAnalysis" resultMap="PieChartDtoResultMap">
+        select bf.efnm as name ,count(be.beid) as value from befrom bf
+        left join busievent be on be.efbh =bf.efbh GROUP BY  bf.efbh,bf.efnm
+    </select>
+
+    <select id="deptAnalysisForFirstSource" resultMap="HistogramDtoResultMap">
+    select bd.bdnm as name , count(be.beid) as value from bedept bd
+    join busievent be on be.recdpt =bd.bedid
+    where be.efbh =
+    (select bf.efbh as name  from befrom bf
+    left join busievent be on be.efbh =bf.efbh GROUP BY  bf.efbh order by count(be.beid) desc limit 1)
+    GROUP BY bd.bedid,bd.bdnm
+    </select>
+
+
+    <select id="topByType" resultMap="HistogramDtoResultMap">
+
+        <if test="type == 'TYPE'.toString()">
+            select bt.etnm as name , count(be.beid) as value from betype bt
+            left join busievent be on be.etbh =bt.etbh
+            GROUP BY bt.etbh,bt.etnm
+        </if>
+
+        <if test="type == 'AREA'.toString()">
+            select ad.adnm as name , count(be.beid) as value from admdiv ad
+            left join busievent be on be.adid = ad.adid
+            where ad.adlev=2
+            GROUP BY ad.adid,ad.adnm
+        </if>
+
+        <if test="type == 'DEPT'.toString()">
+            <choose>
+                <when test="bedid != null and bedid !=''">
+                    select bd.bdnm as name , count(be.beid) as value from bedept bd
+                    left join busievent be on
+                    <choose>
+                        <when test="bdtype == 1 ">
+                        be.allodpt =bd.bedid and be.bestat !=4
+                        </when>
+                        <otherwise>
+                        be.recdpt =bd.bedid and be.bestat !=11
+                        </otherwise>
+                    </choose>
+                    where bd.bdpntid =#{bedid}
+                </when>
+                <otherwise>
+                    select bd.bdnm as name , count(be.beid)  as value from bedept bd
+                    left join busievent be on 1=1
+                    where bd.bdtype =1
+                </otherwise>
+            </choose>
+            GROUP BY bd.bedid,bd.bdnm
+        </if>
+        ORDER BY value desc
+        <if test="rows != null and rows != ''">
+        limit #{rows}
+        </if>
+    </select>
+
+    <resultMap id="CustomAssessmentDtoResultMap" type="com.digitalchina.event.dto.CustomAssessmentDto">
+        <result column="name" property="name" />
+        <result column="bdtype" property="bdtype" />
+        <result column="count" property="count" />
+        <result column="handlerper" property="handlerper" />
+        <result column="handlergrade" property="handlergrade" />
+        <result column="inhandlerper" property="inhandlerper" />
+        <result column="inhandlergrade" property="inhandlergrade" />
+        <result column="closeper" property="closeper" />
+        <result column="closegrade" property="closegrade" />
+        <result column="incloseper" property="incloseper" />
+        <result column="inclosegrade" property="inclosegrade" />
+        <result column="synthesis" property="synthesis" />
+    </resultMap>
+
+    <select id="customAssessmentByType" resultMap="CustomAssessmentDtoResultMap">
+        <if test="type == 'AREA'.toString()">
+            select tt.*,tt.handlergrade*0.25+tt.inhandlergrade*0.25+tt.closegrade*0.25+tt.inclosegrade*0.25 as synthesis
+            from
+            <![CDATA[
+            (select t.adflnm as name ,t.count ,
+                    case when t.count = 0 then '0%' else 100 -round(t.unhandler*100::numeric/t.count::numeric)||'%' end as handlerper,
+                    case when t.count = 0 then 0 else 100 -round(t.unhandler*100::numeric/t.count::numeric) end as handlergrade,
+                    case when t.count = 0 then '0%' else 100 -round(t.overunhandler*100::numeric/t.count::numeric)||'%' end as inhandlerper,
+                    case when t.count = 0 then 0 else 100 -round(t.overunhandler*100::numeric/t.count::numeric) end as inhandlergrade,
+                    case when t.count = 0 then '0%' else round(t.close*100::numeric/t.count::numeric)||'%' end as closeper,
+                    case when t.count = 0 then 0 else round(t.close*100::numeric/t.count::numeric) end as closegrade,
+                    case when t.count = 0 then '0%'else round(t.inclose*100::numeric/t.count::numeric)||'%' end as incloseper,
+                    case when t.count = 0 then 0 else round(t.inclose*100::numeric/t.count::numeric) end as inclosegrade
+            from (select ad.adflnm,
+            sum(case when bea.bestat = 0 then 1 else 0 end) as unhandler,
+            sum(case when beb.bestat = 0 then 1 else 0 end) as overunhandler,
+            sum(case when bea.bestat = 1000 then 1 else 0 end) as close,
+            sum(case when beb.bestat = 1000 then 1 else 0 end) as inclose,
+            count(bea.beid) as count
+            from admdiv ad
+            left join busievent bea on bea.adid = ad.adid
+            ]]>
+            <if test="startTime != null and startTime != ''">
+                AND bea.crdt &gt;= &apos;${startTime} 00:00:00&apos;
+            </if>
+            <if test="endTime != null and endTime != ''">
+                AND bea.crdt &lt;= &apos;${endTime} 23:59:59&apos;
+            </if>
+             <![CDATA[
+            left join busievent beb on bea.beid=beb.beid and ((beb.bestat = 0 and (now()- beb.crdt)> interval '1 day') or (beb.bestat = 1000 and (beb.clsdt - beb.crdt) <= interval '10 day'))
+             ]]>
+            where  ad.adlev = 2
+            GROUP BY ad.adid
+            ) t
+            )tt
+        </if>
+
+        <if test="type == 'DEPT'.toString()">
+            select tt.*,tt.handlergrade*0.25+tt.inhandlergrade*0.25+tt.closegrade*0.25+tt.inclosegrade*0.25 as synthesis
+            from
+            (
+            <![CDATA[
+            (select t.bdnm as name, t.bdtype ,t.count ,
+                    case when t.count = 0 then '0%' else 100 -round(t.unhandler*100::numeric/t.count::numeric)||'%' end as handlerper,
+                    case when t.count = 0 then 0 else 100 -round(t.unhandler*100::numeric/t.count::numeric) end as handlergrade,
+                    case when t.count = 0 then '0%' else 100 -round(t.overunhandler*100::numeric/t.count::numeric)||'%' end as inhandlerper,
+                    case when t.count = 0 then 0 else 100 -round(t.overunhandler*100::numeric/t.count::numeric) end as inhandlergrade,
+                    case when t.count = 0 then '0%' else round(t.close*100::numeric/t.count::numeric)||'%' end as closeper,
+                    case when t.count = 0 then 0 else round(t.close*100::numeric/t.count::numeric) end as closegrade,
+                    case when t.count = 0 then '0%'else round(t.inclose*100::numeric/t.count::numeric)||'%' end as incloseper,
+                    case when t.count = 0 then 0 else round(t.inclose*100::numeric/t.count::numeric) end as inclosegrade
+            from (select bd.bdnm ,  bd.bdtype,
+            sum(case when bea.bestat = 0 then 1 else 0 end) as unhandler,
+            sum(case when beb.bestat = 0 then 1 else 0 end) as overunhandler,
+            sum(case when bea.bestat = 1000 then 1 else 0 end) as close,
+            sum(case when beb.bestat = 1000 then 1 else 0 end) as inclose,
+            count(bea.beid) as count
+            from bedept bd
+            left join busievent bea on bd.bdtype=1
+             ]]>
+            <if test="startTime != null and startTime != ''">
+                AND bea.crdt &gt;= &apos;${startTime} 00:00:00&apos;
+            </if>
+            <if test="endTime != null and endTime != ''">
+                AND bea.crdt &lt;= &apos;${endTime} 23:59:59&apos;
+            </if>
+            <![CDATA[
+            left join busievent beb on bea.beid=beb.beid and ((beb.bestat = 0 and (now()- beb.crdt)> interval '1 day') or (beb.bestat = 1000 and (beb.clsdt - beb.crdt) <= interval '10 day'))
+            ]]>
+            where bd.bdtype=1
+            GROUP BY bd.bedid
+            ) t)
+            <!--union all
+            <![CDATA[
+            (select t.bdnm as name, t.bdtype ,t.count ,
+                    case when t.count = 0 then '0%' else 100 -round(t.unhandler*100::numeric/t.count::numeric)||'%' end as handlerper,
+                    case when t.count = 0 then 0 else 100 -round(t.unhandler*100::numeric/t.count::numeric) end as handlergrade,
+                    case when t.count = 0 then '0%' else 100 -round(t.overunhandler*100::numeric/t.count::numeric)||'%' end as inhandlerper,
+                    case when t.count = 0 then 0 else 100 -round(t.overunhandler*100::numeric/t.count::numeric) end as inhandlergrade,
+                    case when t.count = 0 then '0%' else round(t.close*100::numeric/t.count::numeric)||'%' end as closeper,
+                    case when t.count = 0 then 0 else round(t.close*100::numeric/t.count::numeric) end as closegrade,
+                    case when t.count = 0 then '0%'else round(t.inclose*100::numeric/t.count::numeric)||'%' end as incloseper,
+                    case when t.count = 0 then 0 else round(t.inclose*100::numeric/t.count::numeric) end as inclosegrade
+            from (select bd.bdnm ,bd.bdtype,
+            sum(case when bea.bestat = 0 then 1 else 0 end) as unhandler,
+            sum(case when beb.bestat = 0 then 1 else 0 end) as overunhandler,
+            sum(case when bea.bestat = 1000 then 1 else 0 end) as close,
+            sum(case when beb.bestat = 1000 then 1 else 0 end) as inclose,
+            count(bea.beid) as count
+            from bedept bd
+            left join busievent bea on bea.allodpt =bd.bedid and bea.bestat !=4
+            ]]>
+            <if test="startTime != null and startTime != ''">
+                AND bea.crdt &gt;= &apos;${startTime} 00:00:00&apos;
+            </if>
+            <if test="endTime != null and endTime != ''">
+                AND bea.crdt &lt;= &apos;${endTime} 23:59:59&apos;
+            </if>
+            <![CDATA[
+            left join busievent beb on bea.beid=beb.beid and ((beb.bestat = 0 and (now()- beb.crdt)> interval '1 day') or (beb.bestat = 1000 and (beb.clsdt- beb.crdt) <= interval '10 day'))
+            ]]>
+            where bd.bdtype=2
+            GROUP BY bd.bedid
+            ) t)-->
+            union all
+            <![CDATA[
+            (select t.bdnm as name, t.bdtype ,t.count ,
+                    case when t.count = 0 then '0%' else 100 -round(t.unhandler*100::numeric/t.count::numeric)||'%' end as handlerper,
+                    case when t.count = 0 then 0 else 100 -round(t.unhandler*100::numeric/t.count::numeric) end as handlergrade,
+                    case when t.count = 0 then '0%' else 100 -round(t.overunhandler*100::numeric/t.count::numeric)||'%' end as inhandlerper,
+                    case when t.count = 0 then 0 else 100 -round(t.overunhandler*100::numeric/t.count::numeric) end as inhandlergrade,
+                    case when t.count = 0 then '0%' else round(t.close*100::numeric/t.count::numeric)||'%' end as closeper,
+                    case when t.count = 0 then 0 else round(t.close*100::numeric/t.count::numeric) end as closegrade,
+                    case when t.count = 0 then '0%'else round(t.inclose*100::numeric/t.count::numeric)||'%' end as incloseper,
+                    case when t.count = 0 then 0 else round(t.inclose*100::numeric/t.count::numeric) end as inclosegrade
+            from (select bd.bdnm , bd.bdtype,
+            sum(case when bea.bestat = 0 then 1 else 0 end) as unhandler,
+            sum(case when beb.bestat = 0 then 1 else 0 end) as overunhandler,
+            sum(case when bea.bestat = 1000 then 1 else 0 end) as close,
+            sum(case when beb.bestat = 1000 then 1 else 0 end) as inclose,
+            count(bea.beid) as count
+            from bedept bd
+            left join busievent bea on bea.recdpt =bd.bedid and bea.bestat !=11 and bea.bestat !=4
+            ]]>
+            <if test="startTime != null and startTime != ''">
+                AND bea.crdt &gt;= &apos;${startTime} 00:00:00&apos;
+            </if>
+            <if test="endTime != null and endTime != ''">
+                AND bea.crdt &lt;= &apos;${endTime} 23:59:59&apos;
+            </if>
+            <![CDATA[
+            left join busievent beb on bea.beid=beb.beid and ((beb.bestat = 0 and (now()- beb.crdt)> interval '1 day') or (beb.bestat = 1000 and (beb.clsdt- beb.crdt) <= interval '10 day'))
+            ]]>
+            where bd.bdtype=2
+            GROUP BY bd.bedid
+            ) t)
+            )tt
+        </if>
+            order by tt.name
+    </select>
+    
+    <select id="customAssessmentTotal" resultMap="CustomAssessmentDtoResultMap">
+        <![CDATA[
+        select tt.*,tt.handlergrade*0.25+tt.inhandlergrade*0.25+tt.closegrade*0.25+tt.inclosegrade*0.25 as synthesis
+        from
+        (select t.name ,t.count ,
+            case when t.count = 0 then '0%' else 100 -round(t.unhandler*100::numeric/t.count::numeric)||'%' end as handlerper,
+            case when t.count = 0 then 0 else 100 -round(t.unhandler*100::numeric/t.count::numeric) end as handlergrade,
+            case when t.count = 0 then '0%' else 100 -round(t.overunhandler*100::numeric/t.count::numeric)||'%' end as inhandlerper,
+            case when t.count = 0 then 0 else 100 -round(t.overunhandler*100::numeric/t.count::numeric) end as inhandlergrade,
+            case when t.count = 0 then '0%' else round(t.close*100::numeric/t.count::numeric)||'%' end as closeper,
+            case when t.count = 0 then 0 else round(t.close*100::numeric/t.count::numeric) end as closegrade,
+            case when t.count = 0 then '0%'else round(t.inclose*100::numeric/t.count::numeric)||'%' end as incloseper,
+            case when t.count = 0 then 0 else round(t.inclose*100::numeric/t.count::numeric) end as inclosegrade
+        from (select '综合统计' as name,
+        sum(case when bea.bestat = 0 then 1 else 0 end) as unhandler,
+        sum(case when beb.bestat = 0 then 1 else 0 end) as overunhandler,
+        sum(case when bea.bestat = 1000 then 1 else 0 end) as close,
+        sum(case when beb.bestat = 1000 then 1 else 0 end) as inclose,
+        count(bea.beid) as count
+        from  busievent bea
+        left join busievent beb on bea.beid=beb.beid and ((beb.bestat = 0 and (now()- beb.crdt)> interval '1 day') or (beb.bestat = 1000 and (beb.clsdt - beb.crdt) <= interval '10 day'))
+        ) t
+        )tt
+        ]]>
+    </select>
+</mapper>

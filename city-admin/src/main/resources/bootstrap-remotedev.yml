@@ -1,0 +1,12 @@
+spring:
+  cloud:
+    config:
+      profile: remotedev
+      discovery:
+        enabled: true
+        service-id: service-config
+
+eureka:
+  client:
+    serviceUrl:
+     defaultZone: http://dcdev:devDC00@39.107.117.228:18880/eureka/

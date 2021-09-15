@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digitalchina.zhjg.szss.gis.mapper.WarnHandleStatusMapper">
+
+
+    <!-- 预警处置表_通用查询映射结果 -->
+    <resultMap id="WarnHandleStatusResultMap" type="com.digitalchina.zhjg.szss.gis.entity.WarnHandleStatus">
+        <result column="OBJECTID" property="objectId"/>
+        <result column="CZNR" property="cznr"/>
+        <result column="DXNR" property="dxnr"/>
+        <result column="LEDNR" property="lednr"/>
+        <result column="STATUS" property="status"/>
+        <result column="UPDATETIME" property="updateTime"/>
+        <result column="JCDLX" property="jcdlx"/>
+        <result column="SJBH" property="sjbh"/>
+        <result column="TEL" property="tel"/>
+        <result column="YJCZ" property="yjcz"/>
+        <result column="CZR" property="czr"/>
+    </resultMap>
+
+    <insert id="insertWarnHandleStatus" parameterType="com.digitalchina.zhjg.szss.gis.entity.WarnHandleStatus"  useGeneratedKeys="true" keyProperty="OBJECTID" >
+        INSERT INTO
+            SDE.SZSS_WARN_HANDLE_STATUS (CZNR,DXNR,LEDNR,STATUS,UPDATETIME,JCDLX,SJBH,TEL,YJCZ)
+        VALUES (
+            #{cznr},#{dxnr},#{lednr},#{status},to_date(#{updateTime},'yyyy-mm-dd hh24:mi:ss'),#{jcdlx},#{sjbh},#{tel},#{yjcz})
+    </insert>
+
+    <select id="selectWarnHandleStatus" parameterType="java.lang.String" resultMap="WarnHandleStatusResultMap">
+        SELECT
+            a.OBJECTID,a.CZNR,a.DXNR,a.LEDNR,a.STATUS,a.UPDATETIME,a.JCDLX,a.SJBH,a.YJCZ,b.CZR,b.CZDW
+        FROM
+            SDE.SZSS_WARN_HANDLE_STATUS a , SDE.SZSS_WARN_HANDLE b
+        WHERE
+            a.SJBH = b.SJBH
+        AND
+            a.JCDLX = b.JCDLX
+        <if test="sjbh != null  and sjbh != '' ">
+            AND a.SJBH = #{sjbh}
+        </if>
+        <if test="jcdlx != null  and jcdlx != '' ">
+            AND a.JCDLX = #{jcdlx}
+        </if>
+        <if test="status != null  and status != '' ">
+            AND a.STATUS = #{status}
+        </if>
+        ORDER BY a.UPDATETIME ASC, a.OBJECTID asc
+    </select>
+
+</mapper>

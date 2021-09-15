@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digitalchina.admin.mid.mapper.RptdefMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.digitalchina.admin.mid.entity.Rptdef">
+        <id column="rdid" property="rdid" />
+        <result column="rdpath" property="rdpath" />
+        <result column="rdnm" property="rdnm" />
+        <result column="rdnmexp" property="rdnmexp" />
+        <result column="rdrgexp" property="rdrgexp" />
+        <result column="stat" property="stat" />
+        <result column="cron" property="cron" />
+        <result column="lastdt" property="lastdt" />
+        <result column="nextdt" property="nextdt" />
+        <result column="crdt" property="crdt" />
+        <result column="modt" property="modt" />
+        <result column="cpvid" property="cpvid" />
+        <result column="rpitv" property="rpitv" />
+        <result column="app" property="app" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        rdid, rdpath, rdnm, rdnmexp, rdrgexp, stat, cron, lastdt, nextdt, crdt, modt,cpvid,rpitv,app
+    </sql>
+
+</mapper>

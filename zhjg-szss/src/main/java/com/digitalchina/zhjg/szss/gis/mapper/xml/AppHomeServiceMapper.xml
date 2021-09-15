@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digitalchina.zhjg.szss.gis.mapper.AppHomeServiceMapper">
+    <select id="selectAppHomeData" resultType="java.util.Map">
+        select NVL(count(*),'0') num from parts_base
+        union all
+        select NVL(count(*),'0') GYNUM from GYLD_GY
+        union all
+        select NVL(sum(AREA),'0') as area from GYLD_LD
+        union all
+        select NVL(sum(NR_VALUE),'0') as area  from DATA_CONFIG where NR_TYPE='AREA'
+    </select>
+</mapper>

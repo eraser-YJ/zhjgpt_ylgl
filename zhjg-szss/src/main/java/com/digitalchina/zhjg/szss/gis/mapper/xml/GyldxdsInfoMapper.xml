@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digitalchina.zhjg.szss.gis.mapper.GyldxdsInfoMapper">
+
+    <!-- 预警处置表_通用查询映射结果 -->
+    <resultMap id="GyldxdsInfoBaseMap" type="com.digitalchina.zhjg.szss.gis.entity.GyldxdsDto">
+        <result column="CODE" property="code"/>
+        <result column="LD_OBJECTID" property="ldObjectId"/>
+        <result column="ZWPZ_CODE" property="zwpzCode"/>
+        <result column="ZWPZ_CODE" property="zwpz"/>
+        <result column="SG" property="sg"/>
+        <result column="GF" property="gf"/>
+        <result column="XJ" property="xj"/>
+        <result column="FZD" property="fzd"/>
+        <result column="SL" property="sl"/>
+        <result column="SZZK_CODE" property="szzkCode"/>
+        <result column="SZZK" property="szzk"/>
+        <result column="YHDJ_CODE" property="yhdjCode"/>
+        <result column="YHDJ" property="yhdj"/>
+        <result column="XZQH_CODE" property="xzqhCode"/>
+        <result column="XZQH" property="xzqh"/>
+        <result column="REMARK" property="remark"/>
+        <result column="DATE_CREATED" property="dateCreated"/>
+        <result column="DLDJ" property="dldj"/>
+    </resultMap>
+
+
+    <insert id="insertGyldxdsInfoList" parameterType="java.util.List">
+        INSERT INTO "SDE"."GYLD_XDS" (
+        "CODE","LD_OBJECTID","ZWPZ_CODE","ZWPZ","SG","GF","XJ","FZD","SL","SZZK_CODE",
+        "SZZK","YHDJ_CODE","YHDJ","XZQH_CODE","XZQH","REMARK","DATE_CREATED","DLDJ"
+        )
+        (
+        <foreach collection="list" index="" item="item" separator="union all">
+            select
+                #{item.code}, #{item.ldObjectId}, #{item.zwpzCode},#{item.zwpz}, #{item.sg},
+                #{item.gf},#{item.xj}, #{item.fzd},#{item.sl},#{item.szzkCode},#{item.szzk},
+                #{item.yhdjCode},#{item.yhdj},#{item.xzqhCode},#{item.xzqh},#{item.remark},
+                #{item.dateCreated},#{item.dldj}
+            from dual
+        </foreach>
+        )
+    </insert>
+</mapper>

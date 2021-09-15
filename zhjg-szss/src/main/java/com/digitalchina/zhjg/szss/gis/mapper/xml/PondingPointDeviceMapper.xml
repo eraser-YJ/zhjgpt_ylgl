@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digitalchina.zhjg.szss.gis.mapper.PondingPointDeviceMapper">
+
+    <!-- 通用查询结果列 -->
+    <sql id="PondingPointDevice_Column_List">
+         sblxbh,sblx,sbbh,sbmc,sbzt,zdmc,zdbh,szwz,szqy,qydm,bjfz,cjsjjg,csxx,picture,createtime
+    </sql>
+
+
+    <!-- 通用查询结果列 -->
+    <sql id="PondingPoint_Column_List">
+         ZDBH, ZDMC, ZRDW,SZWZ,SZQY,QYDM,YC,SP,FZR,LXDH,CREATETIME
+    </sql>
+
+
+    <select id="selectDevice" parameterType="com.digitalchina.zhjg.szss.gis.entity.PondingPointDevice" resultType="com.digitalchina.zhjg.szss.gis.entity.PondingPointDevice">
+        select objectId,SBMC,SBLX,SBZT,ZDMC,BJFZ,CJSJJG,ZDBH,SBBH from sde.szss_jsddevice
+        <where>
+            <if test="pondingPointDevice.sbbh != null  and pondingPointDevice.sbbh != '' ">
+
+                sbbh like concat(concat('%',#{pondingPointDevice.sbbh}),'%')
+            </if>
+            <if test="pondingPointDevice.zdmc != null  and pondingPointDevice.zdmc != '' ">
+                and zdmc like concat(concat('%',#{pondingPointDevice.zdmc}),'%')
+            </if>
+            <if test="pondingPointDevice.qydm != null  and pondingPointDevice.qydm != '' ">
+                and qydm = #{pondingPointDevice.qydm}
+            </if>
+            <if test="pondingPointDevice.sbmc != null  and pondingPointDevice.sbmc != '' ">
+                and sbmc like concat(concat('%',#{pondingPointDevice.sbmc}),'%')
+            </if>
+        </where>
+
+
+
+    </select>
+
+    <insert id="insertDevice" parameterType="com.digitalchina.zhjg.szss.gis.entity.PondingPointDevice"  useGeneratedKeys="true" keyProperty="OBJECTID" >
+        insert into SDE.szss_jsddevice ( <include refid="PondingPointDevice_Column_List"/>) values (
+        #{sblxbh},#{sblx},#{sbbh},#{sbmc},#{sbzt},#{zdmc},#{zdbh},#{szwz},#{szqy},#{qydm},#{bjfz},#{cjsjjg},#{csxx},#{picture},SYSDATE
+        )
+    </insert>
+
+    <select id="selectDeviceMonitor" parameterType="com.digitalchina.zhjg.szss.gis.entity.PondingPointDevice" resultType="com.digitalchina.zhjg.szss.gis.entity.PondingPointDevice">
+        select OBJECTID,SBMC,SBLX,TXZT,SBZT,ZDMC,SZWZ,ZHCJSJ from sde.szss_jsddevice
+        <where>
+            <if test="pondingPointDevice.sbbh != null  and pondingPointDevice.sbbh != '' ">
+
+                sbbh like concat(concat('%',#{pondingPointDevice.sbbh}),'%')
+            </if>
+            <if test="pondingPointDevice.zdmc != null  and pondingPointDevice.zdmc != '' ">
+                and zdmc like concat(concat('%',#{pondingPointDevice.zdmc}),'%')
+            </if>
+            <if test="pondingPointDevice.qydm != null  and pondingPointDevice.qydm != '' ">
+                and qydm = #{pondingPointDevice.qydm}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectDeviceDetails" parameterType="com.digitalchina.zhjg.szss.gis.entity.PondingPointDevice" resultType="com.digitalchina.zhjg.szss.gis.entity.PondingPointDevice">
+        select * from sde.szss_jsddevice where objectId=#{objectId}
+    </select>
+
+    <select id="selectSite" parameterType="com.digitalchina.zhjg.szss.gis.entity.PondingPoint" resultType="com.digitalchina.zhjg.szss.gis.entity.PondingPoint">
+--         OBJECTID,ZDBH,ZDMC,SZQY,SZWZ,QYDM
+        select * from sde.szss_jsd
+        <where>
+            <if test="pondingPoint.zdmc != null  and pondingPoint.zdmc != '' ">
+
+                zdmc like concat(concat('%',#{pondingPoint.zdmc}),'%')
+            </if>
+            <if test="pondingPoint.szwz != null  and pondingPoint.szwz != '' ">
+                and szwz like concat(concat('%',#{pondingPoint.szwz}),'%')
+            </if>
+            <if test="pondingPoint.qydm != null  and pondingPoint.qydm != '' ">
+                and qydm = #{pondingPoint.qydm}
+            </if>
+        </where>
+    </select>
+
+    <insert id="insertSite" parameterType="com.digitalchina.zhjg.szss.gis.entity.PondingPoint">
+        insert into SDE.szss_jsd(<include refid="PondingPoint_Column_List"/>) values
+        (#{zdbh}, #{zdmc}, #{zrdw},#{szwz},#{szqy},#{qydm},#{yc},#{sp},#{fzr},#{lxdh},SYSDATE)
+    </insert>
+
+    <select id="selectSiteDetails" parameterType="com.digitalchina.zhjg.szss.gis.entity.PondingPoint" resultType="com.digitalchina.zhjg.szss.gis.entity.PondingPoint">
+        select * from SDE.szss_jsd where objectId=#{objectId}
+    </select>
+
+    <update id="updateSite" parameterType="com.digitalchina.zhjg.szss.gis.entity.PondingPoint" >
+        update SDE.szss_jsd set zdbh=#{zdbh}, zdmc=#{zdmc},zrdw=#{zrdw},szwz=#{szwz},szqy=#{szqy},qydm=#{qydm},yc=#{yc},fzr=#{fzr},lxdh=#{lxdh}
+        where objectId = #{objectId}
+    </update>
+
+    <delete id="deleteSite" parameterType="com.digitalchina.zhjg.szss.gis.entity.PondingPoint">
+            delete from SDE.szss_jsd where objectId=#{objectId}
+    </delete>
+
+    <update id="relationDevice" parameterType="com.digitalchina.zhjg.szss.gis.entity.PondingPointDevice">
+        update sde.szss_jsddevice set zdbh=#{zdbh},zdmc=#{zdmc} where sbbh=#{sbbh}
+    </update>
+
+
+    <update id="updateDevice" parameterType="com.digitalchina.zhjg.szss.gis.entity.PondingPointDevice">
+        update sde.szss_jsddevice set
+        sblxbh=#{sblxbh},sblx=#{sblx},sbmc=#{sbmc},sbzt=#{sbzt},zdmc=#{zdmc},
+        zdbh=#{zdbh},szwz=#{szwz},szqy=#{szqy},qydm=#{qydm},bjfz=#{bjfz},
+        cjsjjg=#{cjsjjg},csxx=#{csxx},picture=#{picture}
+        where objectId=#{objectId}
+    </update>
+
+    <delete id="deleteDevice" parameterType="com.digitalchina.zhjg.szss.gis.entity.PondingPointDevice">
+        delete from SDE.szss_jsddevice where objectId=#{objectId}
+    </delete>
+
+</mapper>

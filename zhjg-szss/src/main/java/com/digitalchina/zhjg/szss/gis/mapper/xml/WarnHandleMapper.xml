@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digitalchina.zhjg.szss.gis.mapper.WarnHandleMapper">
+
+
+    <!-- 预警处置表_通用查询映射结果 -->
+    <resultMap id="WarnHandleResultMap" type="com.digitalchina.zhjg.szss.gis.entity.WarnHandle">
+        <result column="OBJECTID" property="objectId"/>
+        <result column="ZDBH" property="zdbh"/>
+        <result column="ZDMC" property="zdmc"/>
+        <result column="JCDLX" property="jcdlx"/>
+        <result column="STATUS" property="status"/>
+        <result column="CZDW" property="czdw"/>
+        <result column="CZR" property="czr"/>
+        <result column="SBSJ" property="sbsj"/>
+        <result column="ZXCLSJ" property="zxclsj"/>
+        <result column="YJDJ" property="yjdj"/>
+        <result column="YJLX" property="yjlx"/>
+        <result column="JJCD" property="jjcd"/>
+        <result column="FJ" property="fj"/>
+        <result column="SJBH" property="sjbh"/>
+    </resultMap>
+
+    <insert id="insertWarnHandle" parameterType="com.digitalchina.zhjg.szss.gis.entity.WarnHandle"  useGeneratedKeys="true" keyProperty="OBJECTID" >
+        INSERT INTO
+            SDE.SZSS_WARN_HANDLE (ZDBH,ZDMC,JCDLX,STATUS,CZDW,CZR,SBSJ,ZXCLSJ,YJDJ,YJLX,JJCD,FJ,SJBH)
+        VALUES (
+            #{zdbh},#{zdmc},#{jcdlx},#{status},#{czdw}, #{czr},to_date(#{sbsj},'yyyy-mm-dd hh24:mi:ss'),to_date(#{zxclsj},'yyyy-mm-dd hh24:mi:ss'),#{yjdj},#{yjlx},#{jjcd},#{fj},#{sjbh})
+    </insert>
+
+    <update id="updateWarnHandle">
+        update  SDE.SZSS_WARN_HANDLE set STATUS = #{status},ZXCLSJ = to_date(#{zxclsj},'yyyy-mm-dd hh24:mi:ss') where SJBH = #{sjbh} and JCDLX =  #{jcdlx}
+    </update>
+
+    <select id="selectWarnHandle" parameterType="java.lang.String" resultMap="WarnHandleResultMap">
+        SELECT
+            OBJECTID,ZDBH,ZDMC,JCDLX,STATUS,CZDW,CZR,TO_CHAR(SBSJ,'yyyy-MM-dd hh24:mi:ss') SBSJ,TO_CHAR(ZXCLSJ,'yyyy-MM-dd hh24:mi:ss') ZXCLSJ,YJDJ,YJLX,JJCD,FJ,SJBH
+        FROM
+            SDE.SZSS_WARN_HANDLE
+        WHERE
+            STATUS='3'
+        <if test="sjbh != null  and sjbh != '' ">
+            AND SJBH = #{sjbh}
+        </if>
+        <if test="yjdj != null  and yjdj != '' ">
+            AND YJDJ = #{yjdj}
+        </if>
+        <if test="jcdlx != null  and jcdlx != '' ">
+            AND JCDLX = #{jcdlx}
+        </if>
+        <if test="zdbh != null  and zdbh != '' ">
+            AND ZDBH = #{zdbh}
+        </if>
+        <if test="zdmc != null  and zdmc != '' ">
+            AND ZDMC like '%' ||  #{zdmc} || '%'
+        </if>
+        <if test="startTime != null  and startTime != '' ">
+            AND TO_CHAR(SBSJ,'yyyy-MM-dd') &gt;= #{startTime}
+        </if>
+        <if test="endTime != null  and endTime != '' ">
+            AND TO_CHAR(SBSJ,'yyyy-MM-dd') &lt;= #{endTime}
+        </if>
+
+        ORDER BY SBSJ DESC
+    </select>
+
+    <update id="updateWarnHandleNew" parameterType="com.digitalchina.zhjg.szss.gis.entity.WarnHandle">
+        update SZSS_WARN_HANDLE set STATUS = #{status},CZDW=#{czdw},CZR=#{czr},JJCD=#{jjcd},ZXCLSJ=#{zxclsj},FJ=#{fj} where SJBH = #{sjbh} and JCDLX =  #{jcdlx}
+    </update>
+
+</mapper>

@@ -1,0 +1,16 @@
+server:
+ port: 8880
+
+logging:
+  config: classpath:log4j2-prod.xml
+  
+      
+eureka:
+  instance:
+    leaseRenewalIntervalInSeconds: 30
+  client:
+    registryFetchIntervalSeconds: 30
+    serviceUrl:
+     defaultZone: http://digitalchina:digital6019@172.16.49.92:18880/eureka/
+    register-with-eureka: true
+    fetch-registry: false

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digitalchina.zhjg.szss.gis.mapper.ZhjgRltjMapper">
+
+    <!--智慧供热-统计查询-供热公司统计-->
+    <select id="selectZhjgRlgsTj" parameterType="java.lang.String" resultType="java.util.HashMap">
+
+		SELECT
+			(case when m.NR_CODE='60' then '高新区' when m.NR_CODE='62' then '北湖新区' when m.NR_CODE='63' then '长德新区' when m.NR_CODE='64' then '空港新区'  end )  NR_CODE,NVL( n.GSSL, 0 ) GSSL,NVL( n.GRNL, 0 ) GRNL,NVL( n.ZWMJ, 0 ) ZWMJ,NVL( n.KSMJ, 0 ) KSMJ,NVL( n.JMZWMJ, 0 ) JMZWMJ,NVL( n.LDS, 0 ) LDS,NVL(n.JMYHS,0) JMYHS
+		FROM
+			DATA_CONFIG m
+		LEFT JOIN (
+			SELECT
+				a.XZXQ_CODE,count( DISTINCT(GLQY) ) GSSL,sum( a.GRNL ) GRNL,sum( a.ZWMJ ) ZWMJ,SUM( a.KSMJ ) KSMJ,SUM( a.JMZWMJ ) JMZWMJ,SUM( b.JMYHS ) JMYHS,SUM( b.LDS ) LDS
+			FROM
+				SZSS_RLGS a
+			LEFT JOIN
+				SZSS_GLF b ON a.OBJECTID = B.GRGSID
+			GROUP BY
+				a.XZXQ_CODE
+		) n ON m.NR_CODE = n.XZXQ_CODE
+		WHERE
+			m.NR_TYPE = 'AREA'
+		<if test="code != null  and code != '' ">
+			AND m.NR_CODE = #{code}
+		</if>
+    </select>
+
+	<!--查询供热公司列表-->
+	<select id="selectGsmcList" resultType="java.util.HashMap">
+		select GLQY from SZSS_RLGS
+	</select>
+
+	<!--查询锅炉房名称列表-->
+	<select id="selectGlfmcList" resultType="java.util.HashMap">
+		select GLFMC from SZSS_GLF
+	</select>
+
+	<!--查询换热站列表-->
+	<select id="selectHrzmcList" resultType="java.util.HashMap">
+		select HRZMC from SZSS_RLHRZ
+	</select>
+
+	<!--查询固定测温点所属小区列表-->
+	<select id="selectXQMCList" resultType="java.util.HashMap">
+		SELECT distinct (XQMC) XQMC  FROM SZSS_GDCWD_XQ
+	</select>
+
+</mapper>

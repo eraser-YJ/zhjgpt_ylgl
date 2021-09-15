@@ -1,0 +1,16 @@
+server:
+ port: 18882
+          
+logging:
+  config: classpath:log4j2-test.xml
+    
+eureka:
+  instance:
+    leaseRenewalIntervalInSeconds: 10
+    ipAddress: 39.107.117.228
+  client:
+    registryFetchIntervalSeconds: 30
+    serviceUrl:
+     defaultZone: http://dcdev:devDC00@39.107.117.228:18880/eureka/
+    register-with-eureka: true
+    fetch-registry: false

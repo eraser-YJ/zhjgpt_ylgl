@@ -1,0 +1,76 @@
+server:
+  port: 8884
+  
+spring:
+  datasource:
+    mid:
+      jdbc-url: jdbc:postgresql://47.95.253.3:15432/city-manage-mid?useUnicode=true&characterEncoding=UTF-8&useSSL=false
+      username: postgres
+      password: dgchinapgsql@171026
+      driver-class-name: org.postgresql.Driver
+      maximum-pool-size: 5
+      minimum-idle: 1
+      max-lifetime: 570000  #一个连接的生命时长（毫秒），超时而且没被使用则被释放（retired），缺省:30分钟，建议设置比数据库超时时长少30秒
+    feature:
+      jdbc-url: jdbc:postgresql://47.95.253.3:15432/city-feature-data?useUnicode=true&characterEncoding=UTF-8&useSSL=false
+      username: postgres
+      password: dgchinapgsql@171026
+      driver-class-name: org.postgresql.Driver
+      maximum-pool-size: 5
+      minimum-idle: 1
+      max-lifetime: 570000  #一个连接的生命时长（毫秒），超时而且没被使用则被释放（retired），缺省:30分钟，建议设置比数据库超时时长少30秒
+      
+  redis:
+    database: 2
+    host: 192.168.18.120
+    password: 
+    port: 6379
+    timeout: 5000       # 连接超时时间 单位 ms（毫秒）
+#    cluster:
+#      nodes: 10.3.1.4:7000,10.3.1.4:7001,...,10.3.1.4:7008
+    lettuce:
+      pool:
+        max-active: 8  # 连接池最大连接数（使用负值表示没有限制） 默认 
+        max-wait: -1  # 连接池最大阻塞等待时间（使用负值表示没有限制） 默认 -1
+        max-idle: 8  # 连接池中的最大空闲连接 默认 8
+        min-idle: 0  # 连接池中的最小空闲连接 默认 0
+        
+mybatis-plus:
+  global-config:
+    refresh: true
+    
+eureka:
+  instance:
+    leaseRenewalIntervalInSeconds: 10
+  client:
+    registryFetchIntervalSeconds: 30
+
+logging:
+  config: classpath:log4j2-dev.xml     
+#多网卡环境，指定注册IP
+#eureka:
+#  instance:
+#    ipAddress: 192.168.18.128
+docx:
+  drivePath: D:\\    #生成的预警模板、报告路径
+gaode:
+  key: 6789cb49ba4222989330391da864ee93
+  trafficUrl: https://restapi.amap.com/v3/traffic/status/road?name=ROAD_NAME&adcode=220100&key=APP_KEY&extensions=all
+amap:
+  cfyddl: https://report.amap.com/detailx/ajax/fcRoadList.do?type=1&adcode=220100 #常发拥堵道路
+  jtts: https://report.amap.com/ajax/roadRank.do?roadType=0&timeType=0&cityCode=220100 #长春市交通态势
+  ydzs: https://report.amap.com/diagnosis/ajax/rank.do
+  kqzl: http://120.92.60.137:5080/api/city/fcst?city=长春
+
+ezapi:
+  key: 626d93ddc31f43c2ba2725c687f68c21
+  secret: 0deeca82756ee4438f87a62bc31d5cfc
+  url:
+    getAccessToken: https://open.ys7.com/api/lapp/token/get
+    getDeviceList: https://open.ys7.com/api/lapp/device/list
+    getDeviceInfo: https://open.ys7.com/api/lapp/device/info
+    loginToRTU: http://116.141.0.137:8866/irtu/sys/login
+    openCamera: http://116.141.0.137:8866/irtu/station/sendCmdComm.hd
+  rtu:
+    user: system
+    password: oCR08Igv8FmlrbD3G/ywMQ==

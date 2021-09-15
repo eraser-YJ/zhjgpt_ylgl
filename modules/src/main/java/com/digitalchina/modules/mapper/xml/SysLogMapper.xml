@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digitalchina.modules.mapper.SysLogMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.digitalchina.modules.entity.SysLog">
+        <id column="id" property="id" />
+        <result column="userid" property="userid" />
+        <result column="username" property="username" />
+        <result column="login" property="login" />
+        <result column="roles" property="roles" />
+        <result column="syscode" property="syscode" />
+        <result column="sysname" property="sysname" />
+        <result column="actlog" property="actlog" />
+        <result column="result" property="result" />
+        <result column="actime" property="actime" />
+        <result column="ipaddr" property="ipaddr" />
+        <result column="message" property="message" />
+        <result column="state" property="state" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+      id, userid, username, login, roles, syscode, sysname, actlog, result, actime, ipaddr, message, state
+    </sql>
+
+</mapper>

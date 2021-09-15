@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digitalchina.emergency.mid.mapper.EnumcfgMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.digitalchina.modules.entity.Enumcfg">
+        <id column="kvid" property="kvid" />
+        <result column="appid" property="appid" />
+        <result column="clsnm" property="clsnm" />
+        <result column="clsdescp" property="clsdescp" />
+        <result column="eikey" property="eikey" />
+        <result column="etkey" property="etkey" />
+        <result column="values" property="values" typeHandler="com.digitalchina.modules.utils.PgArr2IntArrHandler" />
+        <result column="extend" property="extend" />
+        <result column="descp" property="descp" />
+        <result column="ord" property="ord" />
+        <result column="crdt" property="crdt" />
+        <result column="cruid" property="cruid" />
+        <result column="modt" property="modt" />
+        <result column="mouid" property="mouid" />
+        <result column="lockey" property="lockey" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        kvid, appid, clsnm, clsdescp, eikey, etkey, values, extend, descp, ord, crdt, cruid, modt, mouid, lockey
+    </sql>
+
+</mapper>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digitalchina.zhjg.szss.mid.mapper.PartsVideoNumMapper">
+    <select id="selectPartsVideoNum" parameterType="java.util.Map" resultType="java.util.HashMap">
+        select * from szss.parts_category
+        <where>
+            <if test="rootId != null and rootId != '' ">
+                and #{rootId} = any(id_path)
+                and id != #{rootId}
+            </if>
+            <if test="module != null and module != ''">
+                and module = #{module}
+            </if>
+        </where>
+    </select>
+</mapper>

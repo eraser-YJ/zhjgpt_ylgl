@@ -1,0 +1,18 @@
+server:
+ port: 28880
+
+logging:
+  config: classpath:log4j2-dev.xml
+  
+spring:
+  security:
+    user:
+      name: dev
+      password: dev
+      
+eureka:
+  client:
+    serviceUrl:
+     defaultZone: http://dev:dev@localhost:${server.port}/eureka/
+    register-with-eureka: false
+    fetch-registry: false

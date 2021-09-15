@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digitalchina.zhjg.szss.gis.mapper.ZhjgRwcsMapper">
+
+	<!--智慧供热-统计查询-热网参数分析-返回结果集-->
+	<resultMap id="ZhjgRltjBaseMap" type="com.digitalchina.zhjg.szss.gis.entity.ZhjgRltj">
+		<result column="NR_CODE" property="nr_code"/>
+		<result column="GLQY" property="glqy"/>
+		<result column="GLFMC" property="glfmc"/>
+		<result column="HRZMC" property="hrzmc"/>
+		<result column="SUBREGION" property="subregion"/>
+		<result column="YCGSWD" property="ycgswd"/>
+		<result column="YCGSYL" property="ycgsyl"/>
+		<result column="YCHSWD" property="ychswd"/>
+		<result column="YCHSYL" property="ychsyl"/>
+		<result column="ECHSSSLL" property="echsssll"/>
+	</resultMap>
+
+	<resultMap id="ZhjgGlfBaseMap" type="com.digitalchina.zhjg.szss.gis.entity.ZhjgGLF">
+		<result column="OBJECTID" property="objectId"/>
+		<result column="GLFBH" property="glfbh"/>
+		<result column="GLFMC" property="glfmc"/>
+		<result column="XZXQ" property="xzxq"/>
+		<result column="GLQY" property="glqy"/>
+		<result column="GRNL" property="grnl"/>
+		<result column="GLFXZ" property="glfxz"/>
+		<result column="ZWMJ" property="zwmj"/>
+		<result column="JMYHS" property="jmyhs"/>
+		<result column="XZXQ_CODE" property="xzxq_code"/>
+		<result column="XZQH" property="xzqh"/>
+
+		<result column="ZDMJ" property="zdmj"/>
+		<result column="SFJC" property="sfjc"/>
+		<result column="LXR" property="lxr"/>
+		<result column="LXDH" property="lxdh"/>
+		<result column="KSMJ" property="ksmj"/>
+		<result column="FJMHS" property="fjmhs"/>
+		<result column="LDS" property="lds"/>
+		<result column="HRZSL" property="hrzsl"/>
+		<result column="GLFZTS" property="glfzts"/>
+		<result column="GRDX" property="grdx"/>
+		<result column="GLFDZ" property="glfdz"/>
+		<result column="GRFGFW" property="grfgfw"/>
+		<result column="GLFJJ" property="glfjj"/>
+		<result column="UPDATETIME" property="updatetime"/>
+
+	</resultMap>
+
+	<!--智慧供热-统计查询-热网参数分析-->
+	<select id="selectZhjgRwcsTj" parameterType="java.lang.String" resultMap="ZhjgRltjBaseMap">
+		SELECT
+		(
+			CASE
+			WHEN t.XZXQ_CODE = '60' THEN
+			'高新区'
+			WHEN t.XZXQ_CODE = '62' THEN
+			'北湖区'
+			WHEN t.XZXQ_CODE = '63' THEN
+			'长德区'
+			WHEN t.XZXQ_CODE = '64' THEN
+			'空港区'
+			END
+		) NR_CODE,
+		t.GLQY,t.HRZMC HRZMC,t.SUBREGION SUBREGION,t.YCGSWD YCGSWD,t.YCHSWD YCHSWD,t.YCGSYL YCGSYL,
+		t.YCHSYL YCHSYL,t.ECGSWD ECGSWD,t.ECHSWD ECHSWD,t.ECGSYL ECGSYL,t.ECHSYL ECHSYL,t.SJ SJ
+		FROM
+		(
+			SELECT
+				a.XZXQ_CODE XZXQ_CODE,a.GLQY GLQY,b.HRZMC HRZMC,b.SUBREGION SUBREGION,b.YCGSWD YCGSWD,b.YCHSWD YCHSWD,
+				b.YCGSYL YCGSYL,b.YCHSYL YCHSYL,b.ECGSWD ECGSWD,b.ECHSWD ECHSWD,b.ECGSYL ECGSYL,b.ECHSYL ECHSYL,b.SJ SJ
+			FROM
+				SZSS_RLGS a
+			RIGHT JOIN (
+				SELECT
+					a.HRZMC HRZMC,a.HRZID HRZID,a.SSGS SSGS,b.SUBREGION SUBREGION,b.YCGSWD YCGSWD,b.YCHSWD YCHSWD,
+					b.YCGSYL YCGSYL,b.YCHSYL YCHSYL,b.ECGSWD ECGSWD,b.ECHSWD ECHSWD,b.ECGSYL ECGSYL,b.ECHSYL ECHSYL,b.SJ SJ
+				FROM
+					SZSS_RLHRZ a
+				RIGHT JOIN (
+					SELECT
+						ROW_NUMBER ( ) OVER ( PARTITION BY HRZID ORDER BY HRZID DESC ) rn,HRZID,SUBREGION,YCGSWD,YCHSWD,YCGSYL,YCHSYL,ECGSWD,ECHSWD,ECGSYL,ECHSYL,SJ
+					FROM
+						SZSS_RLHRZ_FZ
+				) b ON a.HRZID = b.HRZID
+			) b ON a.GLQY = b.SSGS
+		) t
+		WHERE
+			1 = 1
+		<if test="code != null  and code != '' ">
+			AND t.XZXQ_CODE = #{code}
+		</if>
+		<if test="glqy != null  and glqy != '' ">
+			AND t.GLQY = #{glqy}
+		</if>
+		<if test="hrzmc != null  and hrzmc != '' ">
+			AND t.HRZMC LIKE concat(concat('%',#{hrzmc}),'%')
+		</if>
+	</select>
+
+	<!--锅炉房档案-->
+	<select id="selectZhjgGlfda" parameterType="java.lang.String" resultMap="ZhjgGlfBaseMap">
+		select
+		(
+			CASE
+			WHEN a.XZQH_CODE = '60' THEN
+			'高新区'
+			WHEN a.XZQH_CODE = '62' THEN
+			'北湖区'
+			WHEN a.XZQH_CODE = '63' THEN
+			'长德区'
+			WHEN a.XZQH_CODE = '64' THEN
+			'空港区'
+			END
+		) XZQH,
+		a.*,b.GLQY from SZSS_GLF a,SZSS_RLGS b where a.GRGSID = b.OBJECTID
+		<if test="code != null  and code != '' ">
+			AND a.XZQH_CODE = #{code}
+		</if>
+		<if test="glqy != null  and glqy != '' ">
+			AND b.GLQY = #{glqy}
+		</if>
+		<if test="glfmc != null  and glfmc != '' ">
+			AND a.GLFMC LIKE concat(concat('%',#{glfmc}),'%')
+		</if>
+		<if test="startTime != null  and startTime != '' ">
+			AND TO_CHAR(a.UPDATETIME,'yyyy-MM-dd') &gt;= #{startTime}
+		</if>
+		<if test="endTime != null  and endTime != '' ">
+			AND TO_CHAR(a.UPDATETIME,'yyyy-MM-dd') &lt;= #{endTime}
+		</if>
+
+	</select>
+
+	<select id="selectZhjgHRZ" parameterType="java.lang.String" resultType="java.util.HashMap">
+		select (
+			CASE
+			WHEN a.XZXQ_CODE = '60' THEN
+			'高新区'
+			WHEN a.XZXQ_CODE = '62' THEN
+			'北湖区'
+			WHEN a.XZXQ_CODE = '63' THEN
+			'长德区'
+			WHEN a.XZXQ_CODE = '64' THEN
+			'空港区'
+			END
+		) XZQH,a.HRZMC,a.SSGS,a.RYLX,a.SSRY,a.XZXQ,a.SSJD,a.SSSQ,a.TYNF,a.SJGRNL,a.ZDMJ,a.ZWMJ,
+		 a.KSMJ,a.JMYHS,a.FJMHS,a.ZZLXDH
+		 from SDE.SZSS_RLHRZ a
+		<where>
+			<if test="code != null  and code != '' ">
+				AND a.XZXQ_CODE = #{code}
+			</if>
+			<if test="glqy != null  and glqy != '' ">
+				AND a.SSGS  LIKE concat(concat('%',#{glqy}),'%')
+			</if>
+			<if test="ssry != null  and ssry != '' ">
+				AND a.SSRY = #{ssry}
+			</if>
+			<if test="hrzmc != null  and hrzmc != '' ">
+				AND a.HRZMC LIKE concat(concat('%',#{hrzmc}),'%')
+			</if>
+			<if test="startTime != null  and startTime != '' ">
+				AND TO_CHAR(a.UPDATETIME,'yyyy-MM-dd') &gt;= #{startTime}
+			</if>
+			<if test="endTime != null  and endTime != '' ">
+				AND TO_CHAR(a.UPDATETIME,'yyyy-MM-dd') &lt;= #{endTime}
+			</if>
+		</where>
+
+
+	</select>
+
+	<select id="selectZhjgGrqyDA" parameterType="java.lang.String" resultType="java.util.HashMap">
+		select * from SZSS_RLGS
+		<where>
+			<if test="code != null  and code != '' ">
+				AND XZXQ_CODE = #{code}
+			</if>
+			<if test="glqy != null  and glqy != '' ">
+				AND GLQY LIKE concat(concat('%', #{glqy}), '%')
+			</if>
+		</where>
+	</select>
+
+	<select id="selectZhjgGdcwd" parameterType="java.lang.String" resultType="java.util.HashMap">
+		select * from SZSS_GDCWD
+		<where>
+			<if test="code != null  and code != '' ">
+				AND XZXQ_CODE = #{code}
+			</if>
+			<if test="glqy != null  and glqy != '' ">
+				AND GRQY LIKE concat(concat('%', #{glqy}), '%')
+			</if>
+			<if test="ssxq != null  and ssxq != '' ">
+				AND SSXQ LIKE concat(concat('%',#{ssxq}), '%')
+			</if>
+			<if test="yhmc != null  and yhmc != '' ">
+				AND YHMC LIKE concat(concat('%', #{yhmc}), '%')
+			</if>
+			<if test="sbzt != null  and sbzt != '' ">
+				AND SBZT = #{sbzt}
+			</if>
+		</where>
+
+	</select>
+
+	<select id="selectZhjgRyhxx" parameterType="java.lang.String" resultType="java.util.HashMap">
+		SELECT
+		(
+			CASE
+				WHEN t.XZXQ_CODE = '60' THEN
+				'高新区'
+				WHEN t.XZXQ_CODE = '62' THEN
+				'北湖区'
+				WHEN t.XZXQ_CODE = '63' THEN
+				'长德区'
+				WHEN t.XZXQ_CODE = '64' THEN
+				'空港区'
+			END
+			) XZQH,t.* from SZSS_RLYHXX t
+		<where>
+			<if test="code != null  and code != '' ">
+				AND t.XZXQ_CODE = #{code}
+			</if>
+			<if test="glqy != null  and glqy != '' ">
+				AND t.SSZGS LIKE concat(concat('%', #{glqy}), '%')
+			</if>
+			<if test="ssxq != null  and ssxq != '' ">
+				AND t.SSXQ = #{ssxq}
+			</if>
+			<if test="yhmc != null  and yhmc != '' ">
+				AND t.ZHXM  LIKE concat(concat('%', #{yhmc}), '%')
+			</if>
+			<if test="ssry != null  and ssry != '' ">
+				AND t.SSRY = #{ssry}
+			</if>
+			<if test="sfgdcw != null  and sfgdcw != '' ">
+				AND t.SFGDCW = #{sfgdcw}
+			</if>
+		</where>
+	</select>
+
+</mapper>

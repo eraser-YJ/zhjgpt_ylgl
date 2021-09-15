@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digitalchina.admin.mid.mapper.TsklogMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.digitalchina.admin.mid.entity.Tsklog">
+        <id column="logid" property="logid" />
+        <result column="tsktp" property="tsktp" />
+        <result column="fr" property="fr" />
+        <result column="frmodt" property="frmodt" />
+        <result column="crdt" property="crdt" />
+        <result column="endt" property="endt" />
+        <result column="err" property="err" />
+        <result column="warn" property="warn" />
+        <result column="normal" property="normal" />
+        <result column="status" property="status" />
+        <result column="autoab" property="autoab" />
+        <result column="state" property="state" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        logid, tsktp, fr, frmodt, crdt, endt, err, warn, normal, status, autoab, state
+    </sql>
+
+</mapper>

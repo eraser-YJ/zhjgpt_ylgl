@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digitalchina.event.mid.mapper.BesumMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.digitalchina.event.mid.entity.Besum">
+        <id column="esumid" property="esumid" />
+        <result column="beid" property="beid" />
+        <result column="summan" property="summan" />
+        <result column="sumcnt" property="sumcnt" />
+        <result column="rev" property="rev" />
+        <result column="crdt" property="crdt" />
+        <result column="modt" property="modt" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        esumid, beid, summan, sumcnt, rev, crdt, modt
+    </sql>
+
+</mapper>

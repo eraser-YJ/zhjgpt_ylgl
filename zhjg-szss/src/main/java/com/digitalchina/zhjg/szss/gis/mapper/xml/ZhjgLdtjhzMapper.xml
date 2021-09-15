@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digitalchina.zhjg.szss.gis.mapper.ZhjgLdtjhzMapper">
+
+    <!--分析评价-统计汇总-人口、面积、绿地统计查询-->
+    <select id="selectZhjgZhXxTj" parameterType="java.lang.String" resultType="java.util.HashMap">
+        SELECT
+            a.TOTALAREANUM,b.RKNUM,c.LDAREANUM,d.GYNUM,d.GYLDAREANUM,e.LHVNUM
+        FROM
+            ( SELECT sum( nr_value ) TOTALAREANUM FROM DATA_CONFIG WHERE nr_type != 'RK' ) a,
+            ( SELECT nr_value RKNUM FROM DATA_CONFIG WHERE nr_type = 'RK' ) b,
+            ( SELECT sum( area ) LDAREANUM FROM GYLD_LD ) c,
+            ( SELECT COUNT( 1 ) GYNUM, SUM( GREEN_AREA ) GYLDAREANUM FROM GYLD_GY ) d,
+            (
+                SELECT
+                    to_char(100 * round( m.AREA / n.nr_value, 4 ),'fm99990.0099')|| '%' LHVNUM
+                FROM
+                    ( SELECT sum( AREA ) AREA FROM GYLD_LD ) m,
+                    ( SELECT sum( nr_value ) nr_value FROM DATA_CONFIG WHERE nr_type !=  'RK' ) n
+            ) e
+    </select>
+
+    <!--    分析评价-统计汇总-绿地类型统计-->
+    <select id="selectZhjgLdLxTj" parameterType="java.lang.String" resultType="java.util.HashMap">
+        SELECT
+			max(CATE_LEVEL_1_NAME)  LDLX,COUNT(1) LDLXNUM
+		FROM
+			GYLD_LD t
+		GROUP BY
+			t.CATE_LEVEL_1_ID
+    </select>
+
+    <!--    分析评价-统计汇总-各区域绿地面积分析-根据时间-->
+    <select id="selectZhjgGqyLdmjFx" parameterType="java.lang.String" resultType="java.util.HashMap">
+		SELECT
+			sum( t.bh ) BHSUM,sum( t.gx ) GXSUM,sum( t.kg ) KGSUM,sum( t.cd ) CDSUM,max( t.bh + t.gx + t.kg + t.cd ) TOTAL
+		FROM
+			(
+			SELECT
+				decode( admdiv_code, 62, AREA, 0 ) AS bh,
+				decode( admdiv_code, 60, AREA, 0 ) AS gx,
+				decode( admdiv_code, 63, AREA, 0 ) AS kg,
+				decode( admdiv_code, 64, AREA, 0 ) AS cd
+			FROM
+				GYLD_LD
+			WHERE
+				TO_CHAR(DATE_BUILD,'yyyy') &lt;= #{dataTime}
+			) t
+    </select>
+
+    <!--    分析评价-统计汇总-行道数统计-->
+    <select id="selectZhjgHdstj" parameterType="java.lang.String" resultType="java.util.HashMap">
+        SELECT
+			max(DLDJ) DLDJ,COUNT(1) DLDJNUM
+		FROM
+			GYLD_XDS
+		GROUP BY
+			DLDJ
+
+    </select>
+
+
+   <!-- 绿地-统计汇总-绿地类型查询-->
+    <select id="selectZhjgLdLx" parameterType="java.lang.String" resultType="java.util.HashMap">
+        SELECT
+            CATE_LEVEL_1_ID LDLXID,MAX(CATE_LEVEL_1_NAME) LDLX
+        FROM
+            GYLD_LD
+        GROUP BY
+            CATE_LEVEL_1_ID
+    </select>
+
+  <!--  分析评价-统计汇总-绿地类型树种数量统计-->
+    <select id="selectZhjgLdLxSzNum" parameterType="java.lang.Integer" resultType="java.util.HashMap">
+        SELECT
+			count(1) NUM ,b.PZFL_NAME as ZWPZ
+		FROM
+			GYLD_LD a,GYLD_XDS b
+		WHERE
+			a.OBJECTID = b.LD_OBJECTID
+        <if test="ldlxid != null  and ldlxid != '' ">
+            AND a.CATE_LEVEL_1_ID = #{ldlxid}
+        </if>
+		GROUP BY
+			b.PZFL_CODE,b.PZFL_NAME
+		ORDER BY
+			num DESC
+    </select>
+
+    <!--  分析评价-统计汇总-各区域绿地树种统计-->
+    <select id="selectZhjgGqyLdSzTj" parameterType="java.lang.Integer" resultType="java.util.HashMap">
+        SELECT
+			COUNT(1) NUM,b.PZFL_NAME as ZWPZ
+		FROM
+			GYLD_LD a,GYLD_XDS b
+		WHERE
+			a.OBJECTID = b.LD_OBJECTID
+        <if test="ldlxid != null  and ldlxid != '' ">
+            AND a.CATE_LEVEL_1_ID = #{ldlxid}
+        </if>
+		GROUP BY
+			b.PZFL_CODE,b.PZFL_NAME
+		ORDER BY
+			NUM DESC
+    </select>
+
+    <!--  分析评价-统计汇总-古树名数数量排名-->
+    <select id="selectZhjgGsmsSlPm" parameterType="java.lang.String" resultType="java.util.HashMap">
+        SELECT
+			count(1) NUM,ZWPZ
+		FROM
+			GYLD_GSMM
+		GROUP BY
+			ZWPZ
+		ORDER BY
+			NUM DESC
+    </select>
+
+</mapper>

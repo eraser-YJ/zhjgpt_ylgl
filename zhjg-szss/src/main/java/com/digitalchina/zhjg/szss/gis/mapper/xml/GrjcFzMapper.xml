@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digitalchina.zhjg.szss.gis.mapper.GrjcFzMapper">
+
+    <select id="selectGrjcFz" parameterType="com.digitalchina.zhjg.szss.gis.entity.GrjcFz" resultType="com.digitalchina.zhjg.szss.gis.entity.GrjcFz">
+        select * from SZSS_GRJC_FZ where STATUS='0'
+        <if test="grjcFz.heatSourceType != null  and grjcFz.heatSourceType != '' ">
+               and HEAT_SOURCE_TYPE = #{grjcFz.heatSourceType}
+        </if>
+
+    </select>
+
+    <insert id="insertGrjcFc" parameterType="com.digitalchina.zhjg.szss.gis.entity.GrjcFz">
+        insert into SZSS_GRJC_FZ (HEAT_SOURCE_TYPE,TEMPE_TYPE,FZLX,FZSH,STATUS,REMARK)
+        values (#{heatSourceType},#{tempeType},#{fzlx},#{fzsh},'0',#{remark})
+    </insert>
+</mapper>

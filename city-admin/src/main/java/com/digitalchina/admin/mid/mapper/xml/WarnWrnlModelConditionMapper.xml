@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digitalchina.admin.mid.mapper.WarnWrnlModelConditionMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.digitalchina.admin.mid.entity.warn.WarnWrnlModelCondition">
+        <id column="id" property="id" />
+        <result column="paramid" property="paramid" />
+        <result column="range" property="range" />
+        <result column="operator" property="operator" />
+        <result column="val" property="val" />
+        <result column="dsc" property="dsc" />
+        <result column="modelid" property="modelid" />
+        <result column="field" property="field" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, paramid, range, operator, val, desc, modelid, field
+    </sql>
+
+    <select id="getListByModeId" resultType="com.digitalchina.admin.mid.entity.warn.WarnWrnlModelCondition">
+        select md.*,pm1.code as code1 ,pm2.code as code2 from warn.warn_wrnl_model_condition md
+        left join warn.warn_wnrl_model_param pm1 on md.paramid = pm1.id
+        left join warn.warn_wnrl_model_param pm2 on md.paramid = pm2.id
+        where md.modelid =#{modelid}
+    </select>
+
+</mapper>

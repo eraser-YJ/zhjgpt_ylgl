@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digitalchina.admin.mid.mapper.IotdsenMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.digitalchina.admin.mid.entity.Iotdsen">
+        <id column="idsid" property="idsid" />
+        <result column="idsnm" property="idsnm" />
+        <result column="idid" property="idid" />
+        <result column="msid" property="msid" />
+        <result column="idexp" property="idexp" />
+        <result column="iditv" property="iditv" />
+        <result column="idstat" property="idstat" />
+        <result column="kptrl" property="kptrl" />
+        <result column="ord" property="ord" />
+        <result column="crdt" property="crdt" />
+        <result column="modt" property="modt" />
+        <result column="idscode" property="idscode" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        idsnm, idsid, idid, msid, idexp, iditv, idstat, kptrl, ord, crdt, modt, idscode
+    </sql>
+
+</mapper>

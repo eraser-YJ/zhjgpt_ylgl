@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digitalchina.zhjg.szss.gis.mapper.DeviceWarnHandleStatusMapper">
+
+    <!-- 预警处置表_通用查询映射结果 -->
+    <resultMap id="DeviceWarnHandleParamMap" type="com.digitalchina.zhjg.szss.gis.entity.DeviceWarnHandleParam">
+        <result column="OBJECTID" property="objectId"/>
+        <result column="ZDBH" property="zdbh"/>
+        <result column="ZDMC" property="zdmc"/>
+        <result column="SBBH" property="sbbh"/>
+        <result column="STATUS" property="status"/>
+        <result column="CZDW" property="czdw"/>
+        <result column="FZR" property="fzr"/>
+        <result column="CREATETIME" property="createTime"/>
+        <result column="ZXCLSJ" property="zxclsj"/>
+        <result column="YJDJ" property="yjdj"/>
+        <result column="YJLX" property="yjlx"/>
+        <result column="JJCD" property="jjcd"/>
+        <result column="CZNR" property="cznr"/>
+        <result column="DEVICEWARNID" property="deviceWarnId"/>
+        <result column="DXNR" property="dxnr"/>
+        <result column="LEDNR" property="lednr"/>
+        <result column="LXDH" property="lxdh"/>
+        <result column="UPDATETIME" property="updateTime"/>
+
+    </resultMap>
+
+
+
+    <insert id="insertDeviceWarnHandleStatus" parameterType="com.digitalchina.zhjg.szss.gis.entity.DeviceWarnHandleStatus"  useGeneratedKeys="true" keyProperty="OBJECTID">
+        INSERT INTO
+            SDE.SZSS_DEVICE_HANDLE_STATUS (DEVICEWARNID,CZNR,DXNR,LEDNR,STATUS,YJCZ,LXDH,UPDATETIME)
+        VALUES (
+            #{deviceWarnId},#{cznr},#{dxnr},#{lednr},#{status},#{yjcz},#{lxdh},to_date(#{updateTime},'yyyy-mm-dd hh24:mi:ss'))
+    </insert>
+
+    <select id="selectDeviceHandleStatus" parameterType="java.lang.String" resultMap="DeviceWarnHandleParamMap">
+        SELECT
+        a.OBJECTID,a.CZNR,a.DXNR,a.LEDNR,a.STATUS,a.UPDATETIME,a.DEVICEWARNID,b.FZR,b.LXDH
+        FROM
+        SDE.SZSS_DEVICE_HANDLE_STATUS a , SDE.SZSS_DEVICE_HANDLE b
+        WHERE
+        a.DEVICEWARNID = b.DEVICEWARNID
+        <if test="deviceWarnId != null  and deviceWarnId != '' ">
+            AND a.DEVICEWARNID = #{deviceWarnId}
+        </if>
+        ORDER BY a.UPDATETIME ASC
+    </select>
+
+</mapper>

@@ -1,0 +1,10 @@
+eureka:
+  instance:
+    preferIpAddress: true
+
+spring:
+  servlet:
+    multipart:
+      maxFileSize: 30MB
+      maxRequestSize: 30MB
+    

@@ -1,0 +1,35 @@
+server:
+  port: 18890
+
+eureka:
+  instance:
+    leaseRenewalIntervalInSeconds: 10
+    ipAddress: 39.107.117.228
+  client:
+    registryFetchIntervalSeconds: 30
+    register-with-eureka: true
+    fetch-registry: false
+
+#文件服务器相关配置
+fdfs:
+  so-timeout: 15000   #连接超时时长
+  connect-timeout: 6000  #连接tracker的超时时长
+  thumb-image:             #缩略图生成参数
+    width: 150
+    height: 150
+  res-host: 39.106.68.41
+  storage-port: 80
+  tracker-list:            #TrackerList参数,支持多个
+    - 172.16.0.1:22122
+  pool:
+    #从池中借出的对象的最大数目
+    max-total: 30
+      #获取连接时的最大等待毫秒数100
+    max-wait-millis: 1000  
+
+
+logging:
+  config: classpath:log4j2-test.xml
+
+jpush:
+  apns_production: false

@@ -1,0 +1,16 @@
+spring:
+  cloud:
+    config:
+      profile: uat
+      discovery:
+        enabled: true
+        service-id: service-config
+      # 可以使用之前的版本。默认值可以是git label, branch name or commit id。可以使用多个Label，多个Label可以使用逗号分隔
+      #label:
+      # true: 如果访问配置中心失败，则停止启动服务
+      fail-fast: true
+
+eureka:
+  client:
+    serviceUrl:
+     defaultZone: http://dev:dev@localhost:8880/eureka/

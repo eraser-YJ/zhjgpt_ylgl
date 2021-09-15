@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digitalchina.event.midwarn.mapper.RptgenMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.digitalchina.event.midwarn.entity.Rptgen">
+        <id column="rgid" property="rgid" />
+        <result column="rdid" property="rdid" />
+        <result column="rgnm" property="rgnm" />
+        <result column="rgstat" property="rgstat" />
+        <result column="rgpath" property="rgpath" />
+        <result column="lginfo" property="lginfo" />
+        <result column="crdt" property="crdt" />
+        <result column="rpitv" property="rpitv" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        rgid, rdid, rgnm, rgstat, rgpath, lginfo, crdt,rpitv
+    </sql>
+
+    <select id="rptgenList" resultMap="BaseResultMap">
+        SELECT rg.*,rf.rpitv from warn.warn_rptgen rg LEFT JOIN warn.warn_rptdef rf on rg.rdid=rf.rdid
+        LEFT JOIN warn.warn_cpspv cp on rf.cpvid=cp.cpvid
+        where rf.app=2
+        <if test="rpitv != null">
+            AND rf.rpitv=#{rpitv}
+        </if>
+        <if test="crdtStart != null and crdtStart != ''">
+            AND rg.crdt >= CAST(#{crdtStart} AS TIMESTAMP)
+        </if>
+        <if test="crdtEnd != null and crdtEnd != ''">
+            AND rg.crdt &lt;= CAST(#{crdtEnd} AS TIMESTAMP)
+        </if>
+        <if test="keyword != null and keyword != ''">
+            AND rg.rgnm LIKE '%${keyword}%'
+        </if>
+        ORDER BY rg.crdt DESC
+    </select>
+
+</mapper>

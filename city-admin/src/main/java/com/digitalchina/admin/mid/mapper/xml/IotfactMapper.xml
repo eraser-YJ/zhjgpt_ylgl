@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digitalchina.warn.mid.mapper.IotfactMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.digitalchina.admin.mid.entity.Iotfact">
+        <id column="ifid" property="ifid" />
+        <result column="msid" property="msid" />
+        <result column="idid" property="idid" />
+        <result column="lyid" property="lyid" />
+        <result column="idsid" property="idsid" />
+        <result column="wnxy" property="wnxy" />
+        <result column="wnnum" property="wnnum" />
+        <result column="dgdt" property="dgdt" />
+        <result column="dgdt2" property="dgdt2" />
+        <result column="im2" property="im2" typeHandler="com.digitalchina.admin.utils.PgArr2IntArrHandler"/>
+        <result column="im1" property="im1" typeHandler="com.digitalchina.admin.utils.PgArr2IntArrHandler"/>
+        <result column="crdt" property="crdt" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        ifid, msid, idid, lyid, idsid, wnxy, wnnum, dgdt, dgdt2, im2, im1, crdt
+    </sql>
+
+</mapper>

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digitalchina.zhjg.szss.gis.mapper.PartsAnalysisMapper">
+
+    <select  id="selectPartsType" resultType="java.util.HashMap">
+        select count(*) NUM,PARTS_CATE_CODE,PARTS_CATE_NAME
+        from SDE.parts_base group by PARTS_CATE_CODE,PARTS_CATE_NAME
+    </select>
+
+    <select id="selectOwnerDistribution" resultType="java.util.HashMap">
+        select * from(select count(*) count,OWNER_CODE,OWNER_NAME
+        from SDE.PARTS_BASE group by OWNER_CODE,OWNER_NAME order by count desc) t
+        where rownum &lt;= 5
+    </select>
+
+    <select id="selectPartsNum" resultType="java.util.HashMap">
+        select NVL(count(*),0) count,ADMDIV_NAME as NAME
+        from  SDE.PARTS_BASE GROUP BY ADMDIV_CODE,ADMDIV_NAME
+    </select>
+
+
+    <select id="selectPartsNumByadmivCode" parameterType="java.lang.String" resultType="java.util.HashMap">
+        select NVL(count(*),0) count from SDE.PARTS_BASE
+        <where>
+            <if test="admdivCode != null and admdivCode != '' ">
+                ADMDIV_CODE=#{admdivCode}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectWarnsNumByadmivCode" parameterType="java.lang.String" resultType="java.util.HashMap">
+        select NVL(count(*),0) count from sde.parts_warn_info a
+        left join sde.parts_base b
+        on a.config_tb=b.parts_cate_code and a.REFER_ID=b.REFER_ID
+        <where>
+            <if test="admdivCode != null and admdivCode != '' ">
+                b.ADMDIV_CODE=#{admdivCode}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectVideoNumByadmivCode" parameterType="java.util.Map" resultType="java.util.HashMap">
+        select NVL(count(*),0) count from parts_base b
+        <where>
+            PARTS_CATE_CODE=#{TB}
+            <if test="admdivCode != null and admdivCode != '' ">
+                and ADMDIV_CODE=#{admdivCode}
+            </if>
+        </where>
+
+    </select>
+
+    <select id="selectPartsTrendAnalysis" parameterType="java.lang.String" resultType="java.util.HashMap">
+        SELECT count(*) num ,a.parts_cate_code,a.parts_cate_name,b.WARNING_TYPE_ID,b.WARNING_TYPE_VALUE
+        FROM  sde.PARTS_BASE a
+        left join sde.PARTS_WARN_INFO b
+        on a.REFER_ID = b.REFER_ID
+        and a.PARTS_CATE_CODE= b.CONFIG_TB
+        where  a.PARTS_CATE_CODE= #{TB}
+        group by a.parts_cate_code,
+        b.WARNING_TYPE_ID,
+        b.WARNING_TYPE_VALUE,
+        a.parts_cate_name
+    </select>
+
+    <select id="selectPartsCode" resultType="java.util.HashMap" >
+        select count(*),t.parts_cate_code,t.parts_cate_name
+        from(select * from PARTS_BASE
+        where parts_cate_code in('SZSS_RLJS','SZSS_LMP','SZSS_SSJS','JTCX_HLD','JTCX_JTZSP','SZSS_RQJS','SZSS_YSJS','JTCX_GJZ')) t
+        group by t.parts_cate_code,t.parts_cate_name
+    </select>
+</mapper>

@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digitalchina.admin.mid.mapper.IotdvcMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.digitalchina.admin.mid.entity.Iotdvc">
+        <id column="idid" property="idid"/>
+        <result column="cmnid" property="cmnid"/>
+        <result column="adid" property="adid"/>
+        <result column="cpvid" property="cpvid"/>
+        <result column="lyid" property="lyid"/>
+        <result column="idnm" property="idnm"/>
+        <result column="idmac" property="idmac"/>
+        <result column="idnum" property="idnum"/>
+        <result column="wnxy" property="wnxy" typeHandler='com.digitalchina.admin.utils.PgGisTypeHandler'/>
+        <result column="idaddr" property="idaddr"/>
+        <result column="road" property="road"/>
+        <result column="iparea" property="iparea"/>
+        <result column="idtp" property="idtp"/>
+        <result column="url" property="url"/>
+        <result column="idexp" property="idexp"/>
+        <result column="iditv" property="iditv"/>
+        <result column="idstat" property="idstat"/>
+        <result column="idadmin" property="idadmin"/>
+        <result column="idtel" property="idtel"/>
+        <result column="crdt" property="crdt"/>
+        <result column="modt" property="modt"/>
+        <result column="fnnote" property="fnnote"/>
+        <result column="stnd" property="stnd"/>
+        <result column="owner" property="owner" typeHandler='com.digitalchina.admin.utils.PgArrayTypeHandler'/>
+        <result column="menames" property="menames"/><!-- 非数据库字段 -->
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        idid, cmnid, adid, cpvid, lyid, idnm, idmac, idnum, idaddr, road, iparea, idtp, url, idexp, iditv, idstat, idadmin, idtel, crdt, modt
+        , ST_AsGeoJSON  ( st_transform(wnxy, 4326) ) :: JSON as wnxy, fnnote, stnd, owner
+    </sql>
+
+    <insert id="saveOne" parameterType="com.digitalchina.admin.mid.entity.Iotdvc" useGeneratedKeys="true"
+            keyProperty="idid">
+      INSERT INTO "warn"."warn_iotdvc" (cmnid, adid, cpvid, lyid, idnm, idmac, idnum, wnxy, idaddr, road, iparea, idtp, url,
+      idexp, iditv, idstat, idadmin, idtel, fnnote, stnd, owner, crdt, modt)
+          VALUES
+           (#{cmnid}, #{adid}, #{cpvid}, #{lyid}, #{idnm}, #{idmac}, #{idnum}, st_geometryfromtext('POINT(${wnxy.longitude} ${wnxy.latitude})', 4326), #{idaddr}, #{road}, #{iparea}, #{idtp}, #{url},
+            #{idexp}, #{iditv}, #{idstat}, #{idadmin}, #{idtel}, #{fnnote}, #{stnd}, #{owner, jdbcType=ARRAY, typeHandler=com.digitalchina.warn.utils.PgArrayTypeHandler},
+            #{crdt}, #{modt})
+    </insert>
+
+    <insert id="updateOne" parameterType="com.digitalchina.admin.mid.entity.Iotdvc">
+      UPDATE "warn"."warn_iotdvc" SET
+      cmnid=#{cmnid}, adid=#{adid}, cpvid=#{cpvid}, lyid=#{lyid}, idnm=#{idnm}, idmac=#{idmac}, idnum=#{idnum},
+      wnxy= st_geometryfromtext('POINT(${wnxy.longitude} ${wnxy.latitude})', 4326),
+      idaddr=#{idaddr}, road=#{road}, iparea=#{iparea}, idtp=#{idtp}, url=#{url},
+      idexp=#{idexp}, iditv=#{iditv}, idstat=#{idstat}, idadmin=#{idadmin}, idtel=#{idtel}, fnnote=#{fnnote},
+      owner=#{owner, jdbcType=ARRAY, typeHandler=com.digitalchina.admin.utils.PgArrayTypeHandler},
+      stnd=#{stnd}, modt=#{modt}
+       WHERE idid = #{idid}
+    </insert>
+
+	<select id="iotlist" resultType="com.digitalchina.admin.mid.dto.warn2.WarnMesuDto">
+		SELECT 
+			T.idid as id, T.idnm as name, C.cpvs[1] as special, C.cpvs[2] as topic, CM.cmnnm as cmnnm, 
+			(  <!-- 合并指标列 -->
+				SELECT 
+					string_agg ( TEMP.idsnm, ',' ) AS menames 
+				FROM
+					<!-- 排序后再合并 --> 
+					( SELECT b.idsnm FROM warn.warn_iotdsen b WHERE b.idid = T.idid ORDER BY b.ord ) TEMP
+			)
+		FROM warn.warn_iotdvc T 
+			JOIN warn.warn_cpspv C ON T.cpvid = C.cpvid
+			JOIN warn.warn_comssn cm ON CM.cmnid = T.cmnid
+		<where>
+			<if test="special != null and special != '' ">
+				AND C.cpvs [ 1 ] = #{special}
+			</if>
+			<if test="special != null and topic != '' ">
+				AND C.cpvs [ 2 ] = #{topic}
+			</if>
+			<if test="cmnid != null and cmnid != ''">
+			 	And T.cmnid = #{cmnid}
+			</if>
+			<if test="keyword != null and keyword != '' ">
+				and (
+					C.cpvs[1] like '%${keyword}%' 
+					or C.cpvs[2] like '%${keyword}%' 
+					or EXISTS (
+						select null from warn.warn_iotdsen dsen where dsen.idid = T.idid and dsen.idsnm like '%${keyword}%'
+					)
+				)
+			</if>
+		</where>
+		ORDER BY idnm DESC
+	</select>
+	
+</mapper>

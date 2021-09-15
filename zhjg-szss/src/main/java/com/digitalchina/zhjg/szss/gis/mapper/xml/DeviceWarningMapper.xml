@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digitalchina.zhjg.szss.gis.mapper.DeviceWarningMapper">
+    <select id="selectDeviceWarning" parameterType="com.digitalchina.zhjg.szss.gis.entity.DeviceWarning" resultType="com.digitalchina.zhjg.szss.gis.entity.DeviceWarning">
+        select * from sde.SZSS_DEVICE_WARNING
+        <where>
+            <if test="deviceWarning.zdmc != null  and deviceWarning.zdmc != '' ">
+                and zdmc like concat(concat('%',#{deviceWarning.zdmc}),'%')
+            </if>
+
+            <if test="deviceWarning.yjjb != null  and deviceWarning.yjjb != '' ">
+                and yjjb = #{deviceWarning.yjjb}
+            </if>
+
+        </where>
+    </select>
+
+    <select id="deviceWarningDetails" parameterType="com.digitalchina.zhjg.szss.gis.entity.DeviceWarning" resultType="com.digitalchina.zhjg.szss.gis.entity.DeviceWarning">
+        select * from sde.SZSS_DEVICE_WARNING where objectId=#{objectId}
+    </select>
+
+    <update id="updateDeviceWarning" parameterType="com.digitalchina.zhjg.szss.gis.entity.DeviceWarning">
+        update sde.SZSS_DEVICE_WARNING set STATUS = #{status} where OBJECTID=#{objectId}
+    </update>
+
+    <select id="selectWarnStatusBySbbh" resultType="java.util.HashMap">
+        SELECT OBJECTID,ZDBH,ZDMC,STATUS FROM SZSS_PSD_WARN WHERE ZDBH=#{zdbh}
+    </select>
+
+    <select id="selectWarnStatusNot3BySbbh" resultType="java.lang.Integer">
+        select count(*) from SZSS_PSD_WARN WHERE ZDBH=#{zdbh} and status != 3
+    </select>
+</mapper>

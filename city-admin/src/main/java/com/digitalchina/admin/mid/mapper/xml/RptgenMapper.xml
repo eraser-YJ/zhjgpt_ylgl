@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digitalchina.admin.mid.mapper.RptgenMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.digitalchina.admin.mid.entity.Rptgen">
+        <id column="rgid" property="rgid" />
+        <result column="rdid" property="rdid" />
+        <result column="rgnm" property="rgnm" />
+        <result column="rgstat" property="rgstat" />
+        <result column="rgpath" property="rgpath" />
+        <result column="lginfo" property="lginfo" />
+        <result column="crdt" property="crdt" />
+        <result column="rpitv" property="rpitv" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        rgid, rdid, rgnm, rgstat, rgpath, lginfo, crdt,rpitv
+    </sql>
+
+</mapper>

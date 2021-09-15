@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digitalchina.warn.mid.mapper.AdmdivMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.digitalchina.admin.mid.entity.Admdiv">
+        <id column="adid" property="adid" />
+        <result column="adpid" property="adpid" />
+        <result column="adnm" property="adnm" />
+        <result column="adflnm" property="adflnm" />
+        <result column="adupnms" property="adupnms" typeHandler="com.digitalchina.admin.utils.PgArrayTypeHandler"/>
+        <result column="adlev" property="adlev" />
+        <result column="crdt" property="crdt" />
+        <result column="modt" property="modt" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        adid, adpid, adnm, adflnm, adupnms, adlev, crdt, modt
+    </sql>
+
+</mapper>

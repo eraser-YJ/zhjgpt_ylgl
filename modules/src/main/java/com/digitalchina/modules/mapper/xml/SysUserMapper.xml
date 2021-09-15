@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digitalchina.modules.mapper.SysUserMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.digitalchina.modules.entity.SysUser">
+        <id column="id" property="id"/>
+        <result column="ssoid" property="ssoid"/>
+        <result column="login" property="login"/>
+        <result column="password" property="password"/>
+        <result column="name" property="name"/>
+        <result column="status" property="status"/>
+        <result column="ssoid" property="ssoid" />
+        <result column="avatar" property="avatar" />
+        <result column="tel" property="tel" />
+        <result column="mark" property="mark" />
+        <result column="dpid" property="dpid" />
+        <result column="bdpntids" property="bdpntids" typeHandler="com.digitalchina.modules.handler.PgArrayTypeHandler" />
+    </resultMap>
+
+    <resultMap id="BaseResultMap2" type="com.digitalchina.modules.entity.SysUser">
+        <id column="id" property="id"/>
+        <result column="login" property="login"/>
+        <result column="password" property="password"/>
+        <result column="name" property="name"/>
+        <result column="status" property="status"/>
+        <result column="ssoid" property="ssoid" />
+        <result column="avatar" property="avatar" />
+        <result column="tel" property="tel" />
+        <result column="mark" property="mark" />
+        <collection property="roleList" ofType="com.digitalchina.modules.entity.SysRole">
+            <id column="rid" property="id"/>
+            <result column="rcode" property="code"/>
+            <result column="rname" property="name"/>
+        </collection>
+    </resultMap>
+
+    <select id="findInfo" resultMap="BaseResultMap2">
+        select a.*,c.id as rid,c.code as rcode,c.name as rname from sys_user a
+        join sys_role_user b on a.id=b.uid
+        join sys_role c on c.id=b.rid
+        where a.id=#{userId};
+    </select>
+
+    <select id="findRole" resultType="com.digitalchina.modules.entity.SysRole">
+        select a.*,(case when b.uid =#{userId} then 1 else 0 end)as state from sys_role a
+        left join sys_role_user b on a.id=b.rid and b.uid = #{userId}
+        order by a.id asc;
+    </select>
+    <select id="findUserListBycode" resultType="com.digitalchina.modules.entity.SysUser">
+        select DISTINCT su.* from sys_user su
+        join sys_role_user  sru on su.id = sru.uid
+        join sys_role_app sra on sru.rid = sra.rid
+        join sys_app sa on sra.aid = sa.id
+        where sa.code = #{code}
+        <if test="keywords != null and keywords != '' ">
+            and (
+            su.login like concat('%',#{keywords}, '%')
+            or  su.name like concat('%',#{keywords}, '%')
+            )
+        </if>
+    </select>
+
+</mapper>

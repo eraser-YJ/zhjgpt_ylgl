@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.digitalchina.zhjg.szss.gis.mapper.DrainageLevelMapper">
+
+    <!-- 排水水位表_通用查询映射结果 -->
+    <resultMap id="DrainageLevelResultMap" type="com.digitalchina.zhjg.szss.gis.entity.DrainageLevel">
+        <result column="OBJECTID" property="objectId"/>
+        <result column="ZDBH" property="zdbh"/>
+        <result column="ZDMC" property="zdmc"/>
+        <result column="SW" property="sw"/>
+        <result column="WPTN" property="wptn"/>
+        <result column="VOLTAGE" property="voltage"/>
+        <result column="TM" property="tm"/>
+        <result column="CJSJ" property="cjsj"/>
+        <result column="SJLL" property="sjll"/>
+        <result column="SXZ" property="sxz"/>
+        <result column="XXZ" property="xxz"/>
+    </resultMap>
+
+    <insert id="insertDrainageLevel" parameterType="com.digitalchina.zhjg.szss.gis.entity.DrainageLevel"  useGeneratedKeys="true" keyProperty="OBJECTID" >
+        INSERT INTO
+            SDE.SZSS_PSSW (ZDBH,ZDMC,SW,WPTN,VOLTAGE,TM,CJSJ,SJLL,SXZ,XXZ)
+        VALUES (
+            #{zdbh},#{zdmc},#{sw},#{wptn},#{voltage},to_date(#{tm},'yyyy-mm-dd hh24:mi:ss'), to_date(#{cjsj},'yyyy-mm-dd hh24:mi:ss'),#{sjll}, #{sxz},#{xxz})
+    </insert>
+
+    <select id="selectDrainageLevel" parameterType="java.lang.String" resultMap="DrainageLevelResultMap">
+<!--        SELECT-->
+<!--            OBJECTID,ZDBH,ZDMC,SW,WPTN,VOLTAGE,to_char(TM,'yyyy-mm-dd hh24:mi:ss') TM,to_char(CJSJ,'yyyy-mm-dd hh24:mi:ss') CJSJ,SJLL,SXZ,XXZ-->
+<!--        FROM-->
+<!--            SDE.SZSS_PSSW-->
+<!--        WHERE-->
+<!--            1=1-->
+<!--            <if test="zdbh != null  and zdbh != '' ">-->
+<!--                AND ZDBH = #{zdbh}-->
+<!--            </if>-->
+<!--            <if test="zdmc != null  and zdmc != '' ">-->
+<!--                AND ZDMC like '%' ||  #{zdmc} || '%'-->
+<!--            </if>-->
+<!--            <if test="startTime != null  and startTime != '' ">-->
+<!--                AND TO_CHAR(TM,'yyyy-MM-dd') &gt;= #{startTime}-->
+<!--            </if>-->
+<!--            <if test="endTime != null  and endTime != '' ">-->
+<!--                AND TO_CHAR(TM,'yyyy-MM-dd') &lt;= #{endTime}-->
+<!--            </if>-->
+
+<!--        ORDER BY TM DESC-->
+        select psd.OBJECTID,psd.ZDBH,psd.ZDMC,a.Z as SW,a.WPTN,a.VOLTAGE,to_char(a.TM,'yyyy-mm-dd hh24:mi:ss') TM,to_char(a.TM,'yyyy-mm-dd hh24:mi:ss') CJSJ from
+        ST_RIVER_R_B a,szss_psd psd
+        where a.stcd=psd.zdbh
+        <if test="zdbh != null  and zdbh != '' ">
+             AND psd.ZDBH = #{zdbh}
+        </if>
+        <if test="zdmc != null  and zdmc != '' ">
+            AND psd.ZDMC like '%' ||  #{zdmc} || '%'
+        </if>
+        <if test="startTime != null  and startTime != '' ">
+            AND TO_CHAR(a.TM,'yyyy-MM-dd') &gt;= #{startTime}
+        </if>
+        <if test="endTime != null  and endTime != '' ">
+            AND TO_CHAR(a.TM,'yyyy-MM-dd') &lt;= #{endTime}
+        </if>
+        order by a.TM desc
+    </select>
+
+</mapper>
